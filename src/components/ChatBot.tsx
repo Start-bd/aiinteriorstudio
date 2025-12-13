@@ -1,8 +1,11 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { MessageCircle, X, Send, Sparkles, Bot, User, Image, Loader2 } from "lucide-react";
+import { MessageCircle, X, Send, Sparkles, Bot, User, Image, Loader2, LogIn } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Message {
   role: "user" | "assistant";
@@ -39,6 +42,16 @@ export function ChatBot() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const { user, session } = useAuth();
+
+  const getAuthToken = async (): Promise<string | null> => {
+    if (!session?.access_token) {
+      // Try to get fresh session
+      const { data } = await supabase.auth.getSession();
+      return data.session?.access_token || null;
+    }
+    return session.access_token;
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -55,17 +68,30 @@ export function ChatBot() {
   }, [isOpen]);
 
   const generateImage = async (prompt: string): Promise<string | null> => {
+    const token = await getAuthToken();
+    if (!token) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to generate AI designs.",
+        variant: "destructive",
+      });
+      return null;
+    }
+
     try {
       const resp = await fetch(IMAGE_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ prompt }),
       });
 
       if (!resp.ok) {
+        if (resp.status === 401) {
+          throw new Error("Authentication expired. Please sign in again.");
+        }
         const errorData = await resp.json().catch(() => ({}));
         throw new Error(errorData.error || "Failed to generate image");
       }
@@ -84,16 +110,24 @@ export function ChatBot() {
   };
 
   const streamChat = useCallback(async (userMessages: Message[]) => {
+    const token = await getAuthToken();
+    if (!token) {
+      throw new Error("Authentication required");
+    }
+
     const resp = await fetch(CHAT_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ messages: userMessages.map(m => ({ role: m.role, content: m.content })) }),
     });
 
     if (!resp.ok) {
+      if (resp.status === 401) {
+        throw new Error("Authentication expired. Please sign in again.");
+      }
       const errorData = await resp.json().catch(() => ({}));
       throw new Error(errorData.error || "Failed to get response");
     }
@@ -149,6 +183,15 @@ export function ChatBot() {
   const handleSend = async () => {
     if (!input.trim() || isLoading || isGeneratingImage) return;
 
+    // Check if user is authenticated
+    if (!user) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to use the AI design assistant.",
+      });
+      return;
+    }
+
     const userMessage: Message = { role: "user", content: input.trim() };
     const newMessages = [...messages, userMessage];
     setMessages(newMessages);
@@ -163,7 +206,7 @@ export function ChatBot() {
       
       // Add a placeholder message
       setMessages(prev => [...prev, { 
-        role: "assistant", 
+        role: "assistant",
         content: "✨ Creating your AI interior design visualization..." 
       }]);
 
@@ -296,27 +339,43 @@ export function ChatBot() {
               <h4 className="font-display text-lg text-foreground mb-2">
                 Welcome to AI Design
               </h4>
-              <p className="text-sm text-muted-foreground max-w-[280px] mx-auto mb-4">
-                Chat about design ideas or generate AI interior visualizations instantly.
-              </p>
-              <div className="flex flex-wrap gap-2 justify-center">
-                {[
-                  "Generate a modern living room",
-                  "Cozy Scandinavian bedroom",
-                  "Minimalist home office"
-                ].map((suggestion) => (
-                  <button
-                    key={suggestion}
-                    onClick={() => {
-                      setInput(suggestion);
-                      inputRef.current?.focus();
-                    }}
-                    className="text-xs px-3 py-1.5 rounded-full bg-secondary text-secondary-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
-                  >
-                    {suggestion}
-                  </button>
-                ))}
-              </div>
+              {!user ? (
+                <>
+                  <p className="text-sm text-muted-foreground max-w-[280px] mx-auto mb-4">
+                    Sign in to chat about design ideas and generate AI interior visualizations.
+                  </p>
+                  <Link to="/auth">
+                    <Button variant="gold" size="sm" className="gap-2">
+                      <LogIn className="w-4 h-4" />
+                      Sign In to Start
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm text-muted-foreground max-w-[280px] mx-auto mb-4">
+                    Chat about design ideas or generate AI interior visualizations instantly.
+                  </p>
+                  <div className="flex flex-wrap gap-2 justify-center">
+                    {[
+                      "Generate a modern living room",
+                      "Cozy Scandinavian bedroom",
+                      "Minimalist home office"
+                    ].map((suggestion) => (
+                      <button
+                        key={suggestion}
+                        onClick={() => {
+                          setInput(suggestion);
+                          inputRef.current?.focus();
+                        }}
+                        className="text-xs px-3 py-1.5 rounded-full bg-secondary text-secondary-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
+                      >
+                        {suggestion}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           )}
 
@@ -431,9 +490,15 @@ export function ChatBot() {
               <Send className="w-4 h-4" />
             </Button>
           </div>
-          <p className="text-xs text-muted-foreground mt-2 text-center">
-            Tip: Click <Image className="w-3 h-3 inline" /> to generate an image
-          </p>
+          {!user ? (
+            <p className="text-xs text-muted-foreground mt-2 text-center">
+              <Link to="/auth" className="text-primary hover:underline">Sign in</Link> to use the AI assistant
+            </p>
+          ) : (
+            <p className="text-xs text-muted-foreground mt-2 text-center">
+              Tip: Click <Image className="w-3 h-3 inline" /> to generate an image
+            </p>
+          )}
         </div>
       </div>
     </>
