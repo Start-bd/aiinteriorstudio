@@ -9,6 +9,7 @@ import InstagramSection from "@/components/InstagramSection";
 import NewsletterSection from "@/components/NewsletterSection";
 import AboutPreviewSection from "@/components/AboutPreviewSection";
 import Footer from "@/components/Footer";
+import { ChatBot } from "@/components/ChatBot";
 import { Helmet } from "react-helmet-async";
 
 const Index = () => {
@@ -49,6 +50,7 @@ const Index = () => {
         <AboutPreviewSection />
         <Footer />
       </main>
+      <ChatBot />
     </>
   );
 };
