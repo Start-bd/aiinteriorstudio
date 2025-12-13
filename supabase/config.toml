@@ -2,3 +2,6 @@ project_id = "abudtmimrokrbcjdxpet"
 
 [functions.interior-design-chat]
 verify_jwt = false
+
+[functions.generate-interior-image]
+verify_jwt = false
