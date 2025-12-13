@@ -32,27 +32,87 @@ function detectStyle(prompt: string): string {
   return "Other";
 }
 
+// Input validation function
+function validatePrompt(prompt: unknown): { valid: boolean; error?: string; sanitized?: string } {
+  if (!prompt || typeof prompt !== 'string') {
+    return { valid: false, error: 'Prompt must be a non-empty string' };
+  }
+  
+  const trimmed = prompt.trim();
+  if (trimmed.length < 10) {
+    return { valid: false, error: 'Prompt too short (minimum 10 characters)' };
+  }
+  if (trimmed.length > 500) {
+    return { valid: false, error: 'Prompt too long (maximum 500 characters)' };
+  }
+  
+  // Sanitize: remove potential injection characters and limit length
+  const sanitized = trimmed
+    .replace(/[<>]/g, '') // Remove angle brackets
+    .substring(0, 500);
+  
+  return { valid: true, sanitized };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { prompt } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    // Validate JWT authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error("Missing authorization header");
+      return new Response(
+        JSON.stringify({ error: 'Missing authorization header' }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+    const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+      console.error("Missing Supabase configuration");
+      throw new Error("Server configuration error");
+    }
+
+    // Verify the JWT token
+    const supabaseAuth = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser();
+    if (authError || !user) {
+      console.error("Authentication failed:", authError?.message);
+      return new Response(
+        JSON.stringify({ error: 'Invalid or expired token' }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log("Authenticated user:", user.id);
 
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    if (!prompt) {
-      return new Response(JSON.stringify({ error: "Prompt is required" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    const body = await req.json();
+    
+    // Validate and sanitize prompt
+    const validation = validatePrompt(body.prompt);
+    if (!validation.valid) {
+      console.error("Prompt validation failed:", validation.error);
+      return new Response(
+        JSON.stringify({ error: validation.error }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
+
+    const prompt = validation.sanitized!;
 
     // Detect style from prompt
     const detectedStyle = detectStyle(prompt);
@@ -61,7 +121,7 @@ serve(async (req) => {
     // Enhance the prompt for better interior design results
     const enhancedPrompt = `Professional interior design photography: ${prompt}. Ultra high resolution, photorealistic, architectural visualization, beautiful natural lighting, magazine quality interior photography, 8k detailed render.`;
 
-    console.log("Generating image with prompt:", enhancedPrompt);
+    console.log("Generating image for user:", user.id);
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -111,7 +171,7 @@ serve(async (req) => {
     const textContent = data.choices?.[0]?.message?.content || "";
 
     if (!imageUrl) {
-      console.error("No image in response:", JSON.stringify(data));
+      console.error("No image in response");
       return new Response(JSON.stringify({ error: "No image was generated" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -150,7 +210,7 @@ serve(async (req) => {
   } catch (error) {
     console.error("Image generation error:", error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
+      JSON.stringify({ error: "An unexpected error occurred" }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
