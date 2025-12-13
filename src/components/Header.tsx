@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Instagram } from "lucide-react";
+import { Menu, X, Instagram, ImageIcon } from "lucide-react";
 
 const navLinks = [
-  { label: "AI Interiors", href: "#gallery" },
-  { label: "Ecosystem", href: "#ecosystem" },
-  { label: "About", href: "#about" },
-  { label: "Contact", href: "#newsletter" },
+  { label: "AI Gallery", href: "/gallery", isRoute: true },
+  { label: "Ecosystem", href: "#ecosystem", isRoute: false },
+  { label: "About", href: "#about", isRoute: false },
+  { label: "Contact", href: "#newsletter", isRoute: false },
 ];
 
 const Header = () => {
@@ -32,21 +33,32 @@ const Header = () => {
       <div className="container mx-auto px-6">
         <nav className="flex items-center justify-between h-20">
           {/* Logo */}
-          <a href="/" className="text-xl font-display font-bold">
+          <Link to="/" className="text-xl font-display font-bold">
             Interior <span className="text-gradient-gold">of AI</span>
-          </a>
+          </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300"
-              >
-                {link.label}
-              </a>
-            ))}
+            {navLinks.map((link) =>
+              link.isRoute ? (
+                <Link
+                  key={link.label}
+                  to={link.href}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300 flex items-center gap-1.5"
+                >
+                  {link.label === "AI Gallery" && <ImageIcon className="w-4 h-4" />}
+                  {link.label}
+                </Link>
+              ) : (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300"
+                >
+                  {link.label}
+                </a>
+              )
+            )}
           </div>
 
           {/* CTA */}
@@ -77,16 +89,27 @@ const Header = () => {
         {isMobileMenuOpen && (
           <div className="md:hidden py-6 border-t border-border animate-fade-in">
             <div className="flex flex-col gap-4">
-              {navLinks.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  className="text-lg text-muted-foreground hover:text-foreground transition-colors duration-300"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {link.label}
-                </a>
-              ))}
+              {navLinks.map((link) =>
+                link.isRoute ? (
+                  <Link
+                    key={link.label}
+                    to={link.href}
+                    className="text-lg text-muted-foreground hover:text-foreground transition-colors duration-300"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {link.label}
+                  </Link>
+                ) : (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    className="text-lg text-muted-foreground hover:text-foreground transition-colors duration-300"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {link.label}
+                  </a>
+                )
+              )}
               <div className="flex items-center gap-4 pt-4">
                 <a
                   href="https://instagram.com/interiorofai"
