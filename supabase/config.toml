@@ -1,7 +1,7 @@
 project_id = "abudtmimrokrbcjdxpet"
 
 [functions.interior-design-chat]
-verify_jwt = false
+verify_jwt = true
 
 [functions.generate-interior-image]
-verify_jwt = false
+verify_jwt = true
