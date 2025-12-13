@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -28,20 +29,109 @@ Guidelines:
 
 Start by warmly greeting users and asking about their design goals.`;
 
+// Validate chat messages
+function validateMessages(messages: unknown): { valid: boolean; error?: string; sanitized?: Array<{role: string; content: string}> } {
+  if (!Array.isArray(messages)) {
+    return { valid: false, error: 'Messages must be an array' };
+  }
+  
+  if (messages.length === 0) {
+    return { valid: false, error: 'Messages cannot be empty' };
+  }
+  
+  if (messages.length > 50) {
+    return { valid: false, error: 'Too many messages (maximum 50)' };
+  }
+  
+  const sanitized: Array<{role: string; content: string}> = [];
+  
+  for (const msg of messages) {
+    if (!msg || typeof msg !== 'object') {
+      return { valid: false, error: 'Invalid message format' };
+    }
+    
+    const { role, content } = msg as { role: unknown; content: unknown };
+    
+    if (typeof role !== 'string' || !['user', 'assistant'].includes(role)) {
+      return { valid: false, error: 'Invalid message role' };
+    }
+    
+    if (typeof content !== 'string') {
+      return { valid: false, error: 'Message content must be a string' };
+    }
+    
+    if (content.length > 5000) {
+      return { valid: false, error: 'Message too long (maximum 5000 characters)' };
+    }
+    
+    // Sanitize content - remove angle brackets to prevent injection
+    const sanitizedContent = content.trim().replace(/[<>]/g, '');
+    
+    sanitized.push({ role, content: sanitizedContent });
+  }
+  
+  return { valid: true, sanitized };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { messages } = await req.json();
+    // Validate JWT authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error("Missing authorization header");
+      return new Response(
+        JSON.stringify({ error: 'Missing authorization header' }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+    const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+      console.error("Missing Supabase configuration");
+      throw new Error("Server configuration error");
+    }
+
+    // Verify the JWT token
+    const supabaseAuth = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser();
+    if (authError || !user) {
+      console.error("Authentication failed:", authError?.message);
+      return new Response(
+        JSON.stringify({ error: 'Invalid or expired token' }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log("Authenticated user:", user.id);
     
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    console.log("Received chat request with messages:", messages.length);
+    const body = await req.json();
+    
+    // Validate and sanitize messages
+    const validation = validateMessages(body.messages);
+    if (!validation.valid) {
+      console.error("Messages validation failed:", validation.error);
+      return new Response(
+        JSON.stringify({ error: validation.error }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const messages = validation.sanitized!;
+    console.log("Processing chat request with", messages.length, "messages for user:", user.id);
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -89,9 +179,12 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error("Chat function error:", error);
-    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ error: "An unexpected error occurred" }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
+    );
   }
 });
