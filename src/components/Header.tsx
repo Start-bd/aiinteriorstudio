@@ -1,7 +1,15 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Instagram, ImageIcon } from "lucide-react";
+import { Menu, X, Instagram, ImageIcon, User, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const navLinks = [
   { label: "AI Gallery", href: "/gallery", isRoute: true },
@@ -13,6 +21,7 @@ const navLinks = [
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -21,6 +30,10 @@ const Header = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
 
   return (
     <header
@@ -71,9 +84,39 @@ const Header = () => {
             >
               <Instagram className="w-5 h-5" />
             </a>
-            <Button variant="gold" size="sm">
-              Subscribe
-            </Button>
+            
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="w-9 h-9 rounded-full bg-gradient-gold flex items-center justify-center text-primary-foreground hover:opacity-90 transition-opacity">
+                    <User className="w-4 h-4" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <div className="px-2 py-1.5">
+                    <p className="text-sm font-medium truncate">{user.email}</p>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/gallery" className="cursor-pointer">
+                      <ImageIcon className="w-4 h-4 mr-2" />
+                      My Favorites
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive">
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link to="/auth">
+                <Button variant="gold" size="sm">
+                  Sign In
+                </Button>
+              </Link>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -110,7 +153,7 @@ const Header = () => {
                   </a>
                 )
               )}
-              <div className="flex items-center gap-4 pt-4">
+              <div className="flex items-center gap-4 pt-4 border-t border-border">
                 <a
                   href="https://instagram.com/interiorofai"
                   target="_blank"
@@ -119,9 +162,18 @@ const Header = () => {
                 >
                   <Instagram className="w-5 h-5" />
                 </a>
-                <Button variant="gold" size="sm">
-                  Subscribe
-                </Button>
+                {user ? (
+                  <Button variant="gold-outline" size="sm" onClick={handleSignOut}>
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </Button>
+                ) : (
+                  <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Button variant="gold" size="sm">
+                      Sign In
+                    </Button>
+                  </Link>
+                )}
               </div>
             </div>
           </div>

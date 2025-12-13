@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
-import { Download, X, Calendar, Sparkles, ArrowLeft, Filter } from "lucide-react";
+import { Download, X, Calendar, Sparkles, ArrowLeft, Filter, Heart, LogIn } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useFavorites } from "@/hooks/useFavorites";
+import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { Helmet } from "react-helmet-async";
 
@@ -16,6 +19,7 @@ interface GeneratedImage {
 
 const STYLE_CATEGORIES = [
   "All",
+  "Favorites",
   "Modern",
   "Scandinavian",
   "Industrial",
@@ -35,6 +39,10 @@ const AIGallery = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<GeneratedImage | null>(null);
   const [activeFilter, setActiveFilter] = useState("All");
+  
+  const { user } = useAuth();
+  const { isFavorite, toggleFavorite, favoriteIds } = useFavorites();
+  const { toast } = useToast();
 
   useEffect(() => {
     fetchImages();
@@ -43,10 +51,12 @@ const AIGallery = () => {
   useEffect(() => {
     if (activeFilter === "All") {
       setFilteredImages(images);
+    } else if (activeFilter === "Favorites") {
+      setFilteredImages(images.filter((img) => favoriteIds.has(img.id)));
     } else {
       setFilteredImages(images.filter((img) => img.style === activeFilter));
     }
-  }, [activeFilter, images]);
+  }, [activeFilter, images, favoriteIds]);
 
   const fetchImages = async () => {
     try {
@@ -62,6 +72,33 @@ const AIGallery = () => {
       console.error("Error fetching images:", error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleToggleFavorite = async (e: React.MouseEvent, imageId: string) => {
+    e.stopPropagation();
+    
+    if (!user) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to save favorites.",
+        action: (
+          <Link to="/auth">
+            <Button variant="gold" size="sm">Sign In</Button>
+          </Link>
+        ),
+      });
+      return;
+    }
+    
+    const success = await toggleFavorite(imageId);
+    if (success) {
+      toast({
+        title: isFavorite(imageId) ? "Removed from favorites" : "Added to favorites",
+        description: isFavorite(imageId) 
+          ? "Design removed from your collection" 
+          : "Design saved to your collection",
+      });
     }
   };
 
@@ -90,9 +127,9 @@ const AIGallery = () => {
     });
   };
 
-  // Get counts for each style
   const getStyleCount = (style: string) => {
     if (style === "All") return images.length;
+    if (style === "Favorites") return favoriteIds.size;
     return images.filter((img) => img.style === style).length;
   };
 
@@ -102,7 +139,7 @@ const AIGallery = () => {
         <title>AI Gallery | Interior of AI - Generated Interior Designs</title>
         <meta
           name="description"
-          content="Browse stunning AI-generated interior designs created by our community. Filter by style and download high-quality room concepts."
+          content="Browse stunning AI-generated interior designs created by our community. Filter by style, save favorites, and download high-quality room concepts."
         />
       </Helmet>
 
@@ -118,7 +155,20 @@ const AIGallery = () => {
               <Sparkles className="w-5 h-5 text-primary" />
               <span className="font-display text-lg font-semibold text-foreground">AI Gallery</span>
             </div>
-            <div className="w-24" />
+            <div className="flex items-center gap-3">
+              {user ? (
+                <span className="text-sm text-muted-foreground">
+                  Welcome back!
+                </span>
+              ) : (
+                <Link to="/auth">
+                  <Button variant="gold-outline" size="sm" className="gap-2">
+                    <LogIn className="w-4 h-4" />
+                    Sign In
+                  </Button>
+                </Link>
+              )}
+            </div>
           </div>
         </header>
 
@@ -129,8 +179,8 @@ const AIGallery = () => {
               <span className="text-gradient-gold">AI-Generated</span> Interior Designs
             </h1>
             <p className="text-lg text-muted-foreground">
-              Explore stunning interior design concepts created by our community. 
-              Filter by style to find your inspiration.
+              Explore stunning interior design concepts. 
+              {user ? " Save your favorites to your personal collection." : " Sign in to save favorites."}
             </p>
           </div>
         </section>
@@ -145,22 +195,25 @@ const AIGallery = () => {
             <div className="flex flex-wrap gap-2">
               {STYLE_CATEGORIES.map((style) => {
                 const count = getStyleCount(style);
-                if (style !== "All" && count === 0) return null;
+                // Hide Favorites tab if not logged in or empty non-style categories
+                if (style === "Favorites" && !user) return null;
+                if (style !== "All" && style !== "Favorites" && count === 0) return null;
                 
                 return (
                   <button
                     key={style}
                     onClick={() => setActiveFilter(style)}
                     className={cn(
-                      "px-4 py-2 rounded-full text-sm font-medium transition-all duration-300",
+                      "px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-1.5",
                       activeFilter === style
                         ? "bg-gradient-gold text-primary-foreground shadow-gold"
                         : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
                     )}
                   >
+                    {style === "Favorites" && <Heart className="w-3.5 h-3.5" />}
                     {style}
                     <span className={cn(
-                      "ml-1.5 text-xs",
+                      "text-xs",
                       activeFilter === style ? "text-primary-foreground/80" : "text-muted-foreground"
                     )}>
                       ({count})
@@ -184,9 +237,23 @@ const AIGallery = () => {
             ) : filteredImages.length === 0 ? (
               <div className="text-center py-20">
                 <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-secondary flex items-center justify-center">
-                  <Sparkles className="w-10 h-10 text-primary" />
+                  {activeFilter === "Favorites" ? (
+                    <Heart className="w-10 h-10 text-primary" />
+                  ) : (
+                    <Sparkles className="w-10 h-10 text-primary" />
+                  )}
                 </div>
-                {activeFilter === "All" ? (
+                {activeFilter === "Favorites" ? (
+                  <>
+                    <h2 className="font-display text-2xl text-foreground mb-2">No favorites yet</h2>
+                    <p className="text-muted-foreground mb-6">
+                      Click the heart icon on any design to save it here.
+                    </p>
+                    <Button variant="gold-outline" onClick={() => setActiveFilter("All")}>
+                      Browse All Designs
+                    </Button>
+                  </>
+                ) : activeFilter === "All" ? (
                   <>
                     <h2 className="font-display text-2xl text-foreground mb-2">No images yet</h2>
                     <p className="text-muted-foreground mb-6">
@@ -227,6 +294,18 @@ const AIGallery = () => {
                         {image.style}
                       </span>
                     </div>
+                    {/* Favorite Button */}
+                    <button
+                      onClick={(e) => handleToggleFavorite(e, image.id)}
+                      className={cn(
+                        "absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300",
+                        isFavorite(image.id)
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-background/80 backdrop-blur text-foreground opacity-0 group-hover:opacity-100"
+                      )}
+                    >
+                      <Heart className={cn("w-4 h-4", isFavorite(image.id) && "fill-current")} />
+                    </button>
                     <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <div className="absolute bottom-0 left-0 right-0 p-4">
                         <p className="text-sm text-foreground line-clamp-2 mb-2">{image.prompt}</p>
@@ -270,10 +349,21 @@ const AIGallery = () => {
                 </div>
                 <div className="lg:w-1/3 p-6 flex flex-col">
                   <div className="flex-1">
-                    <div className="mb-4">
+                    <div className="flex items-center gap-2 mb-4">
                       <span className="px-3 py-1 rounded-full text-xs font-medium bg-primary/20 text-primary">
                         {selectedImage.style}
                       </span>
+                      <button
+                        onClick={(e) => handleToggleFavorite(e, selectedImage.id)}
+                        className={cn(
+                          "w-8 h-8 rounded-full flex items-center justify-center transition-colors",
+                          isFavorite(selectedImage.id)
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-secondary text-secondary-foreground hover:bg-primary hover:text-primary-foreground"
+                        )}
+                      >
+                        <Heart className={cn("w-4 h-4", isFavorite(selectedImage.id) && "fill-current")} />
+                      </button>
                     </div>
                     <h3 className="font-display text-xl font-semibold text-foreground mb-4">
                       Design Details
