@@ -6,6 +6,32 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Style categories and their keywords
+const STYLE_KEYWORDS: Record<string, string[]> = {
+  "Modern": ["modern", "contemporary", "sleek", "clean lines", "minimalist modern"],
+  "Scandinavian": ["scandinavian", "nordic", "hygge", "scandi", "swedish", "danish", "norwegian"],
+  "Industrial": ["industrial", "loft", "exposed brick", "metal", "warehouse", "urban"],
+  "Minimalist": ["minimalist", "minimal", "simple", "zen", "sparse", "bare"],
+  "Bohemian": ["bohemian", "boho", "eclectic", "colorful", "artistic", "hippie"],
+  "Mid-Century": ["mid-century", "midcentury", "retro", "60s", "70s", "vintage modern"],
+  "Traditional": ["traditional", "classic", "elegant", "timeless", "antique", "heritage"],
+  "Rustic": ["rustic", "farmhouse", "country", "cabin", "wood", "cozy cottage"],
+  "Luxury": ["luxury", "luxurious", "opulent", "glamorous", "high-end", "premium", "gold"],
+  "Japanese": ["japanese", "japandi", "wabi-sabi", "zen", "tatami", "shoji"],
+};
+
+function detectStyle(prompt: string): string {
+  const lowerPrompt = prompt.toLowerCase();
+  
+  for (const [style, keywords] of Object.entries(STYLE_KEYWORDS)) {
+    if (keywords.some(keyword => lowerPrompt.includes(keyword))) {
+      return style;
+    }
+  }
+  
+  return "Other";
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -27,6 +53,10 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    // Detect style from prompt
+    const detectedStyle = detectStyle(prompt);
+    console.log("Detected style:", detectedStyle);
 
     // Enhance the prompt for better interior design results
     const enhancedPrompt = `Professional interior design photography: ${prompt}. Ultra high resolution, photorealistic, architectural visualization, beautiful natural lighting, magazine quality interior photography, 8k detailed render.`;
@@ -90,7 +120,7 @@ serve(async (req) => {
 
     console.log("Image generated successfully, saving to database...");
 
-    // Save the generated image to the database
+    // Save the generated image to the database with style
     if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
       const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
       
@@ -99,20 +129,21 @@ serve(async (req) => {
         .insert({
           prompt: prompt,
           image_url: imageUrl,
+          style: detectedStyle,
         });
 
       if (dbError) {
         console.error("Failed to save image to database:", dbError);
-        // Continue anyway - the image was still generated successfully
       } else {
-        console.log("Image saved to database");
+        console.log("Image saved to database with style:", detectedStyle);
       }
     }
 
     return new Response(
       JSON.stringify({ 
         imageUrl,
-        description: textContent 
+        description: textContent,
+        style: detectedStyle,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
