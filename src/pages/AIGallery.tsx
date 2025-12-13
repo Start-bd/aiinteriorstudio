@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Download, X, Calendar, Sparkles, ArrowLeft } from "lucide-react";
+import { Download, X, Calendar, Sparkles, ArrowLeft, Filter } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,17 +10,43 @@ interface GeneratedImage {
   id: string;
   prompt: string;
   image_url: string;
+  style: string;
   created_at: string;
 }
 
+const STYLE_CATEGORIES = [
+  "All",
+  "Modern",
+  "Scandinavian",
+  "Industrial",
+  "Minimalist",
+  "Bohemian",
+  "Mid-Century",
+  "Traditional",
+  "Rustic",
+  "Luxury",
+  "Japanese",
+  "Other",
+];
+
 const AIGallery = () => {
   const [images, setImages] = useState<GeneratedImage[]>([]);
+  const [filteredImages, setFilteredImages] = useState<GeneratedImage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<GeneratedImage | null>(null);
+  const [activeFilter, setActiveFilter] = useState("All");
 
   useEffect(() => {
     fetchImages();
   }, []);
+
+  useEffect(() => {
+    if (activeFilter === "All") {
+      setFilteredImages(images);
+    } else {
+      setFilteredImages(images.filter((img) => img.style === activeFilter));
+    }
+  }, [activeFilter, images]);
 
   const fetchImages = async () => {
     try {
@@ -31,6 +57,7 @@ const AIGallery = () => {
 
       if (error) throw error;
       setImages(data || []);
+      setFilteredImages(data || []);
     } catch (error) {
       console.error("Error fetching images:", error);
     } finally {
@@ -63,13 +90,19 @@ const AIGallery = () => {
     });
   };
 
+  // Get counts for each style
+  const getStyleCount = (style: string) => {
+    if (style === "All") return images.length;
+    return images.filter((img) => img.style === style).length;
+  };
+
   return (
     <>
       <Helmet>
         <title>AI Gallery | Interior of AI - Generated Interior Designs</title>
         <meta
           name="description"
-          content="Browse stunning AI-generated interior designs created by our community. Download high-quality room concepts and decor ideas."
+          content="Browse stunning AI-generated interior designs created by our community. Filter by style and download high-quality room concepts."
         />
       </Helmet>
 
@@ -85,20 +118,57 @@ const AIGallery = () => {
               <Sparkles className="w-5 h-5 text-primary" />
               <span className="font-display text-lg font-semibold text-foreground">AI Gallery</span>
             </div>
-            <div className="w-24" /> {/* Spacer for centering */}
+            <div className="w-24" />
           </div>
         </header>
 
         {/* Hero */}
-        <section className="py-16 px-6">
+        <section className="py-12 px-6">
           <div className="container mx-auto text-center max-w-3xl">
             <h1 className="font-display text-4xl md:text-5xl font-bold mb-4">
               <span className="text-gradient-gold">AI-Generated</span> Interior Designs
             </h1>
             <p className="text-lg text-muted-foreground">
-              Explore stunning interior design concepts created by our community using AI. 
-              Download any image for inspiration.
+              Explore stunning interior design concepts created by our community. 
+              Filter by style to find your inspiration.
             </p>
+          </div>
+        </section>
+
+        {/* Filter Tabs */}
+        <section className="px-6 pb-8">
+          <div className="container mx-auto">
+            <div className="flex items-center gap-2 mb-4">
+              <Filter className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">Filter by style:</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {STYLE_CATEGORIES.map((style) => {
+                const count = getStyleCount(style);
+                if (style !== "All" && count === 0) return null;
+                
+                return (
+                  <button
+                    key={style}
+                    onClick={() => setActiveFilter(style)}
+                    className={cn(
+                      "px-4 py-2 rounded-full text-sm font-medium transition-all duration-300",
+                      activeFilter === style
+                        ? "bg-gradient-gold text-primary-foreground shadow-gold"
+                        : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                    )}
+                  >
+                    {style}
+                    <span className={cn(
+                      "ml-1.5 text-xs",
+                      activeFilter === style ? "text-primary-foreground/80" : "text-muted-foreground"
+                    )}>
+                      ({count})
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </section>
 
@@ -111,22 +181,36 @@ const AIGallery = () => {
                   <div key={i} className="aspect-square rounded-xl bg-secondary animate-pulse" />
                 ))}
               </div>
-            ) : images.length === 0 ? (
+            ) : filteredImages.length === 0 ? (
               <div className="text-center py-20">
                 <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-secondary flex items-center justify-center">
                   <Sparkles className="w-10 h-10 text-primary" />
                 </div>
-                <h2 className="font-display text-2xl text-foreground mb-2">No images yet</h2>
-                <p className="text-muted-foreground mb-6">
-                  Be the first to generate an AI interior design!
-                </p>
-                <Link to="/">
-                  <Button variant="gold">Open AI Assistant</Button>
-                </Link>
+                {activeFilter === "All" ? (
+                  <>
+                    <h2 className="font-display text-2xl text-foreground mb-2">No images yet</h2>
+                    <p className="text-muted-foreground mb-6">
+                      Be the first to generate an AI interior design!
+                    </p>
+                    <Link to="/">
+                      <Button variant="gold">Open AI Assistant</Button>
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <h2 className="font-display text-2xl text-foreground mb-2">No {activeFilter} designs yet</h2>
+                    <p className="text-muted-foreground mb-6">
+                      Try generating a {activeFilter.toLowerCase()} interior design!
+                    </p>
+                    <Button variant="gold-outline" onClick={() => setActiveFilter("All")}>
+                      View All Designs
+                    </Button>
+                  </>
+                )}
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {images.map((image) => (
+                {filteredImages.map((image) => (
                   <div
                     key={image.id}
                     className="group relative aspect-square rounded-xl overflow-hidden bg-secondary cursor-pointer hover-lift"
@@ -137,6 +221,12 @@ const AIGallery = () => {
                       alt={image.prompt}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
+                    {/* Style Badge */}
+                    <div className="absolute top-3 left-3">
+                      <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-background/80 backdrop-blur text-foreground">
+                        {image.style}
+                      </span>
+                    </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <div className="absolute bottom-0 left-0 right-0 p-4">
                         <p className="text-sm text-foreground line-clamp-2 mb-2">{image.prompt}</p>
@@ -180,6 +270,11 @@ const AIGallery = () => {
                 </div>
                 <div className="lg:w-1/3 p-6 flex flex-col">
                   <div className="flex-1">
+                    <div className="mb-4">
+                      <span className="px-3 py-1 rounded-full text-xs font-medium bg-primary/20 text-primary">
+                        {selectedImage.style}
+                      </span>
+                    </div>
                     <h3 className="font-display text-xl font-semibold text-foreground mb-4">
                       Design Details
                     </h3>
