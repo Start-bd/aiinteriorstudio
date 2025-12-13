@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -13,6 +14,8 @@ serve(async (req) => {
   try {
     const { prompt } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
@@ -85,7 +88,26 @@ serve(async (req) => {
       });
     }
 
-    console.log("Image generated successfully");
+    console.log("Image generated successfully, saving to database...");
+
+    // Save the generated image to the database
+    if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
+      const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+      
+      const { error: dbError } = await supabase
+        .from("generated_images")
+        .insert({
+          prompt: prompt,
+          image_url: imageUrl,
+        });
+
+      if (dbError) {
+        console.error("Failed to save image to database:", dbError);
+        // Continue anyway - the image was still generated successfully
+      } else {
+        console.log("Image saved to database");
+      }
+    }
 
     return new Response(
       JSON.stringify({ 
