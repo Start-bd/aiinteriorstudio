@@ -8,9 +8,20 @@ import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { ImageIcon, Sparkles, Clock, TrendingUp, Calendar, ChevronLeft, ChevronRight, Download, Share2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ImageIcon, Sparkles, Clock, TrendingUp, Calendar, ChevronLeft, ChevronRight, Download, Share2, Trash2, Filter, X } from "lucide-react";
 import { toast } from "sonner";
-import { format, subDays, startOfDay, endOfDay } from "date-fns";
+import { format, subDays, startOfDay, endOfDay, subMonths } from "date-fns";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface GeneratedImage {
   id: string;
@@ -30,6 +41,14 @@ interface UsageStats {
 
 const ITEMS_PER_PAGE = 12;
 
+const DATE_RANGE_OPTIONS = [
+  { value: "all", label: "All Time" },
+  { value: "today", label: "Today" },
+  { value: "week", label: "Last 7 Days" },
+  { value: "month", label: "Last 30 Days" },
+  { value: "3months", label: "Last 3 Months" },
+];
+
 const Dashboard = () => {
   const { user, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -38,6 +57,11 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [styleFilter, setStyleFilter] = useState<string>("all");
+  const [dateFilter, setDateFilter] = useState<string>("all");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [imageToDelete, setImageToDelete] = useState<GeneratedImage | null>(null);
+  const [availableStyles, setAvailableStyles] = useState<string[]>([]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -55,7 +79,23 @@ const Dashboard = () => {
     if (user) {
       fetchUserImages();
     }
-  }, [user, currentPage]);
+  }, [user, currentPage, styleFilter, dateFilter]);
+
+  const getDateRange = (filter: string) => {
+    const now = new Date();
+    switch (filter) {
+      case "today":
+        return { start: startOfDay(now), end: endOfDay(now) };
+      case "week":
+        return { start: subDays(now, 7), end: now };
+      case "month":
+        return { start: subDays(now, 30), end: now };
+      case "3months":
+        return { start: subMonths(now, 3), end: now };
+      default:
+        return null;
+    }
+  };
 
   const fetchUserImages = async () => {
     if (!user) return;
@@ -65,10 +105,22 @@ const Dashboard = () => {
       const from = (currentPage - 1) * ITEMS_PER_PAGE;
       const to = from + ITEMS_PER_PAGE - 1;
 
-      const { data: imagesData, error: imagesError, count } = await supabase
+      let query = supabase
         .from("generated_images")
         .select("*", { count: "exact" })
-        .eq("user_id", user.id)
+        .eq("user_id", user.id);
+
+      if (styleFilter !== "all") {
+        query = query.eq("style", styleFilter);
+      }
+
+      const dateRange = getDateRange(dateFilter);
+      if (dateRange) {
+        query = query.gte("created_at", dateRange.start.toISOString())
+                     .lte("created_at", dateRange.end.toISOString());
+      }
+
+      const { data: imagesData, error: imagesError, count } = await query
         .order("created_at", { ascending: false })
         .range(from, to);
 
@@ -120,6 +172,8 @@ const Dashboard = () => {
         Object.entries(styleCounts).sort(([, a], [, b]) => b - a)[0]?.[0] ||
         "None yet";
 
+      setAvailableStyles(Object.keys(styleCounts).sort());
+
       setStats({
         totalImages: userImages.length,
         imagesThisWeek,
@@ -131,6 +185,37 @@ const Dashboard = () => {
       console.error("Error fetching stats:", error);
     }
   };
+
+  const handleDelete = async () => {
+    if (!imageToDelete || !user) return;
+
+    try {
+      const { error } = await supabase
+        .from("generated_images")
+        .delete()
+        .eq("id", imageToDelete.id)
+        .eq("user_id", user.id);
+
+      if (error) throw error;
+
+      toast.success("Image deleted successfully");
+      setDeleteDialogOpen(false);
+      setImageToDelete(null);
+      fetchUserImages();
+      fetchUserStats();
+    } catch (error) {
+      console.error("Error deleting image:", error);
+      toast.error("Failed to delete image");
+    }
+  };
+
+  const clearFilters = () => {
+    setStyleFilter("all");
+    setDateFilter("all");
+    setCurrentPage(1);
+  };
+
+  const hasActiveFilters = styleFilter !== "all" || dateFilter !== "all";
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
@@ -332,17 +417,52 @@ const Dashboard = () => {
 
           {/* Generation History */}
           <div>
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
               <h2 className="text-2xl font-display font-bold flex items-center gap-2">
                 <Calendar className="w-5 h-5 text-primary" />
                 Generation History
               </h2>
-              {totalCount > 0 && (
-                <p className="text-sm text-muted-foreground">
-                  Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1}-
-                  {Math.min(currentPage * ITEMS_PER_PAGE, totalCount)} of {totalCount}
-                </p>
-              )}
+              
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <Filter className="w-4 h-4 text-muted-foreground" />
+                  <Select value={styleFilter} onValueChange={(value) => { setStyleFilter(value); setCurrentPage(1); }}>
+                    <SelectTrigger className="w-[140px] h-9">
+                      <SelectValue placeholder="Style" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Styles</SelectItem>
+                      {availableStyles.map((style) => (
+                        <SelectItem key={style} value={style}>{style}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  
+                  <Select value={dateFilter} onValueChange={(value) => { setDateFilter(value); setCurrentPage(1); }}>
+                    <SelectTrigger className="w-[140px] h-9">
+                      <SelectValue placeholder="Date Range" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {DATE_RANGE_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  
+                  {hasActiveFilters && (
+                    <Button variant="ghost" size="sm" onClick={clearFilters} className="h-9 px-2">
+                      <X className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+                
+                {totalCount > 0 && (
+                  <p className="text-sm text-muted-foreground">
+                    Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1}-
+                    {Math.min(currentPage * ITEMS_PER_PAGE, totalCount)} of {totalCount}
+                  </p>
+                )}
+              </div>
             </div>
 
             {loading ? (
@@ -404,6 +524,18 @@ const Dashboard = () => {
                             }}
                           >
                             <Share2 className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="destructive"
+                            className="h-8 w-8"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setImageToDelete(image);
+                              setDeleteDialogOpen(true);
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
@@ -483,6 +615,23 @@ const Dashboard = () => {
         </div>
       </main>
       <Footer />
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Image</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this image? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
