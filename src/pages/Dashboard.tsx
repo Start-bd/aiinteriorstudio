@@ -7,7 +7,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ImageIcon, Sparkles, Clock, TrendingUp, Calendar } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ImageIcon, Sparkles, Clock, TrendingUp, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { format, subDays, startOfDay, endOfDay } from "date-fns";
 
 interface GeneratedImage {
@@ -26,12 +27,16 @@ interface UsageStats {
   styleCounts: Record<string, number>;
 }
 
+const ITEMS_PER_PAGE = 12;
+
 const Dashboard = () => {
   const { user, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [images, setImages] = useState<GeneratedImage[]>([]);
   const [stats, setStats] = useState<UsageStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -41,28 +46,56 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (user) {
-      fetchUserData();
+      fetchUserStats();
     }
   }, [user]);
 
-  const fetchUserData = async () => {
+  useEffect(() => {
+    if (user) {
+      fetchUserImages();
+    }
+  }, [user, currentPage]);
+
+  const fetchUserImages = async () => {
     if (!user) return;
 
+    setLoading(true);
     try {
-      // Fetch user's generated images
-      const { data: imagesData, error: imagesError } = await supabase
+      const from = (currentPage - 1) * ITEMS_PER_PAGE;
+      const to = from + ITEMS_PER_PAGE - 1;
+
+      const { data: imagesData, error: imagesError, count } = await supabase
         .from("generated_images")
-        .select("*")
+        .select("*", { count: "exact" })
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
-        .limit(20);
+        .range(from, to);
 
       if (imagesError) throw imagesError;
 
-      const userImages = imagesData || [];
-      setImages(userImages);
+      setImages(imagesData || []);
+      setTotalCount(count || 0);
+    } catch (error) {
+      console.error("Error fetching images:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      // Calculate stats
+  const fetchUserStats = async () => {
+    if (!user) return;
+
+    try {
+      // Fetch all user images for stats calculation
+      const { data: allImages, error } = await supabase
+        .from("generated_images")
+        .select("created_at, style")
+        .eq("user_id", user.id);
+
+      if (error) throw error;
+
+      const userImages = allImages || [];
+
       const now = new Date();
       const weekAgo = subDays(now, 7);
       const todayStart = startOfDay(now);
@@ -77,7 +110,6 @@ const Dashboard = () => {
         return imgDate >= todayStart && imgDate <= todayEnd;
       }).length;
 
-      // Count styles
       const styleCounts: Record<string, number> = {};
       userImages.forEach((img) => {
         styleCounts[img.style] = (styleCounts[img.style] || 0) + 1;
@@ -95,10 +127,18 @@ const Dashboard = () => {
         styleCounts,
       });
     } catch (error) {
-      console.error("Error fetching user data:", error);
-    } finally {
-      setLoading(false);
+      console.error("Error fetching stats:", error);
     }
+  };
+
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+
+  const handlePrevPage = () => {
+    setCurrentPage((prev) => Math.max(1, prev - 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(totalPages, prev + 1));
   };
 
   if (authLoading) {
@@ -241,16 +281,24 @@ const Dashboard = () => {
             </Card>
           )}
 
-          {/* Recent Generations */}
+          {/* Generation History */}
           <div>
-            <h2 className="text-2xl font-display font-bold mb-6 flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-primary" />
-              Recent Generations
-            </h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-display font-bold flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-primary" />
+                Generation History
+              </h2>
+              {totalCount > 0 && (
+                <p className="text-sm text-muted-foreground">
+                  Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1}-
+                  {Math.min(currentPage * ITEMS_PER_PAGE, totalCount)} of {totalCount}
+                </p>
+              )}
+            </div>
 
             {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {[...Array(8)].map((_, i) => (
+                {[...Array(ITEMS_PER_PAGE)].map((_, i) => (
                   <Card key={i} className="glass-card border-border overflow-hidden">
                     <Skeleton className="aspect-square w-full" />
                     <CardContent className="p-4">
@@ -271,37 +319,93 @@ const Dashboard = () => {
                 </p>
               </Card>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {images.map((image) => (
-                  <Card
-                    key={image.id}
-                    className="glass-card border-border overflow-hidden hover-lift group"
-                  >
-                    <div className="aspect-square relative overflow-hidden">
-                      <img
-                        src={image.image_url}
-                        alt={image.prompt}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        loading="lazy"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    </div>
-                    <CardContent className="p-4">
-                      <p className="text-sm text-foreground line-clamp-2 mb-2">
-                        {image.prompt}
-                      </p>
-                      <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span className="px-2 py-1 bg-primary/10 text-primary rounded-full">
-                          {image.style}
-                        </span>
-                        <span>
-                          {format(new Date(image.created_at), "MMM d, yyyy")}
-                        </span>
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {images.map((image) => (
+                    <Card
+                      key={image.id}
+                      className="glass-card border-border overflow-hidden hover-lift group"
+                    >
+                      <div className="aspect-square relative overflow-hidden">
+                        <img
+                          src={image.image_url}
+                          alt={image.prompt}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+                      <CardContent className="p-4">
+                        <p className="text-sm text-foreground line-clamp-2 mb-2">
+                          {image.prompt}
+                        </p>
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span className="px-2 py-1 bg-primary/10 text-primary rounded-full">
+                            {image.style}
+                          </span>
+                          <span>
+                            {format(new Date(image.created_at), "MMM d, yyyy")}
+                          </span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-center gap-4 mt-8">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handlePrevPage}
+                      disabled={currentPage === 1}
+                      className="gap-1"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                      Previous
+                    </Button>
+                    
+                    <div className="flex items-center gap-2">
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        let pageNum: number;
+                        if (totalPages <= 5) {
+                          pageNum = i + 1;
+                        } else if (currentPage <= 3) {
+                          pageNum = i + 1;
+                        } else if (currentPage >= totalPages - 2) {
+                          pageNum = totalPages - 4 + i;
+                        } else {
+                          pageNum = currentPage - 2 + i;
+                        }
+                        
+                        return (
+                          <Button
+                            key={pageNum}
+                            variant={currentPage === pageNum ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setCurrentPage(pageNum)}
+                            className="w-9 h-9 p-0"
+                          >
+                            {pageNum}
+                          </Button>
+                        );
+                      })}
+                    </div>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleNextPage}
+                      disabled={currentPage === totalPages}
+                      className="gap-1"
+                    >
+                      Next
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
