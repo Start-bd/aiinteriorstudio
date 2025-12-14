@@ -280,6 +280,7 @@ serve(async (req) => {
           prompt: prompt,
           image_url: imageUrl,
           style: detectedStyle,
+          user_id: user.id,
         });
 
       if (dbError) {
