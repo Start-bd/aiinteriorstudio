@@ -8,7 +8,8 @@ import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { ImageIcon, Sparkles, Clock, TrendingUp, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { ImageIcon, Sparkles, Clock, TrendingUp, Calendar, ChevronLeft, ChevronRight, Download, Share2 } from "lucide-react";
+import { toast } from "sonner";
 import { format, subDays, startOfDay, endOfDay } from "date-fns";
 
 interface GeneratedImage {
@@ -139,6 +140,54 @@ const Dashboard = () => {
 
   const handleNextPage = () => {
     setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+  };
+
+  const handleDownload = async (imageUrl: string, prompt: string) => {
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `interior-design-${prompt.slice(0, 30).replace(/[^a-zA-Z0-9]/g, "-")}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      toast.success("Image downloaded successfully!");
+    } catch (error) {
+      console.error("Error downloading image:", error);
+      toast.error("Failed to download image");
+    }
+  };
+
+  const handleShare = async (imageUrl: string, prompt: string) => {
+    const shareData = {
+      title: "AI Interior Design",
+      text: prompt,
+      url: imageUrl,
+    };
+
+    if (navigator.share && navigator.canShare(shareData)) {
+      try {
+        await navigator.share(shareData);
+        toast.success("Shared successfully!");
+      } catch (error) {
+        if ((error as Error).name !== "AbortError") {
+          console.error("Error sharing:", error);
+          toast.error("Failed to share");
+        }
+      }
+    } else {
+      // Fallback: copy URL to clipboard
+      try {
+        await navigator.clipboard.writeText(imageUrl);
+        toast.success("Image URL copied to clipboard!");
+      } catch (error) {
+        console.error("Error copying to clipboard:", error);
+        toast.error("Failed to copy URL");
+      }
+    }
   };
 
   if (authLoading) {
@@ -333,7 +382,30 @@ const Dashboard = () => {
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                           loading="lazy"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-end p-3 gap-2">
+                          <Button
+                            size="icon"
+                            variant="secondary"
+                            className="h-8 w-8"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDownload(image.image_url, image.prompt);
+                            }}
+                          >
+                            <Download className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="secondary"
+                            className="h-8 w-8"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleShare(image.image_url, image.prompt);
+                            }}
+                          >
+                            <Share2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                       <CardContent className="p-4">
                         <p className="text-sm text-foreground line-clamp-2 mb-2">
