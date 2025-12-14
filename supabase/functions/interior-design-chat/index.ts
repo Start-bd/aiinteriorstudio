@@ -1,10 +1,75 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+// Rate limiting configuration
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const MAX_REQUESTS_PER_WINDOW = 20; // 20 requests per minute for chat
+
+async function checkRateLimit(
+  supabase: SupabaseClient,
+  userId: string,
+  endpoint: string
+): Promise<{ allowed: boolean; remaining: number }> {
+  const windowStart = new Date(Math.floor(Date.now() / RATE_LIMIT_WINDOW_MS) * RATE_LIMIT_WINDOW_MS);
+  
+  // Try to upsert the rate limit record
+  const { data, error } = await supabase
+    .from('rate_limits')
+    .upsert(
+      {
+        user_id: userId,
+        endpoint,
+        window_start: windowStart.toISOString(),
+        request_count: 1,
+      },
+      {
+        onConflict: 'user_id,endpoint,window_start',
+        ignoreDuplicates: false,
+      }
+    )
+    .select('request_count')
+    .single();
+
+  if (error) {
+    // If upsert failed, try to increment existing record
+    const { data: existing } = await supabase
+      .from('rate_limits')
+      .select('request_count')
+      .eq('user_id', userId)
+      .eq('endpoint', endpoint)
+      .eq('window_start', windowStart.toISOString())
+      .single();
+
+    if (existing) {
+      const newCount = existing.request_count + 1;
+      await supabase
+        .from('rate_limits')
+        .update({ request_count: newCount })
+        .eq('user_id', userId)
+        .eq('endpoint', endpoint)
+        .eq('window_start', windowStart.toISOString());
+
+      return {
+        allowed: newCount <= MAX_REQUESTS_PER_WINDOW,
+        remaining: Math.max(0, MAX_REQUESTS_PER_WINDOW - newCount),
+      };
+    }
+    
+    // If no record exists, allow the request (first request in window)
+    return { allowed: true, remaining: MAX_REQUESTS_PER_WINDOW - 1 };
+  }
+
+  const count = data?.request_count || 1;
+  return {
+    allowed: count <= MAX_REQUESTS_PER_WINDOW,
+    remaining: Math.max(0, MAX_REQUESTS_PER_WINDOW - count),
+  };
+}
 
 const SYSTEM_PROMPT = `You are an expert AI interior design assistant for "Interior of AI" - a premium platform showcasing AI-generated interior design inspiration. You help users discover their ideal room styles and decor ideas.
 
@@ -113,6 +178,32 @@ serve(async (req) => {
     }
 
     console.log("Authenticated user:", user.id);
+
+    // Check rate limit using service role client
+    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (SUPABASE_SERVICE_ROLE_KEY) {
+      const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+      const rateLimitResult = await checkRateLimit(supabaseAdmin, user.id, 'interior-design-chat');
+      
+      if (!rateLimitResult.allowed) {
+        console.log("Rate limit exceeded for user:", user.id);
+        return new Response(
+          JSON.stringify({ 
+            error: 'Rate limit exceeded. Please wait a moment before sending more messages.',
+            retryAfter: 60 
+          }),
+          { 
+            status: 429, 
+            headers: { 
+              ...corsHeaders, 
+              "Content-Type": "application/json",
+              "Retry-After": "60"
+            } 
+          }
+        );
+      }
+      console.log("Rate limit check passed, remaining:", rateLimitResult.remaining);
+    }
     
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
