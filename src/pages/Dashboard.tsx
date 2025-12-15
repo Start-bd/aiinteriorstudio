@@ -80,9 +80,11 @@ const Dashboard = () => {
     createCollection,
     updateCollection,
     deleteCollection,
+    toggleCollectionSharing,
     addImageToCollection,
     removeImageFromCollection,
     getCollectionImages,
+    updateImagePositions,
     getImageCollections,
   } = useCollections(user?.id);
 
@@ -507,7 +509,9 @@ const Dashboard = () => {
                 onCreateCollection={createCollection}
                 onUpdateCollection={updateCollection}
                 onDeleteCollection={deleteCollection}
+                onToggleSharing={toggleCollectionSharing}
                 getCollectionImages={getCollectionImages}
+                onUpdateImagePositions={updateImagePositions}
                 onRemoveFromCollection={removeImageFromCollection}
                 onImageClick={setDetailImage}
               />
