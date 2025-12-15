@@ -20,18 +20,21 @@ export type Database = {
           created_at: string
           id: string
           image_id: string
+          position: number
         }
         Insert: {
           collection_id: string
           created_at?: string
           id?: string
           image_id: string
+          position?: number
         }
         Update: {
           collection_id?: string
           created_at?: string
           id?: string
           image_id?: string
+          position?: number
         }
         Relationships: [
           {
@@ -55,7 +58,9 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          is_public: boolean
           name: string
+          share_token: string | null
           updated_at: string
           user_id: string
         }
@@ -63,7 +68,9 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          is_public?: boolean
           name: string
+          share_token?: string | null
           updated_at?: string
           user_id: string
         }
@@ -71,7 +78,9 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          is_public?: boolean
           name?: string
+          share_token?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -192,7 +201,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_share_token: { Args: never; Returns: string }
     }
     Enums: {
       [_ in never]: never
