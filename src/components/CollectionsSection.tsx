@@ -1,9 +1,10 @@
 import { useState, useCallback } from "react";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
-import { Folder, MoreVertical, Pencil, Trash2, Images, ChevronLeft, Share2, Link, GripVertical, Globe, Lock, ImageIcon } from "lucide-react";
+import { Folder, MoreVertical, Pencil, Trash2, Images, ChevronLeft, Share2, Link, GripVertical, Globe, Lock, ImageIcon, Download, FileText, FileArchive } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Progress } from "@/components/ui/progress";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,6 +36,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Collection, CollectionImage } from "@/hooks/useCollections";
 import { CreateCollectionDialog } from "./CreateCollectionDialog";
+import { exportCollectionAsZip, exportCollectionAsPdf } from "@/lib/exportCollection";
 import { format } from "date-fns";
 import { toast } from "sonner";
 
@@ -77,6 +79,9 @@ export const CollectionsSection = ({
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [collectionToShare, setCollectionToShare] = useState<Collection | null>(null);
   const [isReorderMode, setIsReorderMode] = useState(false);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const [exportProgress, setExportProgress] = useState(0);
+  const [isExporting, setIsExporting] = useState(false);
 
   const handleCollectionClick = async (collection: Collection) => {
     setSelectedCollection(collection);
@@ -146,6 +151,25 @@ export const CollectionsSection = ({
     } catch (error) {
       console.error("Error copying link:", error);
       toast.error("Failed to copy link");
+    }
+  };
+
+  const handleExport = async (format: "zip" | "pdf") => {
+    if (!selectedCollection || collectionImages.length === 0) return;
+
+    setIsExporting(true);
+    setExportProgress(0);
+
+    try {
+      if (format === "zip") {
+        await exportCollectionAsZip(selectedCollection, collectionImages, setExportProgress);
+      } else {
+        await exportCollectionAsPdf(selectedCollection, collectionImages, setExportProgress);
+      }
+    } finally {
+      setIsExporting(false);
+      setExportDialogOpen(false);
+      setExportProgress(0);
     }
   };
 
@@ -221,6 +245,17 @@ export const CollectionsSection = ({
               >
                 <GripVertical className="h-4 w-4" />
                 {isReorderMode ? "Done" : "Reorder"}
+              </Button>
+            )}
+            {collectionImages.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setExportDialogOpen(true)}
+                className="gap-2"
+              >
+                <Download className="h-4 w-4" />
+                Export
               </Button>
             )}
             <Button
@@ -580,6 +615,58 @@ export const CollectionsSection = ({
                     Copy
                   </Button>
                 </div>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Export Dialog */}
+      <Dialog open={exportDialogOpen} onOpenChange={(open) => !isExporting && setExportDialogOpen(open)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Export Collection</DialogTitle>
+            <DialogDescription>
+              Download this collection as a ZIP archive or PDF document.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {isExporting ? (
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground text-center">
+                  Exporting collection... Please wait.
+                </p>
+                <Progress value={exportProgress} className="w-full" />
+                <p className="text-xs text-muted-foreground text-center">
+                  {exportProgress}% complete
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  onClick={() => handleExport("zip")}
+                  className="flex flex-col items-center gap-3 p-6 rounded-lg border border-border hover:border-primary hover:bg-primary/5 transition-colors"
+                >
+                  <FileArchive className="h-10 w-10 text-primary" />
+                  <div className="text-center">
+                    <p className="font-medium">ZIP Archive</p>
+                    <p className="text-xs text-muted-foreground">
+                      Images + metadata files
+                    </p>
+                  </div>
+                </button>
+                <button
+                  onClick={() => handleExport("pdf")}
+                  className="flex flex-col items-center gap-3 p-6 rounded-lg border border-border hover:border-primary hover:bg-primary/5 transition-colors"
+                >
+                  <FileText className="h-10 w-10 text-primary" />
+                  <div className="text-center">
+                    <p className="font-medium">PDF Gallery</p>
+                    <p className="text-xs text-muted-foreground">
+                      Printable document
+                    </p>
+                  </div>
+                </button>
               </div>
             )}
           </div>
