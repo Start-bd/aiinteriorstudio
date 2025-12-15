@@ -23,6 +23,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { ImageDetailModal } from "@/components/ImageDetailModal";
 
 interface GeneratedImage {
   id: string;
@@ -66,6 +67,7 @@ const Dashboard = () => {
   const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [detailImage, setDetailImage] = useState<GeneratedImage | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -591,7 +593,7 @@ const Dashboard = () => {
                       className={`glass-card border-border overflow-hidden hover-lift group cursor-pointer ${
                         selectedImages.has(image.id) ? "ring-2 ring-primary" : ""
                       }`}
-                      onClick={isSelectionMode ? () => toggleImageSelection(image.id) : undefined}
+                      onClick={isSelectionMode ? () => toggleImageSelection(image.id) : () => setDetailImage(image)}
                     >
                       <div className="aspect-square relative overflow-hidden">
                         <img
@@ -759,6 +761,12 @@ const Dashboard = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <ImageDetailModal
+        image={detailImage}
+        open={!!detailImage}
+        onOpenChange={(open) => !open && setDetailImage(null)}
+      />
     </>
   );
 };
