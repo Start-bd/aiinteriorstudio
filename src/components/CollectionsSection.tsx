@@ -1,11 +1,14 @@
-import { useState } from "react";
-import { Folder, MoreVertical, Pencil, Trash2, Images, ChevronLeft } from "lucide-react";
+import { useState, useCallback } from "react";
+import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
+import { Folder, MoreVertical, Pencil, Trash2, Images, ChevronLeft, Share2, Link, GripVertical, Globe, Lock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -21,6 +24,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -29,17 +33,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Collection } from "@/hooks/useCollections";
+import { Collection, CollectionImage } from "@/hooks/useCollections";
 import { CreateCollectionDialog } from "./CreateCollectionDialog";
 import { format } from "date-fns";
-
-interface GeneratedImage {
-  id: string;
-  prompt: string;
-  image_url: string;
-  style: string;
-  created_at: string;
-}
+import { toast } from "sonner";
 
 interface CollectionsSectionProps {
   collections: Collection[];
@@ -47,9 +44,11 @@ interface CollectionsSectionProps {
   onCreateCollection: (name: string, description?: string) => Promise<any>;
   onUpdateCollection: (id: string, name: string, description?: string) => Promise<void>;
   onDeleteCollection: (id: string) => Promise<void>;
-  getCollectionImages: (id: string) => Promise<GeneratedImage[]>;
+  onToggleSharing: (id: string, isPublic: boolean) => Promise<void>;
+  getCollectionImages: (id: string) => Promise<CollectionImage[]>;
+  onUpdateImagePositions: (collectionId: string, positions: { imageId: string; position: number }[]) => Promise<void>;
   onRemoveFromCollection: (collectionId: string, imageId: string) => Promise<void>;
-  onImageClick: (image: GeneratedImage) => void;
+  onImageClick: (image: CollectionImage) => void;
 }
 
 export const CollectionsSection = ({
@@ -58,12 +57,14 @@ export const CollectionsSection = ({
   onCreateCollection,
   onUpdateCollection,
   onDeleteCollection,
+  onToggleSharing,
   getCollectionImages,
+  onUpdateImagePositions,
   onRemoveFromCollection,
   onImageClick,
 }: CollectionsSectionProps) => {
   const [selectedCollection, setSelectedCollection] = useState<Collection | null>(null);
-  const [collectionImages, setCollectionImages] = useState<GeneratedImage[]>([]);
+  const [collectionImages, setCollectionImages] = useState<CollectionImage[]>([]);
   const [loadingImages, setLoadingImages] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [collectionToDelete, setCollectionToDelete] = useState<Collection | null>(null);
@@ -71,6 +72,9 @@ export const CollectionsSection = ({
   const [collectionToEdit, setCollectionToEdit] = useState<Collection | null>(null);
   const [editName, setEditName] = useState("");
   const [editDescription, setEditDescription] = useState("");
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [collectionToShare, setCollectionToShare] = useState<Collection | null>(null);
+  const [isReorderMode, setIsReorderMode] = useState(false);
 
   const handleCollectionClick = async (collection: Collection) => {
     setSelectedCollection(collection);
@@ -83,6 +87,7 @@ export const CollectionsSection = ({
   const handleBack = () => {
     setSelectedCollection(null);
     setCollectionImages([]);
+    setIsReorderMode(false);
   };
 
   const handleDeleteClick = (collection: Collection, e: React.MouseEvent) => {
@@ -99,6 +104,12 @@ export const CollectionsSection = ({
     setEditDialogOpen(true);
   };
 
+  const handleShareClick = (collection: Collection, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCollectionToShare(collection);
+    setShareDialogOpen(true);
+  };
+
   const handleEditSubmit = async () => {
     if (!collectionToEdit || !editName.trim()) return;
     await onUpdateCollection(collectionToEdit.id, editName.trim(), editDescription.trim() || undefined);
@@ -111,6 +122,52 @@ export const CollectionsSection = ({
     await onRemoveFromCollection(selectedCollection.id, imageId);
     setCollectionImages((prev) => prev.filter((img) => img.id !== imageId));
   };
+
+  const handleToggleSharing = async (isPublic: boolean) => {
+    if (!collectionToShare) return;
+    await onToggleSharing(collectionToShare.id, isPublic);
+    // Update the local collection state
+    setCollectionToShare((prev) => (prev ? { ...prev, is_public: isPublic } : null));
+    // Find and update collection in list
+    const updatedCollection = collections.find((c) => c.id === collectionToShare.id);
+    if (updatedCollection && selectedCollection?.id === collectionToShare.id) {
+      setSelectedCollection({ ...selectedCollection, is_public: isPublic });
+    }
+  };
+
+  const handleCopyLink = async () => {
+    if (!collectionToShare?.share_token) return;
+    const shareUrl = `${window.location.origin}/collection/${collectionToShare.share_token}`;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success("Link copied to clipboard!");
+    } catch (error) {
+      console.error("Error copying link:", error);
+      toast.error("Failed to copy link");
+    }
+  };
+
+  const handleDragEnd = useCallback(
+    async (result: DropResult) => {
+      if (!result.destination || !selectedCollection) return;
+
+      const items = Array.from(collectionImages);
+      const [reorderedItem] = items.splice(result.source.index, 1);
+      items.splice(result.destination.index, 0, reorderedItem);
+
+      // Update local state immediately
+      setCollectionImages(items);
+
+      // Update positions in database
+      const positions = items.map((item, index) => ({
+        imageId: item.id,
+        position: index,
+      }));
+
+      await onUpdateImagePositions(selectedCollection.id, positions);
+    },
+    [collectionImages, selectedCollection, onUpdateImagePositions]
+  );
 
   if (loading) {
     return (
@@ -132,15 +189,47 @@ export const CollectionsSection = ({
   if (selectedCollection) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={handleBack}>
-            <ChevronLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h3 className="text-xl font-display font-bold">{selectedCollection.name}</h3>
-            {selectedCollection.description && (
-              <p className="text-sm text-muted-foreground">{selectedCollection.description}</p>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={handleBack}>
+              <ChevronLeft className="h-5 w-5" />
+            </Button>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-xl font-display font-bold">{selectedCollection.name}</h3>
+                {selectedCollection.is_public && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs bg-primary/10 text-primary rounded-full">
+                    <Globe className="h-3 w-3" />
+                    Public
+                  </span>
+                )}
+              </div>
+              {selectedCollection.description && (
+                <p className="text-sm text-muted-foreground">{selectedCollection.description}</p>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {collectionImages.length > 1 && (
+              <Button
+                variant={isReorderMode ? "default" : "outline"}
+                size="sm"
+                onClick={() => setIsReorderMode(!isReorderMode)}
+                className="gap-2"
+              >
+                <GripVertical className="h-4 w-4" />
+                {isReorderMode ? "Done" : "Reorder"}
+              </Button>
             )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={(e) => handleShareClick(selectedCollection, e as any)}
+              className="gap-2"
+            >
+              <Share2 className="h-4 w-4" />
+              Share
+            </Button>
           </div>
         </div>
 
@@ -158,6 +247,53 @@ export const CollectionsSection = ({
               Add images to this collection from your generation history.
             </p>
           </Card>
+        ) : isReorderMode ? (
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable droppableId="images" direction="horizontal">
+              {(provided) => (
+                <div
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+                >
+                  {collectionImages.map((image, index) => (
+                    <Draggable key={image.id} draggableId={image.id} index={index}>
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          className={`${snapshot.isDragging ? "z-50" : ""}`}
+                        >
+                          <Card
+                            className={`glass-card border-border overflow-hidden group cursor-grab active:cursor-grabbing ${
+                              snapshot.isDragging ? "ring-2 ring-primary shadow-lg" : ""
+                            }`}
+                          >
+                            <div className="aspect-square relative overflow-hidden">
+                              <img
+                                src={image.image_url}
+                                alt={image.prompt}
+                                className="w-full h-full object-cover"
+                                loading="lazy"
+                              />
+                              <div className="absolute inset-0 bg-background/50 flex items-center justify-center">
+                                <GripVertical className="h-8 w-8 text-foreground" />
+                              </div>
+                            </div>
+                            <CardContent className="p-4">
+                              <p className="text-sm text-foreground line-clamp-1">{image.prompt}</p>
+                            </CardContent>
+                          </Card>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {collectionImages.map((image) => (
@@ -247,6 +383,14 @@ export const CollectionsSection = ({
                     <Folder className="h-16 w-16 text-muted-foreground/30" />
                   </div>
                 )}
+                {collection.is_public && (
+                  <div className="absolute top-2 left-2">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs bg-primary text-primary-foreground rounded-full">
+                      <Globe className="h-3 w-3" />
+                      Public
+                    </span>
+                  </div>
+                )}
                 <div className="absolute top-2 right-2">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -260,10 +404,15 @@ export const CollectionsSection = ({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={(e) => handleShareClick(collection, e as any)}>
+                        <Share2 className="h-4 w-4 mr-2" />
+                        Share
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={(e) => handleEditClick(collection, e as any)}>
                         <Pencil className="h-4 w-4 mr-2" />
                         Edit
                       </DropdownMenuItem>
+                      <DropdownMenuSeparator />
                       <DropdownMenuItem
                         className="text-destructive"
                         onClick={(e) => handleDeleteClick(collection, e as any)}
@@ -351,6 +500,58 @@ export const CollectionsSection = ({
               Save
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Share Dialog */}
+      <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Share Collection</DialogTitle>
+            <DialogDescription>
+              Make this collection public to share it with anyone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {collectionToShare?.is_public ? (
+                  <Globe className="h-5 w-5 text-primary" />
+                ) : (
+                  <Lock className="h-5 w-5 text-muted-foreground" />
+                )}
+                <div>
+                  <p className="font-medium">Public Access</p>
+                  <p className="text-sm text-muted-foreground">
+                    {collectionToShare?.is_public
+                      ? "Anyone with the link can view"
+                      : "Only you can view this collection"}
+                  </p>
+                </div>
+              </div>
+              <Switch
+                checked={collectionToShare?.is_public ?? false}
+                onCheckedChange={handleToggleSharing}
+              />
+            </div>
+
+            {collectionToShare?.is_public && collectionToShare?.share_token && (
+              <div className="space-y-2">
+                <Label>Share Link</Label>
+                <div className="flex gap-2">
+                  <Input
+                    readOnly
+                    value={`${window.location.origin}/collection/${collectionToShare.share_token}`}
+                    className="flex-1"
+                  />
+                  <Button onClick={handleCopyLink} className="gap-2">
+                    <Link className="h-4 w-4" />
+                    Copy
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
