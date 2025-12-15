@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { Download, Share2, X, Calendar, Palette, FileText } from "lucide-react";
+import { Download, Share2, X, Calendar, Palette, FileText, FolderPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { Collection } from "@/hooks/useCollections";
 
 interface GeneratedImage {
   id: string;
@@ -21,12 +22,16 @@ interface ImageDetailModalProps {
   image: GeneratedImage | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  collections?: Collection[];
+  onAddToCollection?: () => void;
 }
 
 export const ImageDetailModal = ({
   image,
   open,
   onOpenChange,
+  collections,
+  onAddToCollection,
 }: ImageDetailModalProps) => {
   if (!image) return null;
 
@@ -127,6 +132,12 @@ export const ImageDetailModal = ({
               <FileText className="h-4 w-4" />
               Copy Prompt
             </Button>
+            {onAddToCollection && (
+              <Button variant="outline" onClick={onAddToCollection} className="gap-2">
+                <FolderPlus className="h-4 w-4" />
+                Add to Collection
+              </Button>
+            )}
           </div>
 
           {/* Metadata Grid */}

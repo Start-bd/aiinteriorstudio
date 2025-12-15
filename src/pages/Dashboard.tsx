@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ImageIcon, Sparkles, Clock, TrendingUp, Calendar, ChevronLeft, ChevronRight, Download, Share2, Trash2, Filter, X, CheckSquare, Square } from "lucide-react";
+import { ImageIcon, Sparkles, Clock, TrendingUp, Calendar, ChevronLeft, ChevronRight, Download, Share2, Trash2, Filter, X, CheckSquare, Square, FolderPlus } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { format, subDays, startOfDay, endOfDay, subMonths } from "date-fns";
@@ -24,6 +24,10 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { ImageDetailModal } from "@/components/ImageDetailModal";
+import { useCollections } from "@/hooks/useCollections";
+import { CollectionsSection } from "@/components/CollectionsSection";
+import { AddToCollectionDialog } from "@/components/AddToCollectionDialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface GeneratedImage {
   id: string;
@@ -68,6 +72,19 @@ const Dashboard = () => {
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [detailImage, setDetailImage] = useState<GeneratedImage | null>(null);
+  const [addToCollectionImage, setAddToCollectionImage] = useState<GeneratedImage | null>(null);
+
+  const {
+    collections,
+    loading: collectionsLoading,
+    createCollection,
+    updateCollection,
+    deleteCollection,
+    addImageToCollection,
+    removeImageFromCollection,
+    getCollectionImages,
+    getImageCollections,
+  } = useCollections(user?.id);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -470,6 +487,33 @@ const Dashboard = () => {
             </Card>
           )}
 
+          {/* Tabs for History and Collections */}
+          <Tabs defaultValue="history" className="space-y-6">
+            <TabsList>
+              <TabsTrigger value="history" className="gap-2">
+                <Calendar className="h-4 w-4" />
+                Generation History
+              </TabsTrigger>
+              <TabsTrigger value="collections" className="gap-2">
+                <FolderPlus className="h-4 w-4" />
+                Collections
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="collections">
+              <CollectionsSection
+                collections={collections}
+                loading={collectionsLoading}
+                onCreateCollection={createCollection}
+                onUpdateCollection={updateCollection}
+                onDeleteCollection={deleteCollection}
+                getCollectionImages={getCollectionImages}
+                onRemoveFromCollection={removeImageFromCollection}
+                onImageClick={setDetailImage}
+              />
+            </TabsContent>
+
+            <TabsContent value="history">
           {/* Generation History */}
           <div>
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
@@ -620,6 +664,17 @@ const Dashboard = () => {
                               className="h-8 w-8"
                               onClick={(e) => {
                                 e.stopPropagation();
+                                setAddToCollectionImage(image);
+                              }}
+                            >
+                              <FolderPlus className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="secondary"
+                              className="h-8 w-8"
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 handleDownload(image.image_url, image.prompt);
                               }}
                             >
@@ -724,6 +779,8 @@ const Dashboard = () => {
               </>
             )}
           </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
       <Footer />
@@ -766,6 +823,23 @@ const Dashboard = () => {
         image={detailImage}
         open={!!detailImage}
         onOpenChange={(open) => !open && setDetailImage(null)}
+        collections={collections}
+        onAddToCollection={() => {
+          if (detailImage) {
+            setAddToCollectionImage(detailImage);
+          }
+        }}
+      />
+
+      <AddToCollectionDialog
+        open={!!addToCollectionImage}
+        onOpenChange={(open) => !open && setAddToCollectionImage(null)}
+        collections={collections}
+        imageId={addToCollectionImage?.id || ""}
+        getImageCollections={getImageCollections}
+        onAddToCollection={addImageToCollection}
+        onRemoveFromCollection={removeImageFromCollection}
+        onCreateCollection={createCollection}
       />
     </>
   );
