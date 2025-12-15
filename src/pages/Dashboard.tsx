@@ -9,7 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ImageIcon, Sparkles, Clock, TrendingUp, Calendar, ChevronLeft, ChevronRight, Download, Share2, Trash2, Filter, X } from "lucide-react";
+import { ImageIcon, Sparkles, Clock, TrendingUp, Calendar, ChevronLeft, ChevronRight, Download, Share2, Trash2, Filter, X, CheckSquare, Square } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { format, subDays, startOfDay, endOfDay, subMonths } from "date-fns";
 import {
@@ -62,6 +63,9 @@ const Dashboard = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [imageToDelete, setImageToDelete] = useState<GeneratedImage | null>(null);
   const [availableStyles, setAvailableStyles] = useState<string[]>([]);
+  const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
+  const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -216,6 +220,55 @@ const Dashboard = () => {
   };
 
   const hasActiveFilters = styleFilter !== "all" || dateFilter !== "all";
+
+  const toggleImageSelection = (imageId: string) => {
+    setSelectedImages((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(imageId)) {
+        newSet.delete(imageId);
+      } else {
+        newSet.add(imageId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedImages.size === images.length) {
+      setSelectedImages(new Set());
+    } else {
+      setSelectedImages(new Set(images.map((img) => img.id)));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedImages.size === 0 || !user) return;
+
+    try {
+      const { error } = await supabase
+        .from("generated_images")
+        .delete()
+        .in("id", Array.from(selectedImages))
+        .eq("user_id", user.id);
+
+      if (error) throw error;
+
+      toast.success(`${selectedImages.size} image(s) deleted successfully`);
+      setBulkDeleteDialogOpen(false);
+      setSelectedImages(new Set());
+      setIsSelectionMode(false);
+      fetchUserImages();
+      fetchUserStats();
+    } catch (error) {
+      console.error("Error deleting images:", error);
+      toast.error("Failed to delete images");
+    }
+  };
+
+  const exitSelectionMode = () => {
+    setIsSelectionMode(false);
+    setSelectedImages(new Set());
+  };
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
@@ -424,39 +477,81 @@ const Dashboard = () => {
               </h2>
               
               <div className="flex flex-wrap items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <Filter className="w-4 h-4 text-muted-foreground" />
-                  <Select value={styleFilter} onValueChange={(value) => { setStyleFilter(value); setCurrentPage(1); }}>
-                    <SelectTrigger className="w-[140px] h-9">
-                      <SelectValue placeholder="Style" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Styles</SelectItem>
-                      {availableStyles.map((style) => (
-                        <SelectItem key={style} value={style}>{style}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  
-                  <Select value={dateFilter} onValueChange={(value) => { setDateFilter(value); setCurrentPage(1); }}>
-                    <SelectTrigger className="w-[140px] h-9">
-                      <SelectValue placeholder="Date Range" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {DATE_RANGE_OPTIONS.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  
-                  {hasActiveFilters && (
-                    <Button variant="ghost" size="sm" onClick={clearFilters} className="h-9 px-2">
-                      <X className="w-4 h-4" />
+                {!isSelectionMode ? (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <Filter className="w-4 h-4 text-muted-foreground" />
+                      <Select value={styleFilter} onValueChange={(value) => { setStyleFilter(value); setCurrentPage(1); }}>
+                        <SelectTrigger className="w-[140px] h-9">
+                          <SelectValue placeholder="Style" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Styles</SelectItem>
+                          {availableStyles.map((style) => (
+                            <SelectItem key={style} value={style}>{style}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      
+                      <Select value={dateFilter} onValueChange={(value) => { setDateFilter(value); setCurrentPage(1); }}>
+                        <SelectTrigger className="w-[140px] h-9">
+                          <SelectValue placeholder="Date Range" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {DATE_RANGE_OPTIONS.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      
+                      {hasActiveFilters && (
+                        <Button variant="ghost" size="sm" onClick={clearFilters} className="h-9 px-2">
+                          <X className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+                    
+                    {images.length > 0 && (
+                      <Button variant="outline" size="sm" onClick={() => setIsSelectionMode(true)} className="h-9 gap-2">
+                        <CheckSquare className="w-4 h-4" />
+                        Select
+                      </Button>
+                    )}
+                  </>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <Button variant="outline" size="sm" onClick={toggleSelectAll} className="h-9 gap-2">
+                      {selectedImages.size === images.length ? (
+                        <>
+                          <CheckSquare className="w-4 h-4" />
+                          Deselect All
+                        </>
+                      ) : (
+                        <>
+                          <Square className="w-4 h-4" />
+                          Select All ({images.length})
+                        </>
+                      )}
                     </Button>
-                  )}
-                </div>
+                    
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => setBulkDeleteDialogOpen(true)}
+                      disabled={selectedImages.size === 0}
+                      className="h-9 gap-2"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Delete ({selectedImages.size})
+                    </Button>
+                    
+                    <Button variant="ghost" size="sm" onClick={exitSelectionMode} className="h-9">
+                      Cancel
+                    </Button>
+                  </div>
+                )}
                 
-                {totalCount > 0 && (
+                {totalCount > 0 && !isSelectionMode && (
                   <p className="text-sm text-muted-foreground">
                     Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1}-
                     {Math.min(currentPage * ITEMS_PER_PAGE, totalCount)} of {totalCount}
@@ -493,7 +588,10 @@ const Dashboard = () => {
                   {images.map((image) => (
                     <Card
                       key={image.id}
-                      className="glass-card border-border overflow-hidden hover-lift group"
+                      className={`glass-card border-border overflow-hidden hover-lift group cursor-pointer ${
+                        selectedImages.has(image.id) ? "ring-2 ring-primary" : ""
+                      }`}
+                      onClick={isSelectionMode ? () => toggleImageSelection(image.id) : undefined}
                     >
                       <div className="aspect-square relative overflow-hidden">
                         <img
@@ -502,42 +600,54 @@ const Dashboard = () => {
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                           loading="lazy"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-end p-3 gap-2">
-                          <Button
-                            size="icon"
-                            variant="secondary"
-                            className="h-8 w-8"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDownload(image.image_url, image.prompt);
-                            }}
-                          >
-                            <Download className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="icon"
-                            variant="secondary"
-                            className="h-8 w-8"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleShare(image.image_url, image.prompt);
-                            }}
-                          >
-                            <Share2 className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="icon"
-                            variant="destructive"
-                            className="h-8 w-8"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setImageToDelete(image);
-                              setDeleteDialogOpen(true);
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
+                        {isSelectionMode && (
+                          <div className="absolute top-3 left-3 z-10">
+                            <Checkbox
+                              checked={selectedImages.has(image.id)}
+                              onCheckedChange={() => toggleImageSelection(image.id)}
+                              className="h-5 w-5 bg-background/80 border-2"
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          </div>
+                        )}
+                        {!isSelectionMode && (
+                          <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-end p-3 gap-2">
+                            <Button
+                              size="icon"
+                              variant="secondary"
+                              className="h-8 w-8"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDownload(image.image_url, image.prompt);
+                              }}
+                            >
+                              <Download className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="secondary"
+                              className="h-8 w-8"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleShare(image.image_url, image.prompt);
+                              }}
+                            >
+                              <Share2 className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="destructive"
+                              className="h-8 w-8"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setImageToDelete(image);
+                                setDeleteDialogOpen(true);
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        )}
                       </div>
                       <CardContent className="p-4">
                         <p className="text-sm text-foreground line-clamp-2 mb-2">
@@ -628,6 +738,23 @@ const Dashboard = () => {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={bulkDeleteDialogOpen} onOpenChange={setBulkDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {selectedImages.size} Image(s)</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {selectedImages.size} selected image(s)? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleBulkDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete All
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
