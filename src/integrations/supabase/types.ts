@@ -14,6 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      collection_images: {
+        Row: {
+          collection_id: string
+          created_at: string
+          id: string
+          image_id: string
+        }
+        Insert: {
+          collection_id: string
+          created_at?: string
+          id?: string
+          image_id: string
+        }
+        Update: {
+          collection_id?: string
+          created_at?: string
+          id?: string
+          image_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collection_images_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_images_image_id_fkey"
+            columns: ["image_id"]
+            isOneToOne: false
+            referencedRelation: "generated_images"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      collections: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       favorites: {
         Row: {
           created_at: string
