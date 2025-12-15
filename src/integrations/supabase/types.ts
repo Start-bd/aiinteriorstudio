@@ -55,6 +55,7 @@ export type Database = {
       }
       collections: {
         Row: {
+          cover_image_id: string | null
           created_at: string
           description: string | null
           id: string
@@ -65,6 +66,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          cover_image_id?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -75,6 +77,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          cover_image_id?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -84,7 +87,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "collections_cover_image_id_fkey"
+            columns: ["cover_image_id"]
+            isOneToOne: false
+            referencedRelation: "generated_images"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       favorites: {
         Row: {

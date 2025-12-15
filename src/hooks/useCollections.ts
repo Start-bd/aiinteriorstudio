@@ -11,6 +11,7 @@ export interface Collection {
   updated_at: string;
   is_public: boolean;
   share_token: string | null;
+  cover_image_id: string | null;
   image_count?: number;
   cover_image?: string;
 }
@@ -55,12 +56,24 @@ export const useCollections = (userId: string | undefined) => {
           }
 
           let coverImage: string | undefined;
-          if (imageLinks && imageLinks.length > 0) {
+          
+          // Use custom cover image if set, otherwise use first image
+          if (collection.cover_image_id) {
+            const { data: coverData } = await supabase
+              .from("generated_images")
+              .select("image_url")
+              .eq("id", collection.cover_image_id)
+              .maybeSingle();
+            coverImage = coverData?.image_url;
+          }
+          
+          // Fallback to first image if no custom cover
+          if (!coverImage && imageLinks && imageLinks.length > 0) {
             const { data: coverData } = await supabase
               .from("generated_images")
               .select("image_url")
               .eq("id", imageLinks[0].image_id)
-              .single();
+              .maybeSingle();
             coverImage = coverData?.image_url;
           }
 
@@ -359,6 +372,23 @@ export const useCollections = (userId: string | undefined) => {
     }
   };
 
+  const setCoverImage = async (collectionId: string, imageId: string | null) => {
+    try {
+      const { error } = await supabase
+        .from("collections")
+        .update({ cover_image_id: imageId })
+        .eq("id", collectionId);
+
+      if (error) throw error;
+
+      toast.success(imageId ? "Cover image updated!" : "Cover image removed");
+      fetchCollections();
+    } catch (error) {
+      console.error("Error setting cover image:", error);
+      toast.error("Failed to update cover image");
+    }
+  };
+
   return {
     collections,
     loading,
@@ -366,6 +396,7 @@ export const useCollections = (userId: string | undefined) => {
     updateCollection,
     deleteCollection,
     toggleCollectionSharing,
+    setCoverImage,
     addImageToCollection,
     removeImageFromCollection,
     getCollectionImages,
