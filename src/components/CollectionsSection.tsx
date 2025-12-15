@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
-import { Folder, MoreVertical, Pencil, Trash2, Images, ChevronLeft, Share2, Link, GripVertical, Globe, Lock } from "lucide-react";
+import { Folder, MoreVertical, Pencil, Trash2, Images, ChevronLeft, Share2, Link, GripVertical, Globe, Lock, ImageIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -45,6 +45,7 @@ interface CollectionsSectionProps {
   onUpdateCollection: (id: string, name: string, description?: string) => Promise<void>;
   onDeleteCollection: (id: string) => Promise<void>;
   onToggleSharing: (id: string, isPublic: boolean) => Promise<void>;
+  onSetCoverImage: (collectionId: string, imageId: string | null) => Promise<void>;
   getCollectionImages: (id: string) => Promise<CollectionImage[]>;
   onUpdateImagePositions: (collectionId: string, positions: { imageId: string; position: number }[]) => Promise<void>;
   onRemoveFromCollection: (collectionId: string, imageId: string) => Promise<void>;
@@ -58,6 +59,7 @@ export const CollectionsSection = ({
   onUpdateCollection,
   onDeleteCollection,
   onToggleSharing,
+  onSetCoverImage,
   getCollectionImages,
   onUpdateImagePositions,
   onRemoveFromCollection,
@@ -296,43 +298,72 @@ export const CollectionsSection = ({
           </DragDropContext>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {collectionImages.map((image) => (
-              <Card
-                key={image.id}
-                className="glass-card border-border overflow-hidden hover-lift group cursor-pointer"
-                onClick={() => onImageClick(image)}
-              >
-                <div className="aspect-square relative overflow-hidden">
-                  <img
-                    src={image.image_url}
-                    alt={image.prompt}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-end p-3">
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRemoveImage(image.id);
-                      }}
-                    >
-                      Remove
-                    </Button>
+            {collectionImages.map((image) => {
+              const isCover = selectedCollection?.cover_image_id === image.id;
+              return (
+                <Card
+                  key={image.id}
+                  className={`glass-card border-border overflow-hidden hover-lift group cursor-pointer ${
+                    isCover ? "ring-2 ring-primary" : ""
+                  }`}
+                  onClick={() => onImageClick(image)}
+                >
+                  <div className="aspect-square relative overflow-hidden">
+                    <img
+                      src={image.image_url}
+                      alt={image.prompt}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                    {isCover && (
+                      <div className="absolute top-2 left-2">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs bg-primary text-primary-foreground rounded-full">
+                          <ImageIcon className="h-3 w-3" />
+                          Cover
+                        </span>
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between p-3">
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (selectedCollection) {
+                            onSetCoverImage(selectedCollection.id, isCover ? null : image.id);
+                            setSelectedCollection({
+                              ...selectedCollection,
+                              cover_image_id: isCover ? null : image.id,
+                            });
+                          }
+                        }}
+                      >
+                        {isCover ? "Remove Cover" : "Set as Cover"}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveImage(image.id);
+                        }}
+                      >
+                        Remove
+                      </Button>
+                    </div>
                   </div>
-                </div>
-                <CardContent className="p-4">
-                  <p className="text-sm text-foreground line-clamp-2 mb-2">{image.prompt}</p>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span className="px-2 py-1 bg-primary/10 text-primary rounded-full">
-                      {image.style}
-                    </span>
-                    <span>{format(new Date(image.created_at), "MMM d, yyyy")}</span>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  <CardContent className="p-4">
+                    <p className="text-sm text-foreground line-clamp-2 mb-2">{image.prompt}</p>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <span className="px-2 py-1 bg-primary/10 text-primary rounded-full">
+                        {image.style}
+                      </span>
+                      <span>{format(new Date(image.created_at), "MMM d, yyyy")}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
       </div>

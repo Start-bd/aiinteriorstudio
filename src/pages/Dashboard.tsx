@@ -81,6 +81,7 @@ const Dashboard = () => {
     updateCollection,
     deleteCollection,
     toggleCollectionSharing,
+    setCoverImage,
     addImageToCollection,
     removeImageFromCollection,
     getCollectionImages,
@@ -510,6 +511,7 @@ const Dashboard = () => {
                 onUpdateCollection={updateCollection}
                 onDeleteCollection={deleteCollection}
                 onToggleSharing={toggleCollectionSharing}
+                onSetCoverImage={setCoverImage}
                 getCollectionImages={getCollectionImages}
                 onUpdateImagePositions={updateImagePositions}
                 onRemoveFromCollection={removeImageFromCollection}
