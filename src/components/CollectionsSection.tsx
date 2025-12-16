@@ -1,7 +1,8 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
-import { Folder, MoreVertical, Pencil, Trash2, Images, ChevronLeft, Share2, Link, GripVertical, Globe, Lock, ImageIcon, Download, FileText, FileArchive } from "lucide-react";
+import { Folder, MoreVertical, Pencil, Trash2, Images, ChevronLeft, Share2, Link, GripVertical, Globe, Lock, ImageIcon, Download, FileText, FileArchive, Search, X } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
@@ -82,6 +83,24 @@ export const CollectionsSection = ({
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);
   const [isExporting, setIsExporting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [styleFilter, setStyleFilter] = useState<string>("all");
+
+  // Get unique styles from collection images
+  const availableStyles = useMemo(() => {
+    const styles = new Set(collectionImages.map((img) => img.style));
+    return Array.from(styles).sort();
+  }, [collectionImages]);
+
+  // Filter images based on search and style
+  const filteredImages = useMemo(() => {
+    return collectionImages.filter((image) => {
+      const matchesSearch = searchQuery === "" || 
+        image.prompt.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStyle = styleFilter === "all" || image.style === styleFilter;
+      return matchesSearch && matchesStyle;
+    });
+  }, [collectionImages, searchQuery, styleFilter]);
 
   const handleCollectionClick = async (collection: Collection) => {
     setSelectedCollection(collection);
@@ -95,6 +114,8 @@ export const CollectionsSection = ({
     setSelectedCollection(null);
     setCollectionImages([]);
     setIsReorderMode(false);
+    setSearchQuery("");
+    setStyleFilter("all");
   };
 
   const handleDeleteClick = (collection: Collection, e: React.MouseEvent) => {
@@ -270,6 +291,46 @@ export const CollectionsSection = ({
           </div>
         </div>
 
+        {/* Search and Filter Bar */}
+        {!loadingImages && collectionImages.length > 0 && !isReorderMode && (
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by prompt..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 pr-9"
+              />
+              {searchQuery && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
+                  onClick={() => setSearchQuery("")}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+            {availableStyles.length > 1 && (
+              <Select value={styleFilter} onValueChange={setStyleFilter}>
+                <SelectTrigger className="w-full sm:w-[180px]">
+                  <SelectValue placeholder="Filter by style" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Styles</SelectItem>
+                  {availableStyles.map((style) => (
+                    <SelectItem key={style} value={style}>
+                      {style}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
+        )}
+
         {loadingImages ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {[...Array(4)].map((_, i) => (
@@ -283,6 +344,23 @@ export const CollectionsSection = ({
             <p className="text-muted-foreground">
               Add images to this collection from your generation history.
             </p>
+          </Card>
+        ) : filteredImages.length === 0 ? (
+          <Card className="glass-card border-border p-12 text-center">
+            <Search className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+            <h4 className="text-lg font-display font-semibold mb-2">No matching images</h4>
+            <p className="text-muted-foreground mb-4">
+              Try adjusting your search or filter criteria.
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setSearchQuery("");
+                setStyleFilter("all");
+              }}
+            >
+              Clear Filters
+            </Button>
           </Card>
         ) : isReorderMode ? (
           <DragDropContext onDragEnd={handleDragEnd}>
@@ -333,7 +411,7 @@ export const CollectionsSection = ({
           </DragDropContext>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {collectionImages.map((image) => {
+            {filteredImages.map((image) => {
               const isCover = selectedCollection?.cover_image_id === image.id;
               return (
                 <Card
