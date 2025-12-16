@@ -97,6 +97,64 @@ export type Database = {
           },
         ]
       }
+      credit_transactions: {
+        Row: {
+          amount: number
+          balance_after: number
+          created_at: string | null
+          description: string | null
+          id: string
+          related_generation_id: string | null
+          related_payment_id: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          balance_after: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          related_generation_id?: string | null
+          related_payment_id?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          related_generation_id?: string | null
+          related_payment_id?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_transactions_related_generation_id_fkey"
+            columns: ["related_generation_id"]
+            isOneToOne: false
+            referencedRelation: "generated_images"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "credit_transactions_related_payment_id_fkey"
+            columns: ["related_payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "credit_transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       favorites: {
         Row: {
           created_at: string
@@ -129,56 +187,201 @@ export type Database = {
       generated_images: {
         Row: {
           created_at: string
+          downloads_count: number | null
           id: string
           image_url: string
+          is_featured: boolean | null
+          likes_count: number | null
           prompt: string
+          room_type: string | null
           style: string
           user_id: string | null
+          views_count: number | null
         }
         Insert: {
           created_at?: string
+          downloads_count?: number | null
           id?: string
           image_url: string
+          is_featured?: boolean | null
+          likes_count?: number | null
           prompt: string
+          room_type?: string | null
           style?: string
           user_id?: string | null
+          views_count?: number | null
         }
         Update: {
           created_at?: string
+          downloads_count?: number | null
           id?: string
           image_url?: string
+          is_featured?: boolean | null
+          likes_count?: number | null
           prompt?: string
+          room_type?: string | null
           style?: string
           user_id?: string | null
+          views_count?: number | null
         }
         Relationships: []
+      }
+      generation_likes: {
+        Row: {
+          created_at: string | null
+          generation_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          generation_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          generation_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generation_likes_generation_id_fkey"
+            columns: ["generation_id"]
+            isOneToOne: false
+            referencedRelation: "generated_images"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generation_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          bkash_payment_id: string | null
+          completed_at: string | null
+          created_at: string | null
+          credits_added: number | null
+          currency: string
+          id: string
+          metadata: Json | null
+          nagad_payment_ref: string | null
+          payment_method: string
+          payment_type: string
+          status: string | null
+          stripe_payment_intent_id: string | null
+          transaction_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          bkash_payment_id?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          credits_added?: number | null
+          currency: string
+          id?: string
+          metadata?: Json | null
+          nagad_payment_ref?: string | null
+          payment_method: string
+          payment_type: string
+          status?: string | null
+          stripe_payment_intent_id?: string | null
+          transaction_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          bkash_payment_id?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          credits_added?: number | null
+          currency?: string
+          id?: string
+          metadata?: Json | null
+          nagad_payment_ref?: string | null
+          payment_method?: string
+          payment_type?: string
+          status?: string | null
+          stripe_payment_intent_id?: string | null
+          transaction_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
           avatar_url: string | null
           created_at: string
+          credits: number | null
           display_name: string | null
           id: string
+          preferred_language: string | null
+          referral_code: string | null
+          referred_by: string | null
+          stripe_customer_id: string | null
+          subscription_status: string | null
+          subscription_tier: string | null
+          total_generations: number | null
           updated_at: string
           user_id: string
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          credits?: number | null
           display_name?: string | null
           id?: string
+          preferred_language?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
+          stripe_customer_id?: string | null
+          subscription_status?: string | null
+          subscription_tier?: string | null
+          total_generations?: number | null
           updated_at?: string
           user_id: string
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
+          credits?: number | null
           display_name?: string | null
           id?: string
+          preferred_language?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
+          stripe_customer_id?: string | null
+          subscription_status?: string | null
+          subscription_tier?: string | null
+          total_generations?: number | null
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       rate_limits: {
         Row: {
@@ -207,12 +410,197 @@ export type Database = {
         }
         Relationships: []
       }
+      referrals: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          credits_earned: number | null
+          id: string
+          referred_id: string
+          referrer_id: string
+          status: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          credits_earned?: number | null
+          id?: string
+          referred_id: string
+          referrer_id: string
+          status?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          credits_earned?: number | null
+          id?: string
+          referred_id?: string
+          referrer_id?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_referred_id_fkey"
+            columns: ["referred_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      room_types: {
+        Row: {
+          display_name: string
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          sort_order: number | null
+        }
+        Insert: {
+          display_name: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          sort_order?: number | null
+        }
+        Update: {
+          display_name?: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          sort_order?: number | null
+        }
+        Relationships: []
+      }
+      styles: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          display_name: string
+          id: string
+          is_active: boolean | null
+          is_premium: boolean | null
+          name: string
+          negative_prompt_template: string | null
+          prompt_template: string
+          sort_order: number | null
+          thumbnail_url: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          display_name: string
+          id?: string
+          is_active?: boolean | null
+          is_premium?: boolean | null
+          name: string
+          negative_prompt_template?: string | null
+          prompt_template: string
+          sort_order?: number | null
+          thumbnail_url?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          display_name?: string
+          id?: string
+          is_active?: boolean | null
+          is_premium?: boolean | null
+          name?: string
+          negative_prompt_template?: string | null
+          prompt_template?: string
+          sort_order?: number | null
+          thumbnail_url?: string | null
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean | null
+          cancelled_at: string | null
+          created_at: string | null
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          status: string
+          stripe_price_id: string | null
+          stripe_subscription_id: string | null
+          tier: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          cancel_at_period_end?: boolean | null
+          cancelled_at?: string | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          status: string
+          stripe_price_id?: string | null
+          stripe_subscription_id?: string | null
+          tier: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          cancel_at_period_end?: boolean | null
+          cancelled_at?: string | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          status?: string
+          stripe_price_id?: string | null
+          stripe_subscription_id?: string | null
+          tier?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      add_credits: {
+        Args: {
+          p_amount: number
+          p_description?: string
+          p_payment_id?: string
+          p_type: string
+          p_user_id: string
+        }
+        Returns: number
+      }
+      deduct_credits: {
+        Args: { p_amount: number; p_generation_id?: string; p_user_id: string }
+        Returns: boolean
+      }
       generate_share_token: { Args: never; Returns: string }
+      increment_generation_stat: {
+        Args: { p_generation_id: string; p_stat_type: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
