@@ -208,6 +208,41 @@ serve(async (req) => {
     const detectedStyle = detectStyle(prompt);
     console.log("Detected style:", detectedStyle);
 
+    // SERVER-SIDE CREDIT CHECK AND DEDUCTION (before generating image)
+    // This prevents bypassing the credit system by calling the API directly
+    if (!SUPABASE_SERVICE_ROLE_KEY) {
+      console.error("Missing service role key for credit deduction");
+      throw new Error("Server configuration error");
+    }
+
+    const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    
+    // Deduct 1 credit before generating image
+    const { data: creditDeducted, error: creditError } = await supabaseAdmin
+      .rpc('deduct_credits', {
+        p_user_id: user.id,
+        p_amount: 1,
+        p_generation_id: null // Will be linked after generation
+      });
+
+    if (creditError) {
+      console.error("Credit deduction error:", creditError.message);
+      return new Response(
+        JSON.stringify({ error: 'Failed to process credits. Please try again.' }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!creditDeducted) {
+      console.log("Insufficient credits for user:", user.id);
+      return new Response(
+        JSON.stringify({ error: 'Insufficient credits. Please purchase more credits or upgrade your subscription.' }),
+        { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log("Credits deducted successfully for user:", user.id);
+
     // Enhance the prompt for better interior design results
     const enhancedPrompt = `Professional interior design photography: ${prompt}. Ultra high resolution, photorealistic, architectural visualization, beautiful natural lighting, magazine quality interior photography, 8k detailed render.`;
 
