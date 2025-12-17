@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Instagram, ImageIcon, User, LogOut, LayoutDashboard } from "lucide-react";
+import { Menu, X, Instagram, ImageIcon, User, LogOut, LayoutDashboard, Crown } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { CreditsWidget } from "@/components/CreditsWidget";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -64,6 +64,7 @@ const Header = () => {
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300 flex items-center gap-1.5"
                 >
                   {link.label === "AI Gallery" && <ImageIcon className="w-4 h-4" />}
+                  {link.label === "Pricing" && <Crown className="w-4 h-4 text-gold" />}
                   {link.label}
                 </Link>
               ) : (
@@ -156,9 +157,11 @@ const Header = () => {
                   <Link
                     key={link.label}
                     to={link.href}
-                    className="text-lg text-muted-foreground hover:text-foreground transition-colors duration-300"
+                    className="text-lg text-muted-foreground hover:text-foreground transition-colors duration-300 flex items-center gap-2"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
+                    {link.label === "AI Gallery" && <ImageIcon className="w-5 h-5" />}
+                    {link.label === "Pricing" && <Crown className="w-5 h-5 text-gold" />}
                     {link.label}
                   </Link>
                 ) : (
