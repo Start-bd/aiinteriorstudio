@@ -16,6 +16,7 @@ import {
 const navLinks = [
   { label: "AI Generator", href: "#ai-generator", isRoute: false },
   { label: "AI Gallery", href: "/gallery", isRoute: true },
+  { label: "Pricing", href: "/pricing", isRoute: true },
   { label: "Ecosystem", href: "#ecosystem", isRoute: false },
   { label: "About", href: "#about", isRoute: false },
   { label: "Contact", href: "#newsletter", isRoute: false },
