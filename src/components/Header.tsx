@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, Instagram, ImageIcon, User, LogOut, LayoutDashboard } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { CreditsWidget } from "@/components/CreditsWidget";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -76,8 +77,8 @@ const Header = () => {
             )}
           </div>
 
-          {/* CTA */}
           <div className="hidden md:flex items-center gap-4">
+            <LanguageSwitcher />
             <a
               href="https://instagram.com/interiorofai"
               target="_blank"
@@ -171,6 +172,7 @@ const Header = () => {
                 )
               )}
               <div className="flex items-center gap-4 pt-4 border-t border-border">
+                <LanguageSwitcher />
                 <a
                   href="https://instagram.com/interiorofai"
                   target="_blank"
