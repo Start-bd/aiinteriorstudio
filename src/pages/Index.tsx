@@ -10,6 +10,7 @@ import NewsletterSection from "@/components/NewsletterSection";
 import AboutPreviewSection from "@/components/AboutPreviewSection";
 import Footer from "@/components/Footer";
 import { ChatBot } from "@/components/ChatBot";
+import { AIGenerator } from "@/components/AIGenerator";
 import { Helmet } from "react-helmet-async";
 
 const Index = () => {
@@ -41,6 +42,19 @@ const Index = () => {
         </section>
         <section id="gallery">
           <GallerySection />
+        </section>
+        <section id="ai-generator" className="py-24 bg-muted/30">
+          <div className="container mx-auto px-6">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
+                Create Your <span className="text-gradient-gold">Dream Interior</span>
+              </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Use AI to generate stunning interior designs tailored to your style and room type
+              </p>
+            </div>
+            <AIGenerator />
+          </div>
         </section>
         <WhySection />
         <InstagramSection />

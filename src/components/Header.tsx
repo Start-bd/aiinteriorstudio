@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Instagram, ImageIcon, User, LogOut, LayoutDashboard } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { CreditsWidget } from "@/components/CreditsWidget";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -86,12 +87,14 @@ const Header = () => {
             </a>
             
             {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="w-9 h-9 rounded-full bg-gradient-gold flex items-center justify-center text-primary-foreground hover:opacity-90 transition-opacity">
-                    <User className="w-4 h-4" />
-                  </button>
-                </DropdownMenuTrigger>
+              <>
+                <CreditsWidget />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="w-9 h-9 rounded-full bg-gradient-gold flex items-center justify-center text-primary-foreground hover:opacity-90 transition-opacity">
+                      <User className="w-4 h-4" />
+                    </button>
+                  </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
                   <div className="px-2 py-1.5">
                     <p className="text-sm font-medium truncate">{user.email}</p>
@@ -121,7 +124,8 @@ const Header = () => {
                     Sign Out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
-              </DropdownMenu>
+                </DropdownMenu>
+              </>
             ) : (
               <Link to="/auth">
                 <Button variant="gold" size="sm">
