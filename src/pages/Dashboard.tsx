@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ImageIcon, Sparkles, Clock, TrendingUp, Calendar, ChevronLeft, ChevronRight, Download, Share2, Trash2, Filter, X, CheckSquare, Square, FolderPlus } from "lucide-react";
+import { ImageIcon, Sparkles, Clock, TrendingUp, Calendar, ChevronLeft, ChevronRight, Download, Share2, Trash2, Filter, X, CheckSquare, Square, FolderPlus, CreditCard } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { format, subDays, startOfDay, endOfDay, subMonths } from "date-fns";
@@ -28,6 +28,7 @@ import { useCollections } from "@/hooks/useCollections";
 import { CollectionsSection } from "@/components/CollectionsSection";
 import { AddToCollectionDialog } from "@/components/AddToCollectionDialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SubscriptionManagement } from "@/components/SubscriptionManagement";
 
 interface GeneratedImage {
   id: string;
@@ -501,7 +502,15 @@ const Dashboard = () => {
                 <FolderPlus className="h-4 w-4" />
                 Collections
               </TabsTrigger>
+              <TabsTrigger value="subscription" className="gap-2">
+                <CreditCard className="h-4 w-4" />
+                Subscription
+              </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="subscription">
+              <SubscriptionManagement />
+            </TabsContent>
 
             <TabsContent value="collections">
               <CollectionsSection
