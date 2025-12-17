@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const navLinks = [
+  { label: "AI Generator", href: "#ai-generator", isRoute: false },
   { label: "AI Gallery", href: "/gallery", isRoute: true },
   { label: "Ecosystem", href: "#ecosystem", isRoute: false },
   { label: "About", href: "#about", isRoute: false },
