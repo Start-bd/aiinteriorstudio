@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Instagram, ImageIcon, User, LogOut, LayoutDashboard, Crown } from "lucide-react";
+import { Menu, X, Instagram, ImageIcon, User, LogOut, LayoutDashboard, Crown, Shield } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserRole } from "@/hooks/useUserRole";
 import { CreditsWidget } from "@/components/CreditsWidget";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import {
@@ -26,6 +27,7 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const { isAdmin } = useUserRole();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -122,6 +124,14 @@ const Header = () => {
                       My Favorites
                     </Link>
                   </DropdownMenuItem>
+                  {isAdmin && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin" className="cursor-pointer">
+                        <Shield className="w-4 h-4 mr-2" />
+                        Admin Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive">
                     <LogOut className="w-4 h-4 mr-2" />
