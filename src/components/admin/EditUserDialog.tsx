@@ -35,6 +35,7 @@ interface EditUserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onUserUpdated: () => void;
+  onActivityLog?: (targetUserId: string, actionType: string, details: Record<string, unknown>) => Promise<void>;
 }
 
 export function EditUserDialog({
@@ -42,6 +43,7 @@ export function EditUserDialog({
   open,
   onOpenChange,
   onUserUpdated,
+  onActivityLog,
 }: EditUserDialogProps) {
   const [displayName, setDisplayName] = useState(user?.display_name || "");
   const [subscriptionTier, setSubscriptionTier] = useState(
@@ -62,6 +64,14 @@ export function EditUserDialog({
 
     setSaving(true);
     try {
+      const changes: Record<string, { from: unknown; to: unknown }> = {};
+      if (displayName.trim() !== (user.display_name || "")) {
+        changes.display_name = { from: user.display_name, to: displayName.trim() || null };
+      }
+      if (subscriptionTier !== (user.subscription_tier || "free")) {
+        changes.subscription_tier = { from: user.subscription_tier, to: subscriptionTier };
+      }
+
       const { error } = await supabase
         .from("profiles")
         .update({
@@ -71,6 +81,14 @@ export function EditUserDialog({
         .eq("user_id", user.user_id);
 
       if (error) throw error;
+
+      // Log activity
+      if (onActivityLog && Object.keys(changes).length > 0) {
+        await onActivityLog(user.user_id, "user_edit", {
+          user_name: user.display_name,
+          changes,
+        });
+      }
 
       toast.success("User profile updated successfully");
       onUserUpdated();
