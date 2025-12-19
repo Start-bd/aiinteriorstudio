@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
 import {
   Users,
   Image,
@@ -36,9 +37,14 @@ import {
   Crown,
   Pencil,
   Coins,
+  Search,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { EditUserDialog } from "@/components/admin/EditUserDialog";
 import { AdjustCreditsDialog } from "@/components/admin/AdjustCreditsDialog";
+
+const USERS_PER_PAGE = 20;
 
 interface SystemStats {
   totalUsers: number;
@@ -66,10 +72,13 @@ export default function Admin() {
   const { isAdmin, loading: roleLoading } = useUserRole();
   const [stats, setStats] = useState<SystemStats | null>(null);
   const [users, setUsers] = useState<UserWithProfile[]>([]);
+  const [totalUsers, setTotalUsers] = useState(0);
   const [loadingStats, setLoadingStats] = useState(true);
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [editingUser, setEditingUser] = useState<UserWithProfile | null>(null);
   const [adjustingCreditsUser, setAdjustingCreditsUser] = useState<UserWithProfile | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -87,9 +96,14 @@ export default function Admin() {
   useEffect(() => {
     if (isAdmin) {
       fetchStats();
-      fetchUsers();
     }
   }, [isAdmin]);
+
+  useEffect(() => {
+    if (isAdmin) {
+      fetchUsers();
+    }
+  }, [isAdmin, currentPage, searchQuery]);
 
   const fetchStats = async () => {
     try {
@@ -114,14 +128,25 @@ export default function Admin() {
   };
 
   const fetchUsers = async () => {
+    setLoadingUsers(true);
     try {
-      const { data: profiles, error: profilesError } = await supabase
+      const from = (currentPage - 1) * USERS_PER_PAGE;
+      const to = from + USERS_PER_PAGE - 1;
+
+      let query = supabase
         .from("profiles")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(50);
+        .select("*", { count: "exact" })
+        .order("created_at", { ascending: false });
+
+      if (searchQuery.trim()) {
+        query = query.ilike("display_name", `%${searchQuery.trim()}%`);
+      }
+
+      const { data: profiles, error: profilesError, count } = await query.range(from, to);
 
       if (profilesError) throw profilesError;
+
+      setTotalUsers(count || 0);
 
       const { data: allRoles, error: rolesError } = await supabase
         .from("user_roles")
@@ -144,6 +169,16 @@ export default function Admin() {
       setLoadingUsers(false);
     }
   };
+
+  // Debounced search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setCurrentPage(1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const totalPages = Math.ceil(totalUsers / USERS_PER_PAGE);
 
   const handleGrantRole = async (userId: string, role: AppRole) => {
     try {
@@ -312,10 +347,24 @@ export default function Admin() {
           {/* Users Table */}
           <Card className="bg-card border-border">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-foreground">
-                <Users className="h-5 w-5" />
-                User Management
-              </CardTitle>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <CardTitle className="flex items-center gap-2 text-foreground">
+                  <Users className="h-5 w-5" />
+                  User Management
+                  <span className="text-sm font-normal text-muted-foreground">
+                    ({totalUsers} users)
+                  </span>
+                </CardTitle>
+                <div className="relative w-full sm:w-64">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search by name..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               {loadingUsers ? (
@@ -444,8 +493,48 @@ export default function Admin() {
                           </TableCell>
                         </TableRow>
                       ))}
+                      {users.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                            {searchQuery ? "No users found matching your search" : "No users found"}
+                          </TableCell>
+                        </TableRow>
+                      )}
                     </TableBody>
                   </Table>
+
+                  {/* Pagination */}
+                  {totalPages > 1 && (
+                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
+                      <p className="text-sm text-muted-foreground">
+                        Showing {(currentPage - 1) * USERS_PER_PAGE + 1} to{" "}
+                        {Math.min(currentPage * USERS_PER_PAGE, totalUsers)} of {totalUsers}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                          disabled={currentPage === 1}
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                          Previous
+                        </Button>
+                        <span className="text-sm text-muted-foreground px-2">
+                          Page {currentPage} of {totalPages}
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                          disabled={currentPage === totalPages}
+                        >
+                          Next
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </CardContent>
