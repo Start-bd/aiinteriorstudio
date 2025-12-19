@@ -28,6 +28,7 @@ interface AdjustCreditsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCreditsUpdated: () => void;
+  onActivityLog?: (targetUserId: string, actionType: string, details: Record<string, unknown>) => Promise<void>;
 }
 
 export function AdjustCreditsDialog({
@@ -35,6 +36,7 @@ export function AdjustCreditsDialog({
   open,
   onOpenChange,
   onCreditsUpdated,
+  onActivityLog,
 }: AdjustCreditsDialogProps) {
   const [amount, setAmount] = useState("");
   const [operation, setOperation] = useState<"add" | "subtract" | "set">("add");
@@ -75,6 +77,18 @@ export function AdjustCreditsDialog({
         .eq("user_id", user.user_id);
 
       if (error) throw error;
+
+      // Log activity
+      if (onActivityLog) {
+        await onActivityLog(user.user_id, "credit_adjustment", {
+          user_name: user.display_name,
+          operation,
+          amount: numAmount,
+          from_credits: currentCredits,
+          to_credits: newCredits,
+          reason: reason || null,
+        });
+      }
 
       const operationText =
         operation === "add"

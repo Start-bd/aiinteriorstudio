@@ -4,6 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
+import type { Json } from "@/integrations/supabase/types";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,6 +41,7 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
+  Activity,
 } from "lucide-react";
 import { EditUserDialog } from "@/components/admin/EditUserDialog";
 import { AdjustCreditsDialog } from "@/components/admin/AdjustCreditsDialog";
@@ -64,6 +66,15 @@ interface UserWithProfile {
   roles: string[];
 }
 
+interface ActivityLog {
+  id: string;
+  admin_user_id: string;
+  action_type: string;
+  target_user_id: string | null;
+  details: Record<string, unknown> | null;
+  created_at: string;
+}
+
 type AppRole = 'admin' | 'moderator' | 'user';
 
 export default function Admin() {
@@ -80,6 +91,8 @@ export default function Admin() {
   const [searchQuery, setSearchQuery] = useState("");
   const [tierFilter, setTierFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
+  const [loadingLogs, setLoadingLogs] = useState(true);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -97,6 +110,7 @@ export default function Admin() {
   useEffect(() => {
     if (isAdmin) {
       fetchStats();
+      fetchActivityLogs();
     }
   }, [isAdmin]);
 
@@ -175,6 +189,43 @@ export default function Admin() {
     }
   };
 
+  const fetchActivityLogs = async () => {
+    setLoadingLogs(true);
+    try {
+      const { data, error } = await supabase
+        .from("admin_activity_logs")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(50);
+
+      if (error) throw error;
+      setActivityLogs((data || []) as ActivityLog[]);
+    } catch (error) {
+      console.error("Error fetching activity logs:", error);
+    } finally {
+      setLoadingLogs(false);
+    }
+  };
+
+  const logAdminActivity = async (
+    targetUserId: string | null,
+    actionType: string,
+    details: Record<string, unknown>
+  ) => {
+    if (!user) return;
+    try {
+      await supabase.from("admin_activity_logs").insert([{
+        admin_user_id: user.id,
+        action_type: actionType,
+        target_user_id: targetUserId,
+        details: details as Json,
+      }]);
+      fetchActivityLogs();
+    } catch (error) {
+      console.error("Error logging activity:", error);
+    }
+  };
+
   // Debounced search
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -186,6 +237,7 @@ export default function Admin() {
   const totalPages = Math.ceil(totalUsers / USERS_PER_PAGE);
 
   const handleGrantRole = async (userId: string, role: AppRole) => {
+    const targetUser = users.find(u => u.user_id === userId);
     try {
       const { error } = await supabase.from("user_roles").insert({
         user_id: userId,
@@ -202,6 +254,11 @@ export default function Admin() {
         return;
       }
 
+      await logAdminActivity(userId, "role_grant", {
+        user_name: targetUser?.display_name,
+        role,
+      });
+
       toast.success(`${role} role granted successfully`);
       fetchUsers();
     } catch (error) {
@@ -216,6 +273,7 @@ export default function Admin() {
       return;
     }
 
+    const targetUser = users.find(u => u.user_id === userId);
     try {
       const { error } = await supabase
         .from("user_roles")
@@ -225,11 +283,36 @@ export default function Admin() {
 
       if (error) throw error;
 
+      await logAdminActivity(userId, "role_revoke", {
+        user_name: targetUser?.display_name,
+        role,
+      });
+
       toast.success(`${role} role revoked successfully`);
       fetchUsers();
     } catch (error) {
       console.error("Error revoking role:", error);
       toast.error("Failed to revoke role");
+    }
+  };
+
+  const getActionLabel = (actionType: string) => {
+    switch (actionType) {
+      case "role_grant": return "Role Granted";
+      case "role_revoke": return "Role Revoked";
+      case "credit_adjustment": return "Credits Adjusted";
+      case "user_edit": return "User Edited";
+      default: return actionType;
+    }
+  };
+
+  const getActionColor = (actionType: string) => {
+    switch (actionType) {
+      case "role_grant": return "text-green-500";
+      case "role_revoke": return "text-red-500";
+      case "credit_adjustment": return "text-amber-500";
+      case "user_edit": return "text-blue-500";
+      default: return "text-muted-foreground";
     }
   };
 
@@ -558,6 +641,73 @@ export default function Admin() {
               )}
             </CardContent>
           </Card>
+
+          {/* Activity Log */}
+          <Card className="bg-card border-border mt-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-foreground">
+                <Activity className="h-5 w-5" />
+                Admin Activity Log
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {loadingLogs ? (
+                <div className="space-y-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Skeleton key={i} className="h-12 w-full" />
+                  ))}
+                </div>
+              ) : activityLogs.length === 0 ? (
+                <p className="text-center py-8 text-muted-foreground">
+                  No activity logs yet
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {activityLogs.map((log) => (
+                    <div
+                      key={log.id}
+                      className="flex items-start justify-between p-3 bg-muted/30 rounded-lg"
+                    >
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className={`font-medium ${getActionColor(log.action_type)}`}>
+                            {getActionLabel(log.action_type)}
+                          </span>
+                          {log.details && (
+                            <span className="text-sm text-muted-foreground">
+                              {(log.details as Record<string, unknown>).user_name as string || "Unknown user"}
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {log.details && log.action_type === "role_grant" && (
+                            <span>Granted <Badge variant="outline" className="ml-1">{(log.details as Record<string, unknown>).role as string}</Badge></span>
+                          )}
+                          {log.details && log.action_type === "role_revoke" && (
+                            <span>Revoked <Badge variant="outline" className="ml-1">{(log.details as Record<string, unknown>).role as string}</Badge></span>
+                          )}
+                          {log.details && log.action_type === "credit_adjustment" && (
+                            <span>
+                              {(log.details as Record<string, unknown>).operation as string}: {(log.details as Record<string, unknown>).from_credits as number} → {(log.details as Record<string, unknown>).to_credits as number} credits
+                              {(log.details as Record<string, unknown>).reason && ` (${(log.details as Record<string, unknown>).reason})`}
+                            </span>
+                          )}
+                          {log.details && log.action_type === "user_edit" && (
+                            <span>
+                              {Object.keys((log.details as Record<string, unknown>).changes as Record<string, unknown> || {}).join(", ")} updated
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <span className="text-xs text-muted-foreground whitespace-nowrap">
+                        {new Date(log.created_at).toLocaleString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </main>
 
         <Footer />
@@ -568,6 +718,7 @@ export default function Admin() {
         open={!!editingUser}
         onOpenChange={(open) => !open && setEditingUser(null)}
         onUserUpdated={fetchUsers}
+        onActivityLog={logAdminActivity}
       />
 
       <AdjustCreditsDialog
@@ -575,6 +726,7 @@ export default function Admin() {
         open={!!adjustingCreditsUser}
         onOpenChange={(open) => !open && setAdjustingCreditsUser(null)}
         onCreditsUpdated={fetchUsers}
+        onActivityLog={logAdminActivity}
       />
     </>
   );
