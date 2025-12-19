@@ -78,6 +78,7 @@ export default function Admin() {
   const [editingUser, setEditingUser] = useState<UserWithProfile | null>(null);
   const [adjustingCreditsUser, setAdjustingCreditsUser] = useState<UserWithProfile | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [tierFilter, setTierFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
@@ -103,7 +104,7 @@ export default function Admin() {
     if (isAdmin) {
       fetchUsers();
     }
-  }, [isAdmin, currentPage, searchQuery]);
+  }, [isAdmin, currentPage, searchQuery, tierFilter]);
 
   const fetchStats = async () => {
     try {
@@ -142,6 +143,10 @@ export default function Admin() {
         query = query.ilike("display_name", `%${searchQuery.trim()}%`);
       }
 
+      if (tierFilter !== "all") {
+        query = query.eq("subscription_tier", tierFilter);
+      }
+
       const { data: profiles, error: profilesError, count } = await query.range(from, to);
 
       if (profilesError) throw profilesError;
@@ -176,7 +181,7 @@ export default function Admin() {
       setCurrentPage(1);
     }, 300);
     return () => clearTimeout(timer);
-  }, [searchQuery]);
+  }, [searchQuery, tierFilter]);
 
   const totalPages = Math.ceil(totalUsers / USERS_PER_PAGE);
 
@@ -355,14 +360,28 @@ export default function Admin() {
                     ({totalUsers} users)
                   </span>
                 </CardTitle>
-                <div className="relative w-full sm:w-64">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search by name..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9"
-                  />
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="relative w-full sm:w-64">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search by name..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-9"
+                    />
+                  </div>
+                  <Select value={tierFilter} onValueChange={setTierFilter}>
+                    <SelectTrigger className="w-full sm:w-36">
+                      <SelectValue placeholder="All tiers" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All tiers</SelectItem>
+                      <SelectItem value="free">Free</SelectItem>
+                      <SelectItem value="basic">Basic</SelectItem>
+                      <SelectItem value="pro">Pro</SelectItem>
+                      <SelectItem value="business">Business</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </CardHeader>
