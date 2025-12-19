@@ -32,10 +32,13 @@ import {
   CreditCard,
   TrendingUp,
   Shield,
-  UserPlus,
   Trash2,
   Crown,
+  Pencil,
+  Coins,
 } from "lucide-react";
+import { EditUserDialog } from "@/components/admin/EditUserDialog";
+import { AdjustCreditsDialog } from "@/components/admin/AdjustCreditsDialog";
 
 interface SystemStats {
   totalUsers: number;
@@ -65,6 +68,8 @@ export default function Admin() {
   const [users, setUsers] = useState<UserWithProfile[]>([]);
   const [loadingStats, setLoadingStats] = useState(true);
   const [loadingUsers, setLoadingUsers] = useState(true);
+  const [editingUser, setEditingUser] = useState<UserWithProfile | null>(null);
+  const [adjustingCreditsUser, setAdjustingCreditsUser] = useState<UserWithProfile | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -392,12 +397,30 @@ export default function Admin() {
                             </div>
                           </TableCell>
                           <TableCell>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 px-2"
+                                onClick={() => setEditingUser(u)}
+                                title="Edit user"
+                              >
+                                <Pencil className="h-3 w-3" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 px-2 text-amber-500 hover:text-amber-600"
+                                onClick={() => setAdjustingCreditsUser(u)}
+                                title="Adjust credits"
+                              >
+                                <Coins className="h-3 w-3" />
+                              </Button>
                               <Select
                                 onValueChange={(value: string) => handleGrantRole(u.user_id, value as AppRole)}
                               >
-                                <SelectTrigger className="w-32 h-8 text-xs">
-                                  <SelectValue placeholder="Add role" />
+                                <SelectTrigger className="w-24 h-8 text-xs">
+                                  <SelectValue placeholder="Role" />
                                 </SelectTrigger>
                                 <SelectContent>
                                   <SelectItem value="admin">Admin</SelectItem>
@@ -431,6 +454,20 @@ export default function Admin() {
 
         <Footer />
       </div>
+
+      <EditUserDialog
+        user={editingUser}
+        open={!!editingUser}
+        onOpenChange={(open) => !open && setEditingUser(null)}
+        onUserUpdated={fetchUsers}
+      />
+
+      <AdjustCreditsDialog
+        user={adjustingCreditsUser}
+        open={!!adjustingCreditsUser}
+        onOpenChange={(open) => !open && setAdjustingCreditsUser(null)}
+        onCreditsUpdated={fetchUsers}
+      />
     </>
   );
 }
