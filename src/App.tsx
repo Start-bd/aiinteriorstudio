@@ -14,6 +14,7 @@ import Dashboard from "./pages/Dashboard";
 import Pricing from "./pages/Pricing";
 import SharedCollection from "./pages/SharedCollection";
 import Admin from "./pages/Admin";
+import AdminUserDetail from "./pages/AdminUserDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/collection/:shareToken" element={<SharedCollection />} />
                 <Route path="/admin" element={<Admin />} />
+                <Route path="/admin/user/:userId" element={<AdminUserDetail />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

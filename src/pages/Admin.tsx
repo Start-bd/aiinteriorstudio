@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -39,6 +39,7 @@ import {
   Pencil,
   Coins,
   Search,
+  Eye,
   ChevronLeft,
   ChevronRight,
   Activity,
@@ -492,14 +493,17 @@ export default function Admin() {
                       {users.map((u) => (
                         <TableRow key={u.id} className="border-border">
                           <TableCell>
-                            <div>
+                            <Link
+                              to={`/admin/user/${u.user_id}`}
+                              className="hover:underline"
+                            >
                               <p className="font-medium text-foreground">
                                 {u.display_name || "No name"}
                               </p>
                               <p className="text-xs text-muted-foreground">
                                 {new Date(u.created_at).toLocaleDateString()}
                               </p>
-                            </div>
+                            </Link>
                           </TableCell>
                           <TableCell>
                             <Badge
@@ -549,6 +553,16 @@ export default function Admin() {
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-1">
+                              <Link to={`/admin/user/${u.user_id}`}>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 px-2"
+                                  title="View details"
+                                >
+                                  <Eye className="h-3 w-3" />
+                                </Button>
+                              </Link>
                               <Button
                                 variant="ghost"
                                 size="sm"
