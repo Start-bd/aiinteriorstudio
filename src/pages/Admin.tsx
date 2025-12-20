@@ -123,21 +123,25 @@ export default function Admin() {
 
   const fetchStats = async () => {
     try {
-      const [profilesRes, imagesRes, paymentsRes, subsRes] = await Promise.all([
-        supabase.from("profiles").select("id", { count: "exact", head: true }),
-        supabase.from("generated_images").select("id", { count: "exact", head: true }),
-        supabase.from("payments").select("id", { count: "exact", head: true }).eq("status", "completed"),
-        supabase.from("subscriptions").select("id", { count: "exact", head: true }).eq("status", "active"),
-      ]);
-
-      setStats({
-        totalUsers: profilesRes.count || 0,
-        totalGenerations: imagesRes.count || 0,
-        totalPayments: paymentsRes.count || 0,
-        activeSubscriptions: subsRes.count || 0,
-      });
+      // Use server-side edge function to fetch stats with admin verification
+      const { data, error } = await supabase.functions.invoke('admin-stats');
+      
+      if (error) {
+        console.error("Error fetching stats from edge function:", error);
+        throw error;
+      }
+      
+      if (data) {
+        setStats({
+          totalUsers: data.totalUsers || 0,
+          totalGenerations: data.totalGenerations || 0,
+          totalPayments: data.totalPayments || 0,
+          activeSubscriptions: data.activeSubscriptions || 0,
+        });
+      }
     } catch (error) {
       console.error("Error fetching stats:", error);
+      toast.error("Failed to fetch statistics");
     } finally {
       setLoadingStats(false);
     }
