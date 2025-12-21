@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { validateCollectionInput } from "@/lib/validation";
 
 export interface Collection {
   id: string;
@@ -101,10 +102,21 @@ export const useCollections = (userId: string | undefined) => {
   const createCollection = async (name: string, description?: string) => {
     if (!userId) return null;
 
+    // Validate input
+    const validation = validateCollectionInput(name, description);
+    if (!validation.valid) {
+      toast.error(validation.error || "Invalid input");
+      return null;
+    }
+
     try {
       const { data, error } = await supabase
         .from("collections")
-        .insert({ user_id: userId, name, description: description || null })
+        .insert({ 
+          user_id: userId, 
+          name: validation.data!.name, 
+          description: validation.data!.description || null 
+        })
         .select()
         .single();
 
@@ -125,10 +137,20 @@ export const useCollections = (userId: string | undefined) => {
     name: string,
     description?: string
   ) => {
+    // Validate input
+    const validation = validateCollectionInput(name, description);
+    if (!validation.valid) {
+      toast.error(validation.error || "Invalid input");
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from("collections")
-        .update({ name, description: description || null })
+        .update({ 
+          name: validation.data!.name, 
+          description: validation.data!.description || null 
+        })
         .eq("id", collectionId);
 
       if (error) throw error;

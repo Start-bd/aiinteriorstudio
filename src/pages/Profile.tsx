@@ -4,6 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { useAuth } from "@/hooks/useAuth";
 import { useFavorites } from "@/hooks/useFavorites";
 import { supabase } from "@/integrations/supabase/client";
+import { validateDisplayName } from "@/lib/validation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -92,11 +93,18 @@ const Profile = () => {
   const handleSaveProfile = async () => {
     if (!user) return;
 
+    // Validate display name
+    const validation = validateDisplayName(displayName);
+    if (!validation.valid) {
+      toast.error(validation.error || "Invalid display name");
+      return;
+    }
+
     setIsSaving(true);
     try {
       const { error } = await supabase
         .from("profiles")
-        .update({ display_name: displayName.trim() })
+        .update({ display_name: validation.data })
         .eq("user_id", user.id);
 
       if (error) throw error;
