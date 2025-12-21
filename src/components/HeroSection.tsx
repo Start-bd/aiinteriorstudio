@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Instagram, ArrowRight } from "lucide-react";
+import { Instagram, ArrowRight, Users, Sparkles, Globe } from "lucide-react";
 import heroImage from "@/assets/hero-interior.jpg";
 
 const HeroSection = () => {
@@ -36,6 +36,25 @@ const HeroSection = () => {
           <p className="animate-fade-up opacity-0 delay-300 text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto font-light">
             Design smarter spaces with artificial intelligence. Explore AI-generated interiors, home decor concepts, and luxury living ideas.
           </p>
+
+          {/* Social Proof Stats */}
+          <div className="animate-fade-up opacity-0 delay-350 flex flex-wrap justify-center gap-6 md:gap-10">
+            <div className="flex items-center gap-2 glass-card px-4 py-2 rounded-full">
+              <Instagram className="w-5 h-5 text-gold" />
+              <span className="font-display font-bold text-lg">447K</span>
+              <span className="text-muted-foreground text-sm">Followers</span>
+            </div>
+            <div className="flex items-center gap-2 glass-card px-4 py-2 rounded-full">
+              <Sparkles className="w-5 h-5 text-gold" />
+              <span className="font-display font-bold text-lg">2.5M+</span>
+              <span className="text-muted-foreground text-sm">Designs</span>
+            </div>
+            <div className="flex items-center gap-2 glass-card px-4 py-2 rounded-full">
+              <Globe className="w-5 h-5 text-gold" />
+              <span className="font-display font-bold text-lg">180+</span>
+              <span className="text-muted-foreground text-sm">Countries</span>
+            </div>
+          </div>
 
           {/* CTAs */}
           <div className="animate-fade-up opacity-0 delay-400 flex flex-col sm:flex-row gap-4 justify-center pt-4">
