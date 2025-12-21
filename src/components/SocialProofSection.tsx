@@ -22,16 +22,20 @@ const SocialProofSection = () => {
         {/* Stats */}
         <div className="flex flex-wrap justify-center gap-8 md:gap-16 mb-16">
           <div className="text-center">
+            <div className="text-4xl md:text-5xl font-display font-bold text-gradient-gold">447K</div>
+            <div className="text-muted-foreground mt-2">Instagram Followers</div>
+          </div>
+          <div className="text-center">
             <div className="text-4xl md:text-5xl font-display font-bold text-gradient-gold">50M+</div>
             <div className="text-muted-foreground mt-2">Impressions</div>
           </div>
           <div className="text-center">
-            <div className="text-4xl md:text-5xl font-display font-bold text-gradient-gold">180+</div>
-            <div className="text-muted-foreground mt-2">Countries</div>
+            <div className="text-4xl md:text-5xl font-display font-bold text-gradient-gold">2.5M+</div>
+            <div className="text-muted-foreground mt-2">Designs Created</div>
           </div>
           <div className="text-center">
-            <div className="text-4xl md:text-5xl font-display font-bold text-gradient-gold">100%</div>
-            <div className="text-muted-foreground mt-2">AI-Generated</div>
+            <div className="text-4xl md:text-5xl font-display font-bold text-gradient-gold">180+</div>
+            <div className="text-muted-foreground mt-2">Countries</div>
           </div>
         </div>
 
