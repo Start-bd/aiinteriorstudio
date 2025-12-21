@@ -4,6 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
+import { validateSearchQuery } from "@/lib/validation";
 import type { Json } from "@/integrations/supabase/types";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -159,7 +160,11 @@ export default function Admin() {
         .order("created_at", { ascending: false });
 
       if (searchQuery.trim()) {
-        query = query.ilike("display_name", `%${searchQuery.trim()}%`);
+        // Validate and sanitize search query
+        const validation = validateSearchQuery(searchQuery);
+        if (validation.valid && validation.data) {
+          query = query.ilike("display_name", `%${validation.data}%`);
+        }
       }
 
       if (tierFilter !== "all") {
