@@ -42,10 +42,12 @@ const InstagramSection = () => {
               </div>
             </div>
 
-            <Button variant="gold" size="lg" className="mt-6 group">
-              <Instagram className="mr-2 h-5 w-5" />
-              Follow @interiorofai
-            </Button>
+            <a href="https://www.instagram.com/interiorofai?igsh=bWFyb3VrZXA1ejQ4" target="_blank" rel="noopener noreferrer">
+              <Button variant="gold" size="lg" className="mt-6 group">
+                <Instagram className="mr-2 h-5 w-5" />
+                Follow @interiorofai
+              </Button>
+            </a>
           </div>
 
           {/* Right: Visual */}

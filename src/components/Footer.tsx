@@ -1,12 +1,12 @@
-import { Instagram, Mail, ArrowUpRight } from "lucide-react";
+import { Instagram, Mail, ArrowUpRight, MessageCircle } from "lucide-react";
 
 const footerLinks = [
-  { label: "Explore AI Interiors", href: "#" },
-  { label: "Home Decor AI", href: "#" },
-  { label: "Luxury AI Design", href: "#" },
-  { label: "About", href: "#" },
-  { label: "Media Kit", href: "#" },
-  { label: "Contact", href: "#" },
+  { label: "Explore AI Interiors", href: "#ai-generator" },
+  { label: "Home AI", href: "https://homeai.design", external: true },
+  { label: "Luxury AI Design", href: "https://luxuryai.design", external: true },
+  { label: "About", href: "#about" },
+  { label: "House AI", href: "https://houseai.design", external: true },
+  { label: "Contact", href: "#newsletter" },
 ];
 
 const Footer = () => {
@@ -24,18 +24,29 @@ const Footer = () => {
             </p>
             <div className="flex gap-4">
               <a
-                href="https://instagram.com/interiorofai"
+                href="https://www.instagram.com/interiorofai?igsh=bWFyb3VrZXA1ejQ4"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center hover:bg-gold hover:text-primary-foreground transition-all duration-300"
+                aria-label="Instagram"
               >
                 <Instagram className="w-5 h-5" />
               </a>
               <a
                 href="mailto:hello@interiorofai.com"
                 className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center hover:bg-gold hover:text-primary-foreground transition-all duration-300"
+                aria-label="Email"
               >
                 <Mail className="w-5 h-5" />
+              </a>
+              <a
+                href="https://wa.me/13074001973"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center hover:bg-gold hover:text-primary-foreground transition-all duration-300"
+                aria-label="WhatsApp"
+              >
+                <MessageCircle className="w-5 h-5" />
               </a>
             </div>
           </div>
@@ -48,6 +59,8 @@ const Footer = () => {
                 <li key={index}>
                   <a
                     href={link.href}
+                    target={link.external ? "_blank" : undefined}
+                    rel={link.external ? "noopener noreferrer" : undefined}
                     className="text-foreground hover:text-gold transition-colors duration-300 flex items-center gap-1 group"
                   >
                     {link.label}
@@ -66,6 +79,8 @@ const Footer = () => {
                 <li key={index}>
                   <a
                     href={link.href}
+                    target={link.external ? "_blank" : undefined}
+                    rel={link.external ? "noopener noreferrer" : undefined}
                     className="text-foreground hover:text-gold transition-colors duration-300 flex items-center gap-1 group"
                   >
                     {link.label}
@@ -83,8 +98,8 @@ const Footer = () => {
             Interior of AI © {new Date().getFullYear()} — Exploring the future of interior design through artificial intelligence.
           </p>
           <div className="flex gap-6 text-sm text-muted-foreground">
-            <a href="#" className="hover:text-gold transition-colors">Privacy</a>
-            <a href="#" className="hover:text-gold transition-colors">Terms</a>
+            <a href="mailto:hello@interiorofai.com" className="hover:text-gold transition-colors">Contact</a>
+            <a href="https://wa.me/13074001973" target="_blank" rel="noopener noreferrer" className="hover:text-gold transition-colors">WhatsApp</a>
           </div>
         </div>
       </div>
