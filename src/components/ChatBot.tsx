@@ -354,25 +354,45 @@ export function ChatBot() {
               ) : (
                 <>
                   <p className="text-sm text-muted-foreground max-w-[280px] mx-auto mb-4">
-                    Chat about design ideas or generate AI interior visualizations instantly.
+                    Get quick AI design inspiration or generate interior visualizations.
                   </p>
-                  <div className="flex flex-wrap gap-2 justify-center">
-                    {[
-                      "Generate a modern living room",
-                      "Cozy Scandinavian bedroom",
-                      "Minimalist home office"
-                    ].map((suggestion) => (
-                      <button
-                        key={suggestion}
-                        onClick={() => {
-                          setInput(suggestion);
-                          inputRef.current?.focus();
-                        }}
-                        className="text-xs px-3 py-1.5 rounded-full bg-secondary text-secondary-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
-                      >
-                        {suggestion}
-                      </button>
-                    ))}
+                  <div className="space-y-3">
+                    <p className="text-xs text-muted-foreground">Quick start:</p>
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      {[
+                        "🏠 Modern living room",
+                        "🌿 Scandinavian bedroom",
+                        "✨ Luxury kitchen"
+                      ].map((suggestion) => (
+                        <button
+                          key={suggestion}
+                          onClick={() => {
+                            setInput(suggestion);
+                            inputRef.current?.focus();
+                          }}
+                          className="text-xs px-3 py-1.5 rounded-full bg-secondary text-secondary-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      {[
+                        "🎨 Bohemian office",
+                        "🛁 Minimalist bathroom"
+                      ].map((suggestion) => (
+                        <button
+                          key={suggestion}
+                          onClick={() => {
+                            setInput(suggestion);
+                            inputRef.current?.focus();
+                          }}
+                          className="text-xs px-3 py-1.5 rounded-full bg-secondary text-secondary-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </>
               )}

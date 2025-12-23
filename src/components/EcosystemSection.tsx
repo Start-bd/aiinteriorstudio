@@ -11,24 +11,28 @@ const ecosystems = [
     description: "AI-generated decor ideas for modern, minimal, and creative homes.",
     image: gallery1,
     color: "from-amber-500/20 to-orange-500/20",
+    url: "https://homeai.design",
   },
   {
     name: "Home & House AI",
     description: "Room designs, floor concepts, and complete AI-designed homes.",
     image: gallery2,
     color: "from-gold/20 to-amber-600/20",
+    url: "https://houseai.design",
   },
   {
     name: "Luxury AI Design",
     description: "High-end interiors, premium materials, and futuristic luxury concepts.",
     image: gallery3,
     color: "from-yellow-500/20 to-gold/20",
+    url: "https://luxuryai.design",
   },
   {
     name: "Architecture AI",
     description: "Cutting-edge architectural concepts powered by AI imagination.",
     image: gallery4,
     color: "from-amber-600/20 to-yellow-600/20",
+    url: "#ai-generator",
   },
 ];
 
@@ -48,9 +52,12 @@ const EcosystemSection = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {ecosystems.map((eco, index) => (
-            <div
+            <a
               key={index}
-              className="group relative rounded-2xl overflow-hidden hover-lift cursor-pointer"
+              href={eco.url}
+              target={eco.url.startsWith("http") ? "_blank" : undefined}
+              rel={eco.url.startsWith("http") ? "noopener noreferrer" : undefined}
+              className="group relative rounded-2xl overflow-hidden hover-lift cursor-pointer block"
             >
               {/* Background Image */}
               <div className="absolute inset-0">
@@ -75,7 +82,7 @@ const EcosystemSection = () => {
                   <ArrowUpRight className="w-4 h-4 ml-1 transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
                 </Button>
               </div>
-            </div>
+            </a>
           ))}
         </div>
       </div>

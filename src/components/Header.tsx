@@ -84,7 +84,7 @@ const Header = () => {
           <div className="hidden md:flex items-center gap-4">
             <LanguageSwitcher />
             <a
-              href="https://instagram.com/interiorofai"
+              href="https://www.instagram.com/interiorofai?igsh=bWFyb3VrZXA1ejQ4"
               target="_blank"
               rel="noopener noreferrer"
               className="text-muted-foreground hover:text-gold transition-colors duration-300"
@@ -188,7 +188,7 @@ const Header = () => {
               <div className="flex items-center gap-4 pt-4 border-t border-border">
                 <LanguageSwitcher />
                 <a
-                  href="https://instagram.com/interiorofai"
+                  href="https://www.instagram.com/interiorofai?igsh=bWFyb3VrZXA1ejQ4"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-gold transition-colors duration-300"

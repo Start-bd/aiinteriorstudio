@@ -58,14 +58,18 @@ const HeroSection = () => {
 
           {/* CTAs */}
           <div className="animate-fade-up opacity-0 delay-400 flex flex-col sm:flex-row gap-4 justify-center pt-4">
-            <Button variant="hero" size="lg" className="group">
-              Explore AI Interiors
-              <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-            </Button>
-            <Button variant="hero-secondary" size="lg" className="group">
-              <Instagram className="mr-2 h-5 w-5" />
-              Follow @interiorofai
-            </Button>
+            <a href="#ai-generator">
+              <Button variant="hero" size="lg" className="group">
+                Explore AI Interiors
+                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+              </Button>
+            </a>
+            <a href="https://www.instagram.com/interiorofai?igsh=bWFyb3VrZXA1ejQ4" target="_blank" rel="noopener noreferrer">
+              <Button variant="hero-secondary" size="lg" className="group">
+                <Instagram className="mr-2 h-5 w-5" />
+                Follow @interiorofai
+              </Button>
+            </a>
           </div>
         </div>
       </div>

@@ -234,6 +234,32 @@ serve(async (req) => {
 
     const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     
+    // First check if user has a profile with credits
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .select('credits, subscription_tier')
+      .eq('user_id', user.id)
+      .single();
+    
+    if (profileError || !profile) {
+      console.error("Profile lookup error:", profileError?.message || "Profile not found");
+      return new Response(
+        JSON.stringify({ error: 'User profile not found. Please try signing out and back in.' }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
+    console.log("User profile found:", { credits: profile.credits, tier: profile.subscription_tier });
+    
+    // Check if user has enough credits (unless on pro/business tier)
+    if (!['pro', 'business'].includes(profile.subscription_tier || '') && (profile.credits || 0) < 1) {
+      console.log("Insufficient credits for user:", user.id);
+      return new Response(
+        JSON.stringify({ error: 'Insufficient credits. Please purchase more credits or upgrade your subscription.' }),
+        { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
     // Deduct 1 credit before generating image
     const { data: creditDeducted, error: creditError } = await supabaseAdmin
       .rpc('deduct_credits', {
@@ -243,15 +269,15 @@ serve(async (req) => {
       });
 
     if (creditError) {
-      console.error("Credit deduction error:", creditError.message);
+      console.error("Credit deduction error:", creditError.message, creditError.details, creditError.hint);
       return new Response(
         JSON.stringify({ error: 'Failed to process credits. Please try again.' }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    if (!creditDeducted) {
-      console.log("Insufficient credits for user:", user.id);
+    if (creditDeducted === false) {
+      console.log("Credit deduction returned false for user:", user.id);
       return new Response(
         JSON.stringify({ error: 'Insufficient credits. Please purchase more credits or upgrade your subscription.' }),
         { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
