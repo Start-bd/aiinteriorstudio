@@ -11,6 +11,10 @@ const HeroSection = () => {
           src={heroImage}
           alt="AI-generated luxury interior design with dramatic lighting"
           className="w-full h-full object-cover"
+          width={1920}
+          height={1080}
+          loading="eager"
+          fetchPriority="high"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/60 to-background" />
       </div>
