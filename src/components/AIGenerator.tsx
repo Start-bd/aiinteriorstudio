@@ -87,9 +87,18 @@ export function AIGenerator({ onImageGenerated }: AIGeneratorProps) {
         toast.success('Design generated successfully!');
         onImageGenerated?.(data.imageUrl, fullPrompt);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Generation error:', error);
-      toast.error('Failed to generate design. Please try again.');
+      const rawMessage =
+        error?.context?.message || error?.message || 'Failed to generate design. Please try again.';
+
+      // Make common backend errors more readable
+      const message = rawMessage
+        .replace(/\s+/g, ' ')
+        .trim()
+        .replace('Function returned an error', 'Server error');
+
+      toast.error(message);
     } finally {
       setIsGenerating(false);
     }
