@@ -235,18 +235,44 @@ serve(async (req) => {
     const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     
     // First check if user has a profile with credits
-    const { data: profile, error: profileError } = await supabaseAdmin
+    let { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('credits, subscription_tier')
       .eq('user_id', user.id)
       .single();
     
+    // If profile doesn't exist, create it automatically with default credits
     if (profileError || !profile) {
-      console.error("Profile lookup error:", profileError?.message || "Profile not found");
-      return new Response(
-        JSON.stringify({ error: 'User profile not found. Please try signing out and back in.' }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      console.log("Profile not found, creating one for user:", user.id);
+      
+      const displayName = user.user_metadata?.display_name || 
+                          user.email?.split('@')[0] || 
+                          'User';
+      const referralCode = crypto.randomUUID().substring(0, 8);
+      
+      const { data: newProfile, error: createError } = await supabaseAdmin
+        .from('profiles')
+        .insert({
+          user_id: user.id,
+          display_name: displayName,
+          credits: 3,
+          referral_code: referralCode,
+          subscription_tier: 'free',
+          subscription_status: 'inactive'
+        })
+        .select('credits, subscription_tier')
+        .single();
+      
+      if (createError) {
+        console.error("Failed to create profile:", createError.message);
+        return new Response(
+          JSON.stringify({ error: 'Failed to initialize your account. Please try again.' }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      
+      profile = newProfile;
+      console.log("Profile created successfully with 3 credits");
     }
     
     console.log("User profile found:", { credits: profile.credits, tier: profile.subscription_tier });
