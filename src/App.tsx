@@ -7,6 +7,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/hooks/useAuth";
 import { I18nProvider } from "@/lib/i18n";
 import Index from "./pages/Index";
+import Generate from "./pages/Generate";
 import AIGallery from "./pages/AIGallery";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
@@ -30,6 +31,7 @@ const App = () => (
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Index />} />
+                <Route path="/generate" element={<Generate />} />
                 <Route path="/gallery" element={<AIGallery />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/profile" element={<Profile />} />
