@@ -205,13 +205,13 @@ export function AIGenerator({ onImageGenerated }: AIGeneratorProps) {
 
         {/* Generated Image Preview */}
         {generatedImage && (
-          <div className="mt-6 space-y-4">
+          <div className="mt-6 space-y-4 animate-fade-in">
             <h4 className="font-medium">Generated Design</h4>
-            <div className="relative aspect-video rounded-lg overflow-hidden bg-secondary">
+            <div className="relative aspect-video rounded-lg overflow-hidden bg-secondary animate-scale-in">
               <img
                 src={generatedImage}
                 alt="Generated interior design"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
               />
             </div>
           </div>

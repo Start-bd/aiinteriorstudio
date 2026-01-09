@@ -18,7 +18,7 @@ export default function Generate() {
         <main className="flex-1 py-12 px-4">
           <div className="container max-w-2xl mx-auto">
             {/* Page Header */}
-            <div className="text-center mb-10">
+            <div className="text-center mb-10 animate-fade-in">
               <div className="inline-flex items-center gap-2 bg-primary/10 text-primary rounded-full px-4 py-2 mb-4">
                 <Sparkles className="h-4 w-4" />
                 <span className="text-sm font-medium">AI-Powered Design</span>
@@ -32,7 +32,9 @@ export default function Generate() {
             </div>
             
             {/* Generator Form */}
-            <AIGenerator />
+            <div className="animate-fade-in" style={{ animationDelay: '150ms', animationFillMode: 'both' }}>
+              <AIGenerator />
+            </div>
           </div>
         </main>
         
