@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Select,
   SelectContent,
@@ -203,8 +204,27 @@ export function AIGenerator({ onImageGenerated }: AIGeneratorProps) {
           </p>
         )}
 
+        {/* Loading Skeleton */}
+        {isGenerating && (
+          <div className="mt-6 space-y-4 animate-fade-in">
+            <h4 className="font-medium">Generating your design...</h4>
+            <div className="relative aspect-video rounded-lg overflow-hidden bg-secondary">
+              <Skeleton className="w-full h-full" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
+                <div className="relative">
+                  <div className="w-16 h-16 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
+                  <Sparkles className="absolute inset-0 m-auto h-6 w-6 text-primary animate-pulse" />
+                </div>
+                <p className="text-sm text-muted-foreground animate-pulse">
+                  AI is crafting your perfect space...
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Generated Image Preview */}
-        {generatedImage && (
+        {generatedImage && !isGenerating && (
           <div className="mt-6 space-y-4 animate-fade-in">
             <h4 className="font-medium">Generated Design</h4>
             <div className="relative aspect-video rounded-lg overflow-hidden bg-secondary animate-scale-in">
