@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/hooks/useAuth";
 import { I18nProvider } from "@/lib/i18n";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 import Generate from "./pages/Generate";
 import AIGallery from "./pages/AIGallery";
@@ -21,33 +22,35 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <HelmetProvider>
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <I18nProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/generate" element={<Generate />} />
-                <Route path="/gallery" element={<AIGallery />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/pricing" element={<Pricing />} />
-                <Route path="/collection/:shareToken" element={<SharedCollection />} />
-                <Route path="/admin" element={<Admin />} />
-                <Route path="/admin/user/:userId" element={<AdminUserDetail />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-          </TooltipProvider>
-        </I18nProvider>
-      </AuthProvider>
-    </QueryClientProvider>
-  </HelmetProvider>
+  <ErrorBoundary>
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <I18nProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/generate" element={<Generate />} />
+                  <Route path="/gallery" element={<AIGallery />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/pricing" element={<Pricing />} />
+                  <Route path="/collection/:shareToken" element={<SharedCollection />} />
+                  <Route path="/admin" element={<Admin />} />
+                  <Route path="/admin/user/:userId" element={<AdminUserDetail />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </BrowserRouter>
+            </TooltipProvider>
+          </I18nProvider>
+        </AuthProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
+  </ErrorBoundary>
 );
 
 export default App;

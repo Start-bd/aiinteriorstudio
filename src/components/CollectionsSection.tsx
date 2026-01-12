@@ -282,7 +282,7 @@ export const CollectionsSection = ({
             <Button
               variant="outline"
               size="sm"
-              onClick={(e) => handleShareClick(selectedCollection, e as any)}
+              onClick={(e: React.MouseEvent<HTMLButtonElement>) => handleShareClick(selectedCollection, e)}
               className="gap-2"
             >
               <Share2 className="h-4 w-4" />

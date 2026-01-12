@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Instagram, ImageIcon, User, LogOut, LayoutDashboard, Crown, Shield } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -28,6 +28,25 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
   const { isAdmin } = useUserRole();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    const sectionId = href.replace('#', '');
+    
+    if (location.pathname === '/') {
+      // On homepage, scroll to section
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      // On other pages, navigate to homepage with hash
+      navigate(`/${href}`);
+    }
+    setIsMobileMenuOpen(false);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -73,7 +92,8 @@ const Header = () => {
                 <a
                   key={link.label}
                   href={link.href}
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300"
+                  onClick={(e) => handleAnchorClick(e, link.href)}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300 cursor-pointer"
                 >
                   {link.label}
                 </a>
@@ -178,8 +198,8 @@ const Header = () => {
                   <a
                     key={link.label}
                     href={link.href}
-                    className="text-lg text-muted-foreground hover:text-foreground transition-colors duration-300"
-                    onClick={() => setIsMobileMenuOpen(false)}
+                    onClick={(e) => handleAnchorClick(e, link.href)}
+                    className="text-lg text-muted-foreground hover:text-foreground transition-colors duration-300 cursor-pointer"
                   >
                     {link.label}
                   </a>

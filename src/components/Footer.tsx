@@ -1,4 +1,5 @@
 import { Instagram, Mail, ArrowUpRight, MessageCircle } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const footerLinks = [
   { label: "Explore AI Interiors", href: "#ai-generator" },
@@ -10,6 +11,26 @@ const footerLinks = [
 ];
 
 const Footer = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (!href.startsWith('#')) return; // Let external links work normally
+    
+    e.preventDefault();
+    const sectionId = href.replace('#', '');
+    
+    if (location.pathname === '/') {
+      // On homepage, scroll to section
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      // On other pages, navigate to homepage with hash
+      navigate(`/${href}`);
+    }
+  };
   return (
     <footer className="py-16 bg-charcoal border-t border-border">
       <div className="container mx-auto px-6">
@@ -61,7 +82,8 @@ const Footer = () => {
                     href={link.href}
                     target={link.external ? "_blank" : undefined}
                     rel={link.external ? "noopener noreferrer" : undefined}
-                    className="text-foreground hover:text-gold transition-colors duration-300 flex items-center gap-1 group"
+                    onClick={(e) => !link.external && handleAnchorClick(e, link.href)}
+                    className="text-foreground hover:text-gold transition-colors duration-300 flex items-center gap-1 group cursor-pointer"
                   >
                     {link.label}
                     <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -81,7 +103,8 @@ const Footer = () => {
                     href={link.href}
                     target={link.external ? "_blank" : undefined}
                     rel={link.external ? "noopener noreferrer" : undefined}
-                    className="text-foreground hover:text-gold transition-colors duration-300 flex items-center gap-1 group"
+                    onClick={(e) => !link.external && handleAnchorClick(e, link.href)}
+                    className="text-foreground hover:text-gold transition-colors duration-300 flex items-center gap-1 group cursor-pointer"
                   >
                     {link.label}
                     <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
