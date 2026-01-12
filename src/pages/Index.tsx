@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import SocialProofSection from "@/components/SocialProofSection";
@@ -15,6 +17,21 @@ import { AIGenerator } from "@/components/AIGenerator";
 import { Helmet } from "react-helmet-async";
 
 const Index = () => {
+  const location = useLocation();
+
+  // Handle smooth scroll to anchor on page load or hash change
+  useEffect(() => {
+    if (location.hash) {
+      const sectionId = location.hash.substring(1);
+      // Small delay to ensure DOM is ready
+      setTimeout(() => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 100);
+    }
+  }, [location.hash]);
   return (
     <>
       <Helmet>
