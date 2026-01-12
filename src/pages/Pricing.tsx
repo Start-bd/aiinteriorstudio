@@ -277,10 +277,10 @@ export default function Pricing() {
             </CardContent>
           </Card>
 
-          {/* Contact Link */}
+          {/* FAQ Link */}
           <div className="mt-12 text-center">
             <p className="text-muted-foreground">
-              Have questions? <Link to="/#newsletter" className="text-primary hover:underline">Contact us</Link>
+              Have questions? <Link to="/#faq" className="text-primary hover:underline">Check our FAQ</Link>
             </p>
           </div>
         </div>

@@ -8,6 +8,7 @@ import WhySection from "@/components/WhySection";
 import InstagramSection from "@/components/InstagramSection";
 import NewsletterSection from "@/components/NewsletterSection";
 import AboutPreviewSection from "@/components/AboutPreviewSection";
+import FAQSection from "@/components/FAQSection";
 import Footer from "@/components/Footer";
 import { ChatBot } from "@/components/ChatBot";
 import { AIGenerator } from "@/components/AIGenerator";
@@ -57,6 +58,7 @@ const Index = () => {
           </div>
         </section>
         <WhySection />
+        <FAQSection />
         <InstagramSection />
         <section id="newsletter">
           <NewsletterSection />
