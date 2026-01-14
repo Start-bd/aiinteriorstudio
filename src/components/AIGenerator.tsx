@@ -19,14 +19,16 @@ import { useStyles } from '@/hooks/useStyles';
 import { useRoomTypes } from '@/hooks/useRoomTypes';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { BeforeAfterSlider } from '@/components/BeforeAfterSlider';
 
 interface AIGeneratorProps {
   onImageGenerated?: (imageUrl: string, prompt: string) => void;
 }
 
-// Sample design to show as demo
+// Sample design to show as demo (before/after comparison)
 const SAMPLE_DESIGN = {
-  imageUrl: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=1200&q=80",
+  beforeImage: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200&q=80",
+  afterImage: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=1200&q=80",
   prompt: "Modern minimalist living room with natural light"
 };
 
@@ -46,7 +48,7 @@ export function AIGenerator({ onImageGenerated }: AIGeneratorProps) {
 
   const handleTrySample = () => {
     setShowSample(true);
-    setGeneratedImage(SAMPLE_DESIGN.imageUrl);
+    setGeneratedImage(SAMPLE_DESIGN.afterImage);
     toast.success('Sample design loaded! Sign in to create your own.');
   };
 
@@ -277,20 +279,30 @@ export function AIGenerator({ onImageGenerated }: AIGeneratorProps) {
         {generatedImage && !isGenerating && (
           <div className="mt-6 space-y-4 animate-fade-in">
             <div className="flex items-center justify-between">
-              <h4 className="font-medium">{showSample ? 'Sample Design' : 'Generated Design'}</h4>
+              <h4 className="font-medium">{showSample ? 'Sample Transformation' : 'Generated Design'}</h4>
               {showSample && (
                 <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded-full">
                   Demo Preview
                 </span>
               )}
             </div>
-            <div className="relative aspect-video rounded-lg overflow-hidden bg-secondary animate-scale-in">
-              <img
-                src={generatedImage}
-                alt="Generated interior design"
-                className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+            
+            {showSample ? (
+              <BeforeAfterSlider
+                beforeImage={SAMPLE_DESIGN.beforeImage}
+                afterImage={SAMPLE_DESIGN.afterImage}
+                beforeLabel="Original Room"
+                afterLabel="AI Redesign"
               />
-            </div>
+            ) : (
+              <div className="relative aspect-video rounded-lg overflow-hidden bg-secondary animate-scale-in">
+                <img
+                  src={generatedImage}
+                  alt="Generated interior design"
+                  className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                />
+              </div>
+            )}
           </div>
         )}
       </div>
