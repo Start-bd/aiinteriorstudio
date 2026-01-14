@@ -67,10 +67,10 @@ const Index = () => {
           <div className="container mx-auto px-6">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-                Create Your <span className="text-gradient-gold">Dream Interior</span>
+                Create Your <span className="text-gradient-gold">Dream Room</span>
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                Use AI to generate stunning interior designs tailored to your style and room type
+                Upload a photo and let AI redesign your space in seconds
               </p>
             </div>
             <AIGenerator />
