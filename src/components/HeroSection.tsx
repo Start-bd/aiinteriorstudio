@@ -88,23 +88,23 @@ const HeroSection = () => {
           </div>
 
           {/* Main Headline */}
-          <h1 className="animate-fade-up opacity-0 delay-200 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold leading-tight text-foreground">
-            Upload Your Room Photo.
-            <br />
-            <span className="text-gradient-gold">Get AI Interior Designs in 30 Seconds.</span>
+          <h1 className="animate-fade-up opacity-0 delay-200 text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-display font-bold leading-tight text-foreground">
+            <span className="block sm:inline">Upload Your Room Photo.</span>
+            <br className="hidden sm:block" />
+            <span className="block sm:inline text-gradient-gold">Get AI Interior Designs in 30 Seconds.</span>
           </h1>
 
           {/* Subheadline */}
-          <p className="animate-fade-up opacity-0 delay-300 text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto font-light">
+          <p className="animate-fade-up opacity-0 delay-300 text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto font-light px-2">
             Perfect for homeowners, interior designers, and real estate professionals who want instant, professional room makeovers.
           </p>
 
           {/* CTA Button */}
-          <div className="animate-fade-up opacity-0 delay-400 pt-4">
-            <Link to="/generate">
+          <div className="animate-fade-up opacity-0 delay-400 pt-4 px-4 sm:px-0">
+            <Link to="/generate" className="block sm:inline-block">
               <Button 
                 size="lg" 
-                className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold text-lg px-8 py-6 h-auto rounded-full shadow-gold transition-all duration-300 hover:scale-105"
+                className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 font-semibold text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 h-auto min-h-[44px] rounded-full shadow-gold transition-all duration-300 hover:scale-105 active:scale-95"
               >
                 Generate Your Dream Room
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -113,38 +113,40 @@ const HeroSection = () => {
           </div>
 
           {/* Trust statement */}
-          <p className="animate-fade-up opacity-0 delay-500 text-muted-foreground text-sm">
+          <p className="animate-fade-up opacity-0 delay-500 text-muted-foreground text-xs sm:text-sm px-4">
             No credit card required • 2.5M+ designs created • Trusted by 150K+ users
           </p>
 
-          {/* Stats */}
-          <div className="animate-fade-up opacity-0 delay-600 flex flex-wrap justify-center gap-6 md:gap-10 pt-8">
-            <div className="flex items-center gap-2 text-foreground">
-              <Image className="w-5 h-5 text-primary" />
-              <span className="font-display font-bold text-xl">2.5M+</span>
-              <span className="text-muted-foreground text-sm">Designs</span>
-            </div>
-            <div className="flex items-center gap-2 text-foreground">
-              <Users className="w-5 h-5 text-primary" />
-              <span className="font-display font-bold text-xl">150K+</span>
-              <span className="text-muted-foreground text-sm">Users</span>
-            </div>
-            <div className="flex items-center gap-2 text-foreground">
-              <Instagram className="w-5 h-5 text-primary" />
-              <span className="font-display font-bold text-xl">433K</span>
-              <span className="text-muted-foreground text-sm">Instagram</span>
+          {/* Stats - Horizontal scroll on mobile */}
+          <div className="animate-fade-up opacity-0 delay-600 pt-6 sm:pt-8 w-full">
+            <div className="flex justify-start sm:justify-center gap-4 sm:gap-6 md:gap-10 overflow-x-auto pb-2 px-4 sm:px-0 scrollbar-hide">
+              <div className="flex items-center gap-2 text-foreground flex-shrink-0">
+                <Image className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                <span className="font-display font-bold text-lg sm:text-xl">2.5M+</span>
+                <span className="text-muted-foreground text-xs sm:text-sm">Designs</span>
+              </div>
+              <div className="flex items-center gap-2 text-foreground flex-shrink-0">
+                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                <span className="font-display font-bold text-lg sm:text-xl">150K+</span>
+                <span className="text-muted-foreground text-xs sm:text-sm">Users</span>
+              </div>
+              <div className="flex items-center gap-2 text-foreground flex-shrink-0">
+                <Instagram className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                <span className="font-display font-bold text-lg sm:text-xl">433K</span>
+                <span className="text-muted-foreground text-xs sm:text-sm">Instagram</span>
+              </div>
             </div>
           </div>
 
-          {/* Trust badges */}
-          <div className="animate-fade-up opacity-0 delay-700 flex flex-wrap justify-center gap-4 md:gap-6 pt-4">
-            <span className="text-muted-foreground text-sm flex items-center gap-1.5">
+          {/* Trust badges - Stack on mobile */}
+          <div className="animate-fade-up opacity-0 delay-700 flex flex-col sm:flex-row flex-wrap justify-center gap-2 sm:gap-4 md:gap-6 pt-4 px-4">
+            <span className="text-muted-foreground text-xs sm:text-sm flex items-center justify-center gap-1.5">
               <span className="text-primary">✓</span> Free to Start
             </span>
-            <span className="text-muted-foreground text-sm flex items-center gap-1.5">
+            <span className="text-muted-foreground text-xs sm:text-sm flex items-center justify-center gap-1.5">
               <span className="text-primary">✓</span> No Credit Card
             </span>
-            <span className="text-muted-foreground text-sm flex items-center gap-1.5">
+            <span className="text-muted-foreground text-xs sm:text-sm flex items-center justify-center gap-1.5">
               <span className="text-primary">✓</span> 30 Sec Results
             </span>
           </div>

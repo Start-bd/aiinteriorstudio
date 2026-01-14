@@ -137,13 +137,13 @@ export function AIGenerator({ onImageGenerated }: AIGeneratorProps) {
   const loading = stylesLoading || roomTypesLoading;
 
   return (
-    <Card className="glass-card border-border p-6 max-w-2xl mx-auto">
-      <div className="space-y-6">
+    <Card className="glass-card border-border p-4 sm:p-6 max-w-2xl mx-auto">
+      <div className="space-y-5 sm:space-y-6">
         {/* Header with Credits */}
-        <div className="flex items-center justify-between">
-          <h3 className="text-xl font-display font-bold">Design Generator</h3>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h3 className="text-lg sm:text-xl font-display font-bold">Design Generator</h3>
           {user ? (
-            <div className="flex items-center gap-2 bg-secondary/50 rounded-lg px-3 py-1.5">
+            <div className="flex items-center gap-2 bg-secondary/50 rounded-lg px-3 py-2 self-start sm:self-auto">
               <Coins className="h-4 w-4 text-primary" />
               <span className="text-sm font-medium">
                 {isUnlimited ? '∞ Unlimited' : `${credits} credits`}
@@ -154,19 +154,19 @@ export function AIGenerator({ onImageGenerated }: AIGeneratorProps) {
               variant="ghost"
               size="sm"
               onClick={() => navigate('/auth')}
-              className="text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground min-h-[44px] self-start sm:self-auto"
             >
               <LogIn className="h-4 w-4 mr-1.5" />
-              Sign in to see your credits
+              <span className="text-sm">Sign in to see your credits</span>
             </Button>
           )}
         </div>
 
         {/* Style Selection */}
         <div className="space-y-2">
-          <Label className="text-base font-medium">Design Style</Label>
+          <Label className="text-sm sm:text-base font-medium">Design Style</Label>
           <Select value={selectedStyle} onValueChange={setSelectedStyle} disabled={loading}>
-            <SelectTrigger className="h-12">
+            <SelectTrigger className="h-12 sm:h-12 min-h-[48px] w-full">
               {selectedStyle ? (
                 <div className="flex items-center gap-3">
                   <img
@@ -174,17 +174,17 @@ export function AIGenerator({ onImageGenerated }: AIGeneratorProps) {
                     alt=""
                     className="w-8 h-8 rounded object-cover"
                   />
-                  <span>{styles.find(s => s.name === selectedStyle)?.display_name}</span>
+                  <span className="text-sm sm:text-base truncate">{styles.find(s => s.name === selectedStyle)?.display_name}</span>
                 </div>
               ) : (
                 <SelectValue placeholder="Choose your preferred style..." />
               )}
             </SelectTrigger>
-            <SelectContent className="bg-popover border-border z-50">
+            <SelectContent className="bg-popover border-border z-50 max-h-[50vh]">
               {styles.map((style) => {
                 const thumbnailUrl = style.thumbnail_url || STYLE_THUMBNAILS[style.name];
                 return (
-                  <SelectItem key={style.name} value={style.name} className="py-2">
+                  <SelectItem key={style.name} value={style.name} className="py-3 min-h-[44px]">
                     <div className="flex items-center gap-3">
                       {thumbnailUrl && (
                         <img
@@ -194,7 +194,7 @@ export function AIGenerator({ onImageGenerated }: AIGeneratorProps) {
                         />
                       )}
                       <div className="flex flex-col">
-                        <span className="font-medium">{style.display_name}</span>
+                        <span className="font-medium text-sm sm:text-base">{style.display_name}</span>
                         {style.description && (
                           <span className="text-xs text-muted-foreground line-clamp-1">{style.description}</span>
                         )}
@@ -209,14 +209,14 @@ export function AIGenerator({ onImageGenerated }: AIGeneratorProps) {
 
         {/* Room Type Selection */}
         <div className="space-y-2">
-          <Label className="text-base font-medium">Room Type</Label>
+          <Label className="text-sm sm:text-base font-medium">Room Type</Label>
           <Select value={selectedRoom} onValueChange={setSelectedRoom} disabled={loading}>
-            <SelectTrigger className="h-12">
+            <SelectTrigger className="h-12 sm:h-12 min-h-[48px] w-full">
               <SelectValue placeholder="Select the type of room..." />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="max-h-[50vh]">
               {roomTypes.map((room) => (
-                <SelectItem key={room.name} value={room.name}>
+                <SelectItem key={room.name} value={room.name} className="py-3 min-h-[44px]">
                   {room.display_name}
                 </SelectItem>
               ))}
@@ -226,12 +226,12 @@ export function AIGenerator({ onImageGenerated }: AIGeneratorProps) {
 
         {/* Custom Prompt */}
         <div className="space-y-2">
-          <Label className="text-base font-medium">Describe Your Vision <span className="text-muted-foreground font-normal">(optional)</span></Label>
+          <Label className="text-sm sm:text-base font-medium">Describe Your Vision <span className="text-muted-foreground font-normal">(optional)</span></Label>
           <Textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             placeholder="A cozy space with warm lighting, plants, and natural wood textures..."
-            className="min-h-[100px] resize-none"
+            className="min-h-[100px] sm:min-h-[100px] resize-none text-base"
             maxLength={500}
           />
           <p className="text-xs text-muted-foreground text-right">
@@ -239,13 +239,13 @@ export function AIGenerator({ onImageGenerated }: AIGeneratorProps) {
           </p>
         </div>
 
-        {/* Action Buttons */}
+        {/* Action Buttons - Full width on mobile with proper touch targets */}
         <div className="space-y-3">
           {user ? (
             <Button
               onClick={handleGenerate}
               disabled={isGenerating || (!hasEnoughCredits(1) && !isUnlimited)}
-              className="w-full"
+              className="w-full min-h-[48px] sm:min-h-[44px]"
               variant="gold"
               size="lg"
             >
@@ -265,14 +265,14 @@ export function AIGenerator({ onImageGenerated }: AIGeneratorProps) {
             <>
               <Button
                 onClick={() => navigate('/auth')}
-                className="w-full"
+                className="w-full min-h-[48px] sm:min-h-[44px]"
                 variant="gold"
                 size="lg"
               >
                 <LogIn className="mr-2 h-5 w-5" />
                 Sign In to Generate
               </Button>
-              <p className="text-center text-sm text-muted-foreground">
+              <p className="text-center text-xs sm:text-sm text-muted-foreground px-2">
                 Ready to start? Sign in free or create an account — no credit card required
               </p>
             </>
@@ -284,7 +284,7 @@ export function AIGenerator({ onImageGenerated }: AIGeneratorProps) {
               onClick={handleTrySample}
               variant="outline"
               size="lg"
-              className="w-full"
+              className="w-full min-h-[48px] sm:min-h-[44px]"
             >
               <Play className="mr-2 h-5 w-5" />
               Try Sample Design
