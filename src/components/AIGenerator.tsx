@@ -32,6 +32,19 @@ const SAMPLE_DESIGN = {
   prompt: "Modern minimalist living room with natural light"
 };
 
+// Style preview thumbnails (fallback images for styles without thumbnails)
+const STYLE_THUMBNAILS: Record<string, string> = {
+  modern: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=200&q=80",
+  luxury: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=200&q=80",
+  minimalist: "https://images.unsplash.com/photo-1598928506311-c55ez361a1cf?w=200&q=80",
+  traditional: "https://images.unsplash.com/photo-1618220179428-22790b461013?w=200&q=80",
+  industrial: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=200&q=80",
+  scandinavian: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=200&q=80",
+  bohemian: "https://images.unsplash.com/photo-1617806118233-18e1de247200?w=200&q=80",
+  coastal: "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=200&q=80",
+  japanese: "https://images.unsplash.com/photo-1545083036-b175dd155a1d?w=200&q=80",
+};
+
 export function AIGenerator({ onImageGenerated }: AIGeneratorProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -154,19 +167,42 @@ export function AIGenerator({ onImageGenerated }: AIGeneratorProps) {
           <Label className="text-base font-medium">Design Style</Label>
           <Select value={selectedStyle} onValueChange={setSelectedStyle} disabled={loading}>
             <SelectTrigger className="h-12">
-              <SelectValue placeholder="Choose your preferred style..." />
+              {selectedStyle ? (
+                <div className="flex items-center gap-3">
+                  <img
+                    src={STYLE_THUMBNAILS[selectedStyle] || "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=200&q=80"}
+                    alt=""
+                    className="w-8 h-8 rounded object-cover"
+                  />
+                  <span>{styles.find(s => s.name === selectedStyle)?.display_name}</span>
+                </div>
+              ) : (
+                <SelectValue placeholder="Choose your preferred style..." />
+              )}
             </SelectTrigger>
-            <SelectContent>
-              {styles.map((style) => (
-                <SelectItem key={style.name} value={style.name}>
-                  <div className="flex flex-col">
-                    <span>{style.display_name}</span>
-                    {style.description && (
-                      <span className="text-xs text-muted-foreground">{style.description}</span>
-                    )}
-                  </div>
-                </SelectItem>
-              ))}
+            <SelectContent className="bg-popover border-border z-50">
+              {styles.map((style) => {
+                const thumbnailUrl = style.thumbnail_url || STYLE_THUMBNAILS[style.name];
+                return (
+                  <SelectItem key={style.name} value={style.name} className="py-2">
+                    <div className="flex items-center gap-3">
+                      {thumbnailUrl && (
+                        <img
+                          src={thumbnailUrl}
+                          alt={style.display_name}
+                          className="w-10 h-10 rounded object-cover flex-shrink-0"
+                        />
+                      )}
+                      <div className="flex flex-col">
+                        <span className="font-medium">{style.display_name}</span>
+                        {style.description && (
+                          <span className="text-xs text-muted-foreground line-clamp-1">{style.description}</span>
+                        )}
+                      </div>
+                    </div>
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
         </div>
