@@ -13,6 +13,7 @@ import TransformationsSection from "@/components/TransformationsSection";
 import InstagramSection from "@/components/InstagramSection";
 import NewsletterSection from "@/components/NewsletterSection";
 import AboutPreviewSection from "@/components/AboutPreviewSection";
+import PricingSection from "@/components/PricingSection";
 import FAQSection from "@/components/FAQSection";
 import Footer from "@/components/Footer";
 import { ChatBot } from "@/components/ChatBot";
@@ -81,6 +82,7 @@ const Index = () => {
         <WhySection />
         <WhoUsesSection />
         <TransformationsSection />
+        <PricingSection />
         <FAQSection />
         <InstagramSection />
         <section id="newsletter">
