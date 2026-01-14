@@ -4,48 +4,49 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const faqs = [
   {
     question: "What is AI interior design?",
     answer:
-      "AI interior design uses artificial intelligence to generate stunning, photorealistic room visualizations based on your preferences. Simply describe your ideal space—style, colors, room type—and our AI creates beautiful design concepts in seconds, helping you visualize possibilities before committing to any changes.",
+      "AI interior design uses artificial intelligence to analyze your room photo and generate professional redesign concepts in different styles — all in seconds. No design experience needed.",
   },
   {
-    question: "How many credits do I need per design?",
+    question: "Do I need design experience?",
     answer:
-      "Each AI-generated design uses 1 credit. Free users start with 3 credits to explore the platform. Our subscription plans offer monthly credit allowances, and you can also purchase credit packs that never expire for maximum flexibility.",
+      "No! Interior of AI is built for everyone. Just upload a photo, pick a style, and let the AI do the work. It's that simple.",
   },
   {
-    question: "What styles and room types are available?",
+    question: "Can I use the designs commercially?",
     answer:
-      "We offer 20+ design styles including Modern, Minimalist, Scandinavian, Industrial, Bohemian, Art Deco, Japanese, Mediterranean, and many more. Room types include living rooms, bedrooms, kitchens, bathrooms, home offices, dining rooms, and outdoor spaces.",
+      "Free users get watermarked designs for personal use. Pro users get HD, watermark-free designs with full commercial rights for client projects, listings, and marketing.",
   },
   {
-    question: "Can I use the generated designs commercially?",
+    question: "What room types are supported?",
     answer:
-      "Yes! All designs generated with your account are yours to use. Pro and Business subscribers get full commercial usage rights, perfect for interior designers, real estate agents, and design professionals looking to present concepts to clients.",
+      "Living rooms, bedrooms, kitchens, bathrooms, offices, dining rooms, entryways, outdoor spaces, and more. If it's a space, we can redesign it.",
   },
   {
-    question: "How do collections and sharing work?",
+    question: "How accurate are the designs?",
     answer:
-      "You can organize your favorite designs into collections, making it easy to compare options or share mood boards. Collections can be made public with a shareable link, or kept private. You can also export collections as PDFs or ZIP files for presentations.",
+      "Our AI generates photorealistic designs based on real interior design principles. You can refine results by providing more details or trying different styles.",
   },
   {
-    question: "What's the difference between subscription plans?",
+    question: "What file formats can I download?",
     answer:
-      "Free users get 3 credits to start. Basic ($9/mo) includes 50 credits and all styles. Pro ($29/mo) offers 200 credits, priority generation, and commercial rights. Business ($79/mo) provides 500 credits, team features, and dedicated support. All paid plans include yearly discounts of 20%.",
+      "Pro users can download designs in JPG and PNG formats in HD quality (up to 4K resolution).",
   },
   {
-    question: "Can I cancel my subscription anytime?",
+    question: "How many designs can I create?",
     answer:
-      "Absolutely! You can cancel your subscription at any time from your profile settings. You'll continue to have access to your plan's features until the end of your current billing period. Any unused credits from credit packs remain available even after cancellation.",
+      "Free users get 10 designs per month. Pro users get 100 designs per month. Enterprise users get unlimited designs.",
   },
   {
-    question: "How realistic are the AI-generated designs?",
+    question: "Can I get a refund?",
     answer:
-      "Our AI produces photorealistic interior visualizations that look like professional photography. While they're AI-generated concepts rather than real photos, they're excellent for inspiration, client presentations, and visualizing design possibilities before making real-world decisions.",
+      "Yes! We offer a 30-day money-back guarantee on all paid plans. If you're not satisfied, contact us for a full refund.",
   },
 ];
 
@@ -62,22 +63,26 @@ export const FAQSection = () => {
             Frequently Asked <span className="text-gradient-gold">Questions</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Everything you need to know about AI interior design and our platform
+            Everything you need to know about Interior of AI
           </p>
         </div>
 
         <div className="max-w-3xl mx-auto">
-          <Accordion type="single" collapsible className="space-y-4">
+          <Accordion 
+            type="multiple" 
+            defaultValue={["item-0", "item-1"]} 
+            className="space-y-4"
+          >
             {faqs.map((faq, index) => (
               <AccordionItem
                 key={index}
                 value={`item-${index}`}
-                className="glass-card border-border rounded-xl px-6 data-[state=open]:ring-1 data-[state=open]:ring-primary/20 transition-all"
+                className="glass-card border-border rounded-xl px-6 data-[state=open]:ring-1 data-[state=open]:ring-primary/20 transition-all duration-300"
               >
-                <AccordionTrigger className="text-left text-lg font-medium hover:text-primary transition-colors py-6">
+                <AccordionTrigger className="text-left text-lg font-medium hover:text-primary transition-colors py-6 [&[data-state=open]>svg]:rotate-180">
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground pb-6 leading-relaxed">
+                <AccordionContent className="text-muted-foreground pb-6 leading-relaxed animate-in slide-in-from-top-2 duration-300">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>
@@ -85,7 +90,15 @@ export const FAQSection = () => {
           </Accordion>
         </div>
 
-        <div className="text-center mt-12">
+        <div className="text-center mt-12 space-y-4">
+          <Link
+            to="/faq"
+            className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors group"
+          >
+            View All FAQs
+            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+          </Link>
+          
           <p className="text-muted-foreground">
             Still have questions?{" "}
             <a
