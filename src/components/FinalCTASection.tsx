@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useScrollAnimation, getAnimationClasses } from "@/hooks/useScrollAnimation";
 
 const trustBadges = [
   "2.5M+ designs created",
@@ -9,8 +10,10 @@ const trustBadges = [
 ];
 
 const FinalCTASection = () => {
+  const { ref: sectionRef, isVisible } = useScrollAnimation();
+  
   return (
-    <section className="relative py-16 sm:py-20 md:py-24 overflow-hidden">
+    <section ref={sectionRef} className="relative py-16 sm:py-20 md:py-24 overflow-hidden">
       {/* Background with gradient and gold accent */}
       <div className="absolute inset-0 bg-gradient-to-br from-background via-[hsl(35,30%,8%)] to-background" />
       
@@ -25,20 +28,20 @@ const FinalCTASection = () => {
       <div className="container mx-auto px-4 sm:px-6 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
           {/* Headline */}
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold mb-4 sm:mb-6 px-2">
+          <h2 className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold mb-4 sm:mb-6 px-2 ${getAnimationClasses(isVisible)}`}>
             Ready to{" "}
             <span className="text-gradient-gold">Transform Your Space</span>?
           </h2>
 
           {/* Subheadline */}
-          <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 sm:mb-10 px-4">
+          <p className={`text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 sm:mb-10 px-4 ${getAnimationClasses(isVisible)}`} style={{ transitionDelay: isVisible ? '100ms' : '0ms' }}>
             Upload a room photo and get AI interior designs in 30 seconds.{" "}
             <span className="text-foreground font-medium">Free to start.</span>{" "}
             No credit card required.
           </p>
 
           {/* Primary CTA Button - Full width on mobile */}
-          <div className="mb-8 sm:mb-10 px-4 sm:px-0">
+          <div className={`mb-8 sm:mb-10 px-4 sm:px-0 ${getAnimationClasses(isVisible)}`} style={{ transitionDelay: isVisible ? '200ms' : '0ms' }}>
             <Link to="/generate" className="block sm:inline-block">
               <Button
                 size="lg"
@@ -51,7 +54,7 @@ const FinalCTASection = () => {
           </div>
 
           {/* Trust Badges - Stack on mobile */}
-          <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 sm:gap-4 md:gap-8 px-4">
+          <div className={`flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 sm:gap-4 md:gap-8 px-4 ${getAnimationClasses(isVisible)}`} style={{ transitionDelay: isVisible ? '300ms' : '0ms' }}>
             {trustBadges.map((badge, index) => (
               <div
                 key={index}

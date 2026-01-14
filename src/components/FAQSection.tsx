@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/accordion";
 import { HelpCircle, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useScrollAnimation, getAnimationClasses } from "@/hooks/useScrollAnimation";
 
 const faqs = [
   {
@@ -51,10 +52,12 @@ const faqs = [
 ];
 
 export const FAQSection = () => {
+  const { ref: sectionRef, isVisible } = useScrollAnimation();
+  
   return (
-    <section id="faq" className="py-24 bg-secondary/30">
+    <section ref={sectionRef} id="faq" className="py-24 bg-secondary/30">
       <div className="container mx-auto px-6">
-        <div className="text-center mb-16 animate-fade-in">
+        <div className={`text-center mb-16 ${getAnimationClasses(isVisible)}`}>
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary mb-6">
             <HelpCircle className="w-4 h-4" />
             <span className="text-sm font-medium">Got Questions?</span>
@@ -67,7 +70,7 @@ export const FAQSection = () => {
           </p>
         </div>
 
-        <div className="max-w-3xl mx-auto">
+        <div className={`max-w-3xl mx-auto ${getAnimationClasses(isVisible)}`} style={{ transitionDelay: isVisible ? '200ms' : '0ms' }}>
           <Accordion 
             type="multiple" 
             defaultValue={["item-0", "item-1"]} 

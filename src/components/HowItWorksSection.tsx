@@ -1,6 +1,7 @@
 import { Camera, Palette, Sparkles } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useScrollAnimation, getAnimationClasses } from "@/hooks/useScrollAnimation";
 
 const steps = [
   {
@@ -24,6 +25,8 @@ const steps = [
 ];
 
 const HowItWorksSection = () => {
+  const { ref: sectionRef, isVisible } = useScrollAnimation();
+  
   const scrollToGenerator = () => {
     const element = document.getElementById("ai-generator");
     if (element) {
@@ -32,10 +35,10 @@ const HowItWorksSection = () => {
   };
 
   return (
-    <section className="py-16 sm:py-20 md:py-28 bg-background">
+    <section ref={sectionRef} className="py-16 sm:py-20 md:py-28 bg-background">
       <div className="container mx-auto px-4 sm:px-6">
         {/* Section Header */}
-        <div className="text-center mb-10 sm:mb-14">
+        <div className={`text-center mb-10 sm:mb-14 ${getAnimationClasses(isVisible)}`}>
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-display font-bold mb-3 sm:mb-4">
             How <span className="text-gradient-gold">Interior of AI</span> Works
           </h2>
@@ -46,10 +49,11 @@ const HowItWorksSection = () => {
 
         {/* Steps Cards - Stack vertically on mobile */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8 max-w-5xl mx-auto mb-10 sm:mb-12">
-          {steps.map((step) => (
+          {steps.map((step, index) => (
             <Card
               key={step.number}
-              className="group bg-card border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10"
+              className={`group bg-card border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 ${getAnimationClasses(isVisible)}`}
+              style={{ transitionDelay: isVisible ? `${(index + 1) * 100}ms` : '0ms' }}
             >
               <CardContent className="p-6 sm:p-8 text-center">
                 {/* Icon - Centered and touch-friendly size */}
@@ -72,7 +76,7 @@ const HowItWorksSection = () => {
         </div>
 
         {/* CTA Button - Full width on mobile */}
-        <div className="text-center px-4 sm:px-0">
+        <div className={`text-center px-4 sm:px-0 ${getAnimationClasses(isVisible)}`} style={{ transitionDelay: isVisible ? '400ms' : '0ms' }}>
           <Button
             onClick={scrollToGenerator}
             variant="gold"
