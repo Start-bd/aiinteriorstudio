@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Instagram, ExternalLink } from "lucide-react";
 import { useState } from "react";
+import { useScrollAnimation, getAnimationClasses } from "@/hooks/useScrollAnimation";
 
 // Import transformation images to simulate Instagram feed
 import livingRoomAfter from "@/assets/transformations/living-room-after.jpg";
@@ -72,12 +73,13 @@ const instagramPosts = [
 
 const InstagramSection = () => {
   const [hoveredPost, setHoveredPost] = useState<number | null>(null);
+  const { ref: sectionRef, isVisible } = useScrollAnimation();
 
   return (
-    <section className="py-24 bg-gradient-to-b from-background to-muted/50 relative overflow-hidden">
+    <section ref={sectionRef} className="py-24 bg-gradient-to-b from-background to-muted/50 relative overflow-hidden">
       <div className="container mx-auto px-6">
         {/* Section Header */}
-        <div className="text-center mb-12">
+        <div className={`text-center mb-12 ${getAnimationClasses(isVisible)}`}>
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-pink-500/20 to-purple-500/20 text-pink-400 mb-6">
             <Instagram className="w-4 h-4" />
             <span className="text-sm font-medium">@interiorofai</span>
@@ -91,7 +93,7 @@ const InstagramSection = () => {
         </div>
 
         {/* Instagram Feed Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto mb-10">
+        <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto mb-10 ${getAnimationClasses(isVisible)}`} style={{ transitionDelay: isVisible ? '200ms' : '0ms' }}>
           {instagramPosts.map((post) => (
             <a
               key={post.id}

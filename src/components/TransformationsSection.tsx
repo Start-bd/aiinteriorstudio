@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/carousel";
 import { useEffect, useState, useCallback } from "react";
 import { cn } from "@/lib/utils";
+import { useScrollAnimation, getAnimationClasses } from "@/hooks/useScrollAnimation";
 
 // Import transformation images
 import livingRoomBefore from "@/assets/transformations/living-room-before.jpg";
@@ -74,6 +75,7 @@ const TransformationsSection = () => {
   const [count, setCount] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [progress, setProgress] = useState(0);
+  const { ref: sectionRef, isVisible } = useScrollAnimation();
 
   // Handle carousel selection changes
   useEffect(() => {
@@ -120,10 +122,10 @@ const TransformationsSection = () => {
   }, [api]);
 
   return (
-    <section className="py-24 bg-muted/30 relative overflow-hidden">
+    <section ref={sectionRef} className="py-24 bg-muted/30 relative overflow-hidden">
       <div className="container mx-auto px-6">
         {/* Section Header */}
-        <div className="text-center mb-16">
+        <div className={`text-center mb-16 ${getAnimationClasses(isVisible)}`}>
           <span className="text-primary uppercase tracking-widest text-sm font-medium">
             Transformations
           </span>
@@ -137,7 +139,8 @@ const TransformationsSection = () => {
 
         {/* Carousel */}
         <div 
-          className="max-w-5xl mx-auto mb-8"
+          className={`max-w-5xl mx-auto mb-8 ${getAnimationClasses(isVisible)}`}
+          style={{ transitionDelay: isVisible ? '200ms' : '0ms' }}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >

@@ -2,6 +2,7 @@ import { Home, Palette, Building2, ArrowRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useScrollAnimation, getAnimationClasses } from "@/hooks/useScrollAnimation";
 
 const personas = [
   {
@@ -37,11 +38,13 @@ const personas = [
 ];
 
 const WhoUsesSection = () => {
+  const { ref: sectionRef, isVisible } = useScrollAnimation();
+  
   return (
-    <section className="py-16 sm:py-20 md:py-24 bg-background relative overflow-hidden">
+    <section ref={sectionRef} className="py-16 sm:py-20 md:py-24 bg-background relative overflow-hidden">
       <div className="container mx-auto px-4 sm:px-6">
         {/* Section Header */}
-        <div className="text-center mb-10 sm:mb-16">
+        <div className={`text-center mb-10 sm:mb-16 ${getAnimationClasses(isVisible)}`}>
           <span className="text-primary uppercase tracking-widest text-xs sm:text-sm font-medium">Our Users</span>
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-display font-bold mt-3 sm:mt-4 mb-4 sm:mb-6">
             Who Uses <span className="text-gradient-gold">Interior of AI</span>?
@@ -56,7 +59,8 @@ const WhoUsesSection = () => {
           {personas.map((persona, index) => (
             <Card 
               key={index} 
-              className="group bg-card border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 h-full flex flex-col"
+              className={`group bg-card border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 h-full flex flex-col ${getAnimationClasses(isVisible)}`}
+              style={{ transitionDelay: isVisible ? `${(index + 1) * 100}ms` : '0ms' }}
             >
               <CardContent className="p-5 sm:p-6 md:p-8 flex flex-col h-full">
                 {/* Icon - Touch-friendly size */}
@@ -89,7 +93,7 @@ const WhoUsesSection = () => {
         </div>
 
         {/* CTA Button - Full width on mobile */}
-        <div className="text-center px-4 sm:px-0">
+        <div className={`text-center px-4 sm:px-0 ${getAnimationClasses(isVisible)}`} style={{ transitionDelay: isVisible ? '400ms' : '0ms' }}>
           <Link to="/generate" className="block sm:inline-block">
             <Button variant="gold" size="lg" className="w-full sm:w-auto text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 font-semibold group min-h-[48px] active:scale-95 transition-transform">
               Start Your Free Design

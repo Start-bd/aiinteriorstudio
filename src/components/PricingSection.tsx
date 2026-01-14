@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useScrollAnimation, getAnimationClasses } from "@/hooks/useScrollAnimation";
 
 const pricingPlans = [
   {
@@ -65,14 +66,16 @@ const pricingPlans = [
 ];
 
 const PricingSection = () => {
+  const { ref: sectionRef, isVisible } = useScrollAnimation();
+  
   return (
-    <section className="py-16 sm:py-20 md:py-24 bg-background relative overflow-hidden">
+    <section ref={sectionRef} className="py-16 sm:py-20 md:py-24 bg-background relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent" />
       
       <div className="container mx-auto px-4 sm:px-6 relative">
         {/* Section Header */}
-        <div className="text-center mb-10 sm:mb-16">
+        <div className={`text-center mb-10 sm:mb-16 ${getAnimationClasses(isVisible)}`}>
           <span className="text-primary uppercase tracking-widest text-xs sm:text-sm font-medium">
             Pricing
           </span>
@@ -90,11 +93,12 @@ const PricingSection = () => {
             <Card
               key={plan.name}
               className={cn(
-                "relative overflow-hidden transition-all duration-300 hover:shadow-xl",
+                `relative overflow-hidden transition-all duration-300 hover:shadow-xl ${getAnimationClasses(isVisible)}`,
                 plan.popular
                   ? "border-primary/50 shadow-lg shadow-primary/10 order-first md:order-none md:scale-105"
                   : "border-border/50 hover:border-primary/30"
               )}
+              style={{ transitionDelay: isVisible ? `${(index + 1) * 100}ms` : '0ms' }}
             >
               {/* Popular Badge - Always visible */}
               {plan.popular && (
