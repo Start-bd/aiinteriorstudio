@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
+import HowItWorksSection from "@/components/HowItWorksSection";
 import SocialProofSection from "@/components/SocialProofSection";
 import AboutSection from "@/components/AboutSection";
 import EcosystemSection from "@/components/EcosystemSection";
@@ -51,6 +52,7 @@ const Index = () => {
       <Header />
       <main className="min-h-screen bg-background text-foreground overflow-x-hidden">
         <HeroSection />
+        <HowItWorksSection />
         <SocialProofSection />
         <section id="about">
           <AboutSection />
