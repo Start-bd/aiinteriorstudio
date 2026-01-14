@@ -89,14 +89,14 @@ const HeroSection = () => {
 
           {/* Main Headline */}
           <h1 className="animate-fade-up opacity-0 delay-200 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold leading-tight text-foreground">
-            AI Interior Design
+            Upload Your Room Photo.
             <br />
-            <span className="text-gradient-gold">Inspiration</span>
+            <span className="text-gradient-gold">Get AI Interior Designs in 30 Seconds.</span>
           </h1>
 
           {/* Subheadline */}
-          <p className="animate-fade-up opacity-0 delay-300 text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto font-light">
-            Professional designs in 30 seconds
+          <p className="animate-fade-up opacity-0 delay-300 text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto font-light">
+            Perfect for homeowners, interior designers, and real estate professionals who want instant, professional room makeovers.
           </p>
 
           {/* CTA Button */}
@@ -112,8 +112,13 @@ const HeroSection = () => {
             </Link>
           </div>
 
+          {/* Trust statement */}
+          <p className="animate-fade-up opacity-0 delay-500 text-muted-foreground text-sm">
+            No credit card required • 2.5M+ designs created • Trusted by 150K+ users
+          </p>
+
           {/* Stats */}
-          <div className="animate-fade-up opacity-0 delay-500 flex flex-wrap justify-center gap-6 md:gap-10 pt-8">
+          <div className="animate-fade-up opacity-0 delay-600 flex flex-wrap justify-center gap-6 md:gap-10 pt-8">
             <div className="flex items-center gap-2 text-foreground">
               <Image className="w-5 h-5 text-primary" />
               <span className="font-display font-bold text-xl">2.5M+</span>
@@ -132,7 +137,7 @@ const HeroSection = () => {
           </div>
 
           {/* Trust badges */}
-          <div className="animate-fade-up opacity-0 delay-600 flex flex-wrap justify-center gap-4 md:gap-6 pt-4">
+          <div className="animate-fade-up opacity-0 delay-700 flex flex-wrap justify-center gap-4 md:gap-6 pt-4">
             <span className="text-muted-foreground text-sm flex items-center gap-1.5">
               <span className="text-primary">✓</span> Free to Start
             </span>
