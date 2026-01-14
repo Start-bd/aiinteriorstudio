@@ -9,6 +9,7 @@ import EcosystemSection from "@/components/EcosystemSection";
 import GallerySection from "@/components/GallerySection";
 import WhySection from "@/components/WhySection";
 import WhoUsesSection from "@/components/WhoUsesSection";
+import TransformationsSection from "@/components/TransformationsSection";
 import InstagramSection from "@/components/InstagramSection";
 import NewsletterSection from "@/components/NewsletterSection";
 import AboutPreviewSection from "@/components/AboutPreviewSection";
@@ -79,6 +80,7 @@ const Index = () => {
         </section>
         <WhySection />
         <WhoUsesSection />
+        <TransformationsSection />
         <FAQSection />
         <InstagramSection />
         <section id="newsletter">
