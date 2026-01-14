@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, Loader2, Coins, ChevronDown } from 'lucide-react';
+import { Sparkles, Loader2, Coins, LogIn, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -24,6 +24,12 @@ interface AIGeneratorProps {
   onImageGenerated?: (imageUrl: string, prompt: string) => void;
 }
 
+// Sample design to show as demo
+const SAMPLE_DESIGN = {
+  imageUrl: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=1200&q=80",
+  prompt: "Modern minimalist living room with natural light"
+};
+
 export function AIGenerator({ onImageGenerated }: AIGeneratorProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -36,6 +42,13 @@ export function AIGenerator({ onImageGenerated }: AIGeneratorProps) {
   const [selectedRoom, setSelectedRoom] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [showSample, setShowSample] = useState(false);
+
+  const handleTrySample = () => {
+    setShowSample(true);
+    setGeneratedImage(SAMPLE_DESIGN.imageUrl);
+    toast.success('Sample design loaded! Sign in to create your own.');
+  };
 
   const handleGenerate = async () => {
     if (!user) {
@@ -56,6 +69,7 @@ export function AIGenerator({ onImageGenerated }: AIGeneratorProps) {
 
     setIsGenerating(true);
     setGeneratedImage(null);
+    setShowSample(false);
 
     try {
       // Build the full prompt
@@ -108,25 +122,37 @@ export function AIGenerator({ onImageGenerated }: AIGeneratorProps) {
   const loading = stylesLoading || roomTypesLoading;
 
   return (
-    <Card className="glass-card border-border p-6">
+    <Card className="glass-card border-border p-6 max-w-2xl mx-auto">
       <div className="space-y-6">
         {/* Header with Credits */}
         <div className="flex items-center justify-between">
-          <h3 className="text-xl font-display font-bold">Create Your Design</h3>
-          <div className="flex items-center gap-2 bg-secondary/50 rounded-lg px-3 py-1.5">
-            <Coins className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium">
-              {isUnlimited ? '∞' : credits} {!isUnlimited && 'credits'}
-            </span>
-          </div>
+          <h3 className="text-xl font-display font-bold">Design Generator</h3>
+          {user ? (
+            <div className="flex items-center gap-2 bg-secondary/50 rounded-lg px-3 py-1.5">
+              <Coins className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium">
+                {isUnlimited ? '∞ Unlimited' : `${credits} credits`}
+              </span>
+            </div>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/auth')}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <LogIn className="h-4 w-4 mr-1.5" />
+              Sign in to see your credits
+            </Button>
+          )}
         </div>
 
         {/* Style Selection */}
         <div className="space-y-2">
-          <Label>Style</Label>
+          <Label className="text-base font-medium">Design Style</Label>
           <Select value={selectedStyle} onValueChange={setSelectedStyle} disabled={loading}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a style..." />
+            <SelectTrigger className="h-12">
+              <SelectValue placeholder="Choose your preferred style..." />
             </SelectTrigger>
             <SelectContent>
               {styles.map((style) => (
@@ -145,10 +171,10 @@ export function AIGenerator({ onImageGenerated }: AIGeneratorProps) {
 
         {/* Room Type Selection */}
         <div className="space-y-2">
-          <Label>Room Type</Label>
+          <Label className="text-base font-medium">Room Type</Label>
           <Select value={selectedRoom} onValueChange={setSelectedRoom} disabled={loading}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select room type..." />
+            <SelectTrigger className="h-12">
+              <SelectValue placeholder="Select the type of room..." />
             </SelectTrigger>
             <SelectContent>
               {roomTypes.map((room) => (
@@ -162,7 +188,7 @@ export function AIGenerator({ onImageGenerated }: AIGeneratorProps) {
 
         {/* Custom Prompt */}
         <div className="space-y-2">
-          <Label>Describe your vision (optional)</Label>
+          <Label className="text-base font-medium">Describe Your Vision <span className="text-muted-foreground font-normal">(optional)</span></Label>
           <Textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
@@ -175,34 +201,58 @@ export function AIGenerator({ onImageGenerated }: AIGeneratorProps) {
           </p>
         </div>
 
-        {/* Generate Button */}
-        <Button
-          onClick={handleGenerate}
-          disabled={isGenerating || !user || (!hasEnoughCredits(1) && !isUnlimited)}
-          className="w-full"
-          size="lg"
-        >
-          {isGenerating ? (
-            <>
-              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-              Creating magic...
-            </>
+        {/* Action Buttons */}
+        <div className="space-y-3">
+          {user ? (
+            <Button
+              onClick={handleGenerate}
+              disabled={isGenerating || (!hasEnoughCredits(1) && !isUnlimited)}
+              className="w-full"
+              variant="gold"
+              size="lg"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Creating magic...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="mr-2 h-5 w-5" />
+                  Generate Design
+                </>
+              )}
+            </Button>
           ) : (
             <>
-              <Sparkles className="mr-2 h-5 w-5" />
-              Generate Design
+              <Button
+                onClick={() => navigate('/auth')}
+                className="w-full"
+                variant="gold"
+                size="lg"
+              >
+                <LogIn className="mr-2 h-5 w-5" />
+                Sign In to Generate
+              </Button>
+              <p className="text-center text-sm text-muted-foreground">
+                Ready to start? Sign in free or create an account — no credit card required
+              </p>
             </>
           )}
-        </Button>
 
-        {!user && (
-          <p className="text-center text-sm text-muted-foreground">
-            <Button variant="link" onClick={() => navigate('/auth')} className="p-0 h-auto">
-              Sign in
-            </Button>{' '}
-            to start generating designs
-          </p>
-        )}
+          {/* Try Sample Button for logged-out users */}
+          {!user && !showSample && (
+            <Button
+              onClick={handleTrySample}
+              variant="outline"
+              size="lg"
+              className="w-full"
+            >
+              <Play className="mr-2 h-5 w-5" />
+              Try Sample Design
+            </Button>
+          )}
+        </div>
 
         {/* Loading Skeleton */}
         {isGenerating && (
@@ -226,7 +276,14 @@ export function AIGenerator({ onImageGenerated }: AIGeneratorProps) {
         {/* Generated Image Preview */}
         {generatedImage && !isGenerating && (
           <div className="mt-6 space-y-4 animate-fade-in">
-            <h4 className="font-medium">Generated Design</h4>
+            <div className="flex items-center justify-between">
+              <h4 className="font-medium">{showSample ? 'Sample Design' : 'Generated Design'}</h4>
+              {showSample && (
+                <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded-full">
+                  Demo Preview
+                </span>
+              )}
+            </div>
             <div className="relative aspect-video rounded-lg overflow-hidden bg-secondary animate-scale-in">
               <img
                 src={generatedImage}
