@@ -54,40 +54,32 @@ export function AdjustCreditsDialog({
 
     setSaving(true);
     try {
-      const currentCredits = user.credits ?? 0;
-      let newCredits: number;
-
-      switch (operation) {
-        case "add":
-          newCredits = currentCredits + numAmount;
-          break;
-        case "subtract":
-          newCredits = Math.max(0, currentCredits - numAmount);
-          break;
-        case "set":
-          newCredits = numAmount;
-          break;
-        default:
-          newCredits = currentCredits;
+      // Use edge function for secure credit adjustment with proper transaction recording
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
+        toast.error("Authentication required");
+        setSaving(false);
+        return;
       }
 
-      const { error } = await supabase
-        .from("profiles")
-        .update({ credits: newCredits })
-        .eq("user_id", user.user_id);
-
-      if (error) throw error;
-
-      // Log activity
-      if (onActivityLog) {
-        await onActivityLog(user.user_id, "credit_adjustment", {
-          user_name: user.display_name,
+      const response = await supabase.functions.invoke("admin-adjust-credits", {
+        body: {
+          target_user_id: user.user_id,
           operation,
           amount: numAmount,
-          from_credits: currentCredits,
-          to_credits: newCredits,
-          reason: reason || null,
-        });
+          reason: reason || undefined,
+        },
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message || "Failed to adjust credits");
+      }
+
+      const result = response.data;
+
+      if (!result.success) {
+        throw new Error(result.error || "Failed to adjust credits");
       }
 
       const operationText =
@@ -98,7 +90,7 @@ export function AdjustCreditsDialog({
           : `Set to ${numAmount}`;
 
       toast.success(
-        `${operationText} credits for ${user.display_name || "user"}. New balance: ${newCredits}`
+        `${operationText} credits for ${user.display_name || "user"}. New balance: ${result.new_credits}`
       );
 
       // Reset form
@@ -110,7 +102,7 @@ export function AdjustCreditsDialog({
       onOpenChange(false);
     } catch (error) {
       console.error("Error adjusting credits:", error);
-      toast.error("Failed to adjust credits");
+      toast.error(error instanceof Error ? error.message : "Failed to adjust credits");
     } finally {
       setSaving(false);
     }
