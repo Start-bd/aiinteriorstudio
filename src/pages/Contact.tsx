@@ -3,7 +3,8 @@ import { Helmet } from "react-helmet-async";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Mail, MapPin, Phone, Send, Building2, Clock } from "lucide-react";
+import { Mail, MapPin, Send, Building2, Clock } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -72,20 +73,23 @@ const Contact = () => {
   const onSubmit = async (data: ContactFormData) => {
     setIsSubmitting(true);
     try {
-      // For now, we'll just show a success message
-      // In production, this would send to an email service
-      console.log("Contact form submitted:", { ...data, email: "[REDACTED]" });
-      
+      const { error } = await supabase.functions.invoke("send-contact-email", {
+        body: data,
+      });
+
+      if (error) throw error;
+
       toast({
         title: "Message Sent!",
         description: "Thank you for reaching out. We'll get back to you within 24-48 hours.",
       });
-      
+
       form.reset();
     } catch (error) {
+      console.error("Contact form error:", error);
       toast({
         title: "Error",
-        description: "Failed to send message. Please try again or email us directly.",
+        description: "Failed to send message. Please try again or email us directly at support@interiorofai.com",
         variant: "destructive",
       });
     } finally {
