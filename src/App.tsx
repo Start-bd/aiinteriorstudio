@@ -7,6 +7,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/hooks/useAuth";
 import { I18nProvider } from "@/lib/i18n";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import CookieConsent from "@/components/CookieConsent";
 import Index from "./pages/Index";
 import Generate from "./pages/Generate";
 import AIGallery from "./pages/AIGallery";
@@ -54,6 +55,7 @@ const App = () => (
                   <Route path="/refund" element={<RefundPolicy />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
+                <CookieConsent />
               </BrowserRouter>
             </TooltipProvider>
           </I18nProvider>
