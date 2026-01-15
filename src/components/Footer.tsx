@@ -178,9 +178,18 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-border">
+        <div className="pt-8 border-t border-border space-y-4">
+          <div className="text-center text-sm text-muted-foreground">
+            <p className="font-medium text-foreground mb-1">AvailableView LLC</p>
+            <p>30 N Gould St STE R, Sheridan, WY 82801, USA</p>
+            <p className="mt-2">
+              <a href="mailto:hello@interiorofai.com" className="hover:text-primary transition-colors">hello@interiorofai.com</a>
+              {" · "}
+              <a href="mailto:support@interiorofai.com" className="hover:text-primary transition-colors">support@interiorofai.com</a>
+            </p>
+          </div>
           <p className="text-sm text-muted-foreground text-center">
-            © {new Date().getFullYear()} Interior of AI. All rights reserved. | Made with{" "}
+            © 2022 AvailableView LLC. All rights reserved. Interior of AI is a registered trademark of AvailableView LLC. | Made with{" "}
             <Heart className="inline-block w-4 h-4 text-red-500 fill-red-500 mx-1" />
             for designers and dreamers.
           </p>
