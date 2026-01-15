@@ -39,6 +39,14 @@ const TIER_CREDITS = {
   business: -1 // unlimited
 };
 
+// Server-side credit pack pricing - source of truth to prevent price manipulation
+const CREDIT_PACKS = {
+  pack_10: { credits: 10, bonus: 0, priceUsdCents: 500 },
+  pack_25: { credits: 25, bonus: 5, priceUsdCents: 1000 },
+  pack_60: { credits: 60, bonus: 15, priceUsdCents: 2000 },
+  pack_150: { credits: 150, bonus: 50, priceUsdCents: 4500 }
+};
+
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
   
@@ -162,8 +170,19 @@ serve(async (req) => {
       );
     }
 
-    // Handle credit pack purchase
-    if (mode === "payment" && packId && credits && amount) {
+    // Handle credit pack purchase - SERVER-SIDE PRICE VALIDATION
+    if (mode === "payment" && packId) {
+      // Validate packId exists in our server-side pricing
+      const pack = CREDIT_PACKS[packId as keyof typeof CREDIT_PACKS];
+      if (!pack) {
+        return new Response(
+          JSON.stringify({ error: "Invalid credit pack" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Use SERVER-SIDE price only - ignore client-provided amount
+      const totalCredits = pack.credits + pack.bonus;
       const session = await stripe.checkout.sessions.create({
         customer: customerId,
         mode: "payment",
@@ -172,10 +191,10 @@ serve(async (req) => {
             price_data: {
               currency: "usd",
               product_data: {
-                name: `Interior AI Credits - ${credits} Pack`,
-                description: `${credits} generation credits`
+                name: `Interior AI Credits - ${totalCredits} Pack`,
+                description: `${pack.credits} credits + ${pack.bonus} bonus credits`
               },
-              unit_amount: amount * 100 // convert to cents
+              unit_amount: pack.priceUsdCents // Use server-side price in cents
             },
             quantity: 1,
           }
@@ -185,7 +204,7 @@ serve(async (req) => {
         metadata: {
           user_id: user.id,
           pack_id: packId,
-          credits: credits.toString()
+          credits: totalCredits.toString()
         }
       });
 
