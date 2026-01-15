@@ -18,6 +18,7 @@ import SharedCollection from "./pages/SharedCollection";
 import Admin from "./pages/Admin";
 import AdminUserDetail from "./pages/AdminUserDetail";
 import Contact from "./pages/Contact";
+import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const App = () => (
                   <Route path="/admin" element={<Admin />} />
                   <Route path="/admin/user/:userId" element={<AdminUserDetail />} />
                   <Route path="/contact" element={<Contact />} />
+                  <Route path="/terms" element={<Terms />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>
