@@ -159,7 +159,7 @@ serve(async (req) => {
 
     if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
       console.error("Missing Supabase configuration");
-      throw new Error("Server configuration error");
+      throw new Error("Service temporarily unavailable");
     }
 
     // Verify the JWT token
@@ -204,7 +204,8 @@ serve(async (req) => {
     }
 
     if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+      console.error("Missing LOVABLE_API_KEY configuration");
+      throw new Error("Service temporarily unavailable");
     }
 
     const body = await req.json();
@@ -229,7 +230,7 @@ serve(async (req) => {
     // This prevents bypassing the credit system by calling the API directly
     if (!SUPABASE_SERVICE_ROLE_KEY) {
       console.error("Missing service role key for credit deduction");
-      throw new Error("Server configuration error");
+      throw new Error("Service temporarily unavailable");
     }
 
     const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);

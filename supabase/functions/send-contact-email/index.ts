@@ -40,6 +40,18 @@ const subjectLabels: Record<string, string> = {
   feedback: "Feedback & Suggestions",
 };
 
+// HTML encode function to prevent XSS in emails
+function escapeHtml(text: string): string {
+  const htmlEscapes: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  };
+  return text.replace(/[&<>"']/g, (char) => htmlEscapes[char] || char);
+}
+
 const handler = async (req: Request): Promise<Response> => {
   const corsHeaders = getCorsHeaders(req);
 
@@ -95,6 +107,12 @@ const handler = async (req: Request): Promise<Response> => {
 
     const subjectLabel = subjectLabels[subject] || subject;
 
+    // Sanitize user inputs for HTML email
+    const safeName = escapeHtml(name);
+    const safeEmail = escapeHtml(email);
+    const safeMessage = escapeHtml(message);
+    const safeSubjectLabel = escapeHtml(subjectLabel);
+
     // Send notification email to support team
     const supportEmailRes = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -106,18 +124,18 @@ const handler = async (req: Request): Promise<Response> => {
         from: "Interior of AI <noreply@interiorofai.com>",
         to: ["support@interiorofai.com"],
         reply_to: email,
-        subject: `[Contact Form] ${subjectLabel} - ${name}`,
+        subject: `[Contact Form] ${safeSubjectLabel} - ${safeName}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h2 style="color: #b8860b;">New Contact Form Submission</h2>
             <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <p><strong>From:</strong> ${name}</p>
-              <p><strong>Email:</strong> ${email}</p>
-              <p><strong>Subject:</strong> ${subjectLabel}</p>
+              <p><strong>From:</strong> ${safeName}</p>
+              <p><strong>Email:</strong> ${safeEmail}</p>
+              <p><strong>Subject:</strong> ${safeSubjectLabel}</p>
             </div>
             <div style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
               <h3 style="margin-top: 0;">Message:</h3>
-              <p style="white-space: pre-wrap;">${message}</p>
+              <p style="white-space: pre-wrap;">${safeMessage}</p>
             </div>
             <p style="color: #666; font-size: 12px; margin-top: 20px;">
               This email was sent from the Interior of AI contact form.
@@ -148,12 +166,12 @@ const handler = async (req: Request): Promise<Response> => {
         subject: "We received your message - Interior of AI",
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #b8860b;">Thank you for contacting us, ${name}!</h2>
+            <h2 style="color: #b8860b;">Thank you for contacting us, ${safeName}!</h2>
             <p>We have received your message and our team will get back to you within 24-48 hours.</p>
             <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <p><strong>Subject:</strong> ${subjectLabel}</p>
+              <p><strong>Subject:</strong> ${safeSubjectLabel}</p>
               <p><strong>Your message:</strong></p>
-              <p style="white-space: pre-wrap; color: #555;">${message}</p>
+              <p style="white-space: pre-wrap; color: #555;">${safeMessage}</p>
             </div>
             <p>In the meantime, feel free to explore our AI interior design tools at <a href="https://interiorofai.com" style="color: #b8860b;">interiorofai.com</a>.</p>
             <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
