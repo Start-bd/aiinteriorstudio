@@ -14,7 +14,7 @@ const resourceLinks = [
   { label: "Design Inspiration", href: "/gallery" },
   { label: "Help Center", href: "#faq" },
   { label: "FAQ", href: "#faq" },
-  { label: "Contact Support", href: "mailto:hello@interiorofai.com" },
+  { label: "Contact Us", href: "/contact" },
 ];
 
 const companyLinks = [
