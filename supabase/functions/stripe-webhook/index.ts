@@ -16,7 +16,10 @@ const TIER_CREDITS = {
 serve(async (req) => {
   if (!STRIPE_SECRET_KEY || !STRIPE_WEBHOOK_SECRET) {
     console.error("Missing Stripe configuration");
-    return new Response("Server configuration error", { status: 500 });
+    return new Response(JSON.stringify({ error: "Request processing failed" }), { 
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
   }
 
   const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: "2023-10-16" });
@@ -25,7 +28,10 @@ serve(async (req) => {
   const signature = req.headers.get("stripe-signature");
   if (!signature) {
     console.error("No signature provided");
-    return new Response("No signature", { status: 400 });
+    return new Response(JSON.stringify({ error: "Invalid request" }), { 
+      status: 400,
+      headers: { "Content-Type": "application/json" }
+    });
   }
 
   try {
@@ -209,7 +215,9 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error("Webhook error:", error);
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return new Response(`Webhook error: ${message}`, { status: 400 });
+    return new Response(JSON.stringify({ error: "Request processing failed" }), { 
+      status: 400,
+      headers: { "Content-Type": "application/json" }
+    });
   }
 });

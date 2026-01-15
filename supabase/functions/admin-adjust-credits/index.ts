@@ -98,8 +98,9 @@ serve(async (req) => {
       .single();
 
     if (profileError || !profile) {
+      console.error("Profile lookup failed for user:", target_user_id);
       return new Response(
-        JSON.stringify({ error: "Target user not found" }),
+        JSON.stringify({ error: "Unable to complete this operation" }),
         { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
