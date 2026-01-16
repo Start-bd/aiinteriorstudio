@@ -104,8 +104,46 @@ After gathering basic info (room type + style preference), immediately provide s
 
 Start with a brief greeting and ONE question about their design goal.`;
 
+// Common prompt injection patterns to detect
+const INJECTION_PATTERNS = [
+  /ignore\s+(all\s+)?(previous|above|prior)\s+(instructions?|prompts?|rules?)/i,
+  /forget\s+(all\s+)?(previous|your|the)\s+(instructions?|prompts?|rules?|training)/i,
+  /disregard\s+(all\s+)?(previous|above|prior|your)/i,
+  /you\s+are\s+now\s+(a|an|the)\s+/i,
+  /new\s+persona|new\s+role|act\s+as\s+(if|a|an)/i,
+  /system:\s*|assistant:\s*|user:\s*/i,
+  /\[\s*system\s*\]|\[\s*inst(ruction)?\s*\]/i,
+  /override\s+(safety|content|previous)/i,
+  /jailbreak|bypass\s+(filter|safety|restriction)/i,
+  /pretend\s+(you\s+are|to\s+be|that)/i,
+  /do\s+not\s+follow\s+(your|the|any)\s+(rules?|guidelines?)/i,
+];
+
+// Check for suspicious patterns in text
+function detectInjectionAttempt(text: string): { suspicious: boolean; patterns: string[] } {
+  const lowerText = text.toLowerCase();
+  const matchedPatterns: string[] = [];
+  
+  for (const pattern of INJECTION_PATTERNS) {
+    if (pattern.test(lowerText)) {
+      matchedPatterns.push(pattern.source);
+    }
+  }
+  
+  // Check for excessive special characters (potential encoding attacks)
+  const specialCharRatio = (text.match(/[^\w\s.,!?'-]/g) || []).length / text.length;
+  if (specialCharRatio > 0.3) {
+    matchedPatterns.push('excessive_special_chars');
+  }
+  
+  return {
+    suspicious: matchedPatterns.length > 0,
+    patterns: matchedPatterns,
+  };
+}
+
 // Validate chat messages
-function validateMessages(messages: unknown): { valid: boolean; error?: string; sanitized?: Array<{role: string; content: string}> } {
+function validateMessages(messages: unknown): { valid: boolean; error?: string; sanitized?: Array<{role: string; content: string}>; suspiciousMessages?: number } {
   if (!Array.isArray(messages)) {
     return { valid: false, error: 'Messages must be an array' };
   }
@@ -119,6 +157,7 @@ function validateMessages(messages: unknown): { valid: boolean; error?: string; 
   }
   
   const sanitized: Array<{role: string; content: string}> = [];
+  let suspiciousCount = 0;
   
   for (const msg of messages) {
     if (!msg || typeof msg !== 'object') {
@@ -139,13 +178,28 @@ function validateMessages(messages: unknown): { valid: boolean; error?: string; 
       return { valid: false, error: 'Message too long (maximum 5000 characters)' };
     }
     
-    // Sanitize content - remove angle brackets to prevent injection
-    const sanitizedContent = content.trim().replace(/[<>]/g, '');
+    // Check for prompt injection attempts in user messages
+    if (role === 'user') {
+      const injectionCheck = detectInjectionAttempt(content);
+      if (injectionCheck.suspicious) {
+        suspiciousCount++;
+        console.warn("SECURITY: Potential prompt injection in chat message:", {
+          patterns: injectionCheck.patterns,
+          messagePreview: content.substring(0, 100) + '...',
+        });
+      }
+    }
+    
+    // Sanitize content - remove angle brackets and role markers
+    const sanitizedContent = content
+      .trim()
+      .replace(/[<>]/g, '')
+      .replace(/\[\s*(system|inst(ruction)?|user|assistant)\s*\]/gi, '');
     
     sanitized.push({ role, content: sanitizedContent });
   }
   
-  return { valid: true, sanitized };
+  return { valid: true, sanitized, suspiciousMessages: suspiciousCount };
 }
 
 serve(async (req) => {
