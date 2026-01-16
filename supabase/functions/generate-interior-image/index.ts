@@ -112,8 +112,46 @@ function detectStyle(prompt: string): string {
   return "Other";
 }
 
+// Common prompt injection patterns to detect
+const INJECTION_PATTERNS = [
+  /ignore\s+(all\s+)?(previous|above|prior)\s+(instructions?|prompts?|rules?)/i,
+  /forget\s+(all\s+)?(previous|your|the)\s+(instructions?|prompts?|rules?|training)/i,
+  /disregard\s+(all\s+)?(previous|above|prior|your)/i,
+  /you\s+are\s+now\s+(a|an|the)\s+/i,
+  /new\s+persona|new\s+role|act\s+as\s+(if|a|an)/i,
+  /system:\s*|assistant:\s*|user:\s*/i,
+  /\[\s*system\s*\]|\[\s*inst(ruction)?\s*\]/i,
+  /override\s+(safety|content|previous)/i,
+  /jailbreak|bypass\s+(filter|safety|restriction)/i,
+  /pretend\s+(you\s+are|to\s+be|that)/i,
+  /do\s+not\s+follow\s+(your|the|any)\s+(rules?|guidelines?)/i,
+];
+
+// Check for suspicious patterns in prompt
+function detectInjectionAttempt(text: string): { suspicious: boolean; patterns: string[] } {
+  const lowerText = text.toLowerCase();
+  const matchedPatterns: string[] = [];
+  
+  for (const pattern of INJECTION_PATTERNS) {
+    if (pattern.test(lowerText)) {
+      matchedPatterns.push(pattern.source);
+    }
+  }
+  
+  // Check for excessive special characters (potential encoding attacks)
+  const specialCharRatio = (text.match(/[^\w\s.,!?'-]/g) || []).length / text.length;
+  if (specialCharRatio > 0.3) {
+    matchedPatterns.push('excessive_special_chars');
+  }
+  
+  return {
+    suspicious: matchedPatterns.length > 0,
+    patterns: matchedPatterns,
+  };
+}
+
 // Input validation function
-function validatePrompt(prompt: unknown): { valid: boolean; error?: string; sanitized?: string } {
+function validatePrompt(prompt: unknown): { valid: boolean; error?: string; sanitized?: string; suspicious?: boolean } {
   if (!prompt || typeof prompt !== 'string') {
     return { valid: false, error: 'Prompt must be a non-empty string' };
   }
@@ -126,12 +164,22 @@ function validatePrompt(prompt: unknown): { valid: boolean; error?: string; sani
     return { valid: false, error: 'Prompt too long (maximum 500 characters)' };
   }
   
-  // Sanitize: remove potential injection characters and limit length
+  // Check for prompt injection attempts
+  const injectionCheck = detectInjectionAttempt(trimmed);
+  if (injectionCheck.suspicious) {
+    console.warn("SECURITY: Potential prompt injection detected:", {
+      patterns: injectionCheck.patterns,
+      promptPreview: trimmed.substring(0, 100) + '...',
+    });
+  }
+  
+  // Sanitize: remove potential injection characters and patterns
   const sanitized = trimmed
     .replace(/[<>]/g, '') // Remove angle brackets
+    .replace(/\[\s*(system|inst(ruction)?|user|assistant)\s*\]/gi, '') // Remove role markers
     .substring(0, 500);
   
-  return { valid: true, sanitized };
+  return { valid: true, sanitized, suspicious: injectionCheck.suspicious };
 }
 
 serve(async (req) => {
