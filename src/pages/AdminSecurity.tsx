@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -515,16 +515,23 @@ export default function AdminSecurity() {
                                 )}
                               </TableCell>
                               <TableCell>
-                                {!prompt.reviewed && (
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => handleMarkReviewed(prompt.id)}
-                                  >
-                                    <CheckCircle className="h-4 w-4 mr-1" />
-                                    Mark Reviewed
-                                  </Button>
-                                )}
+                                <div className="flex items-center gap-2">
+                                  <Link to={`/admin/user/${prompt.user_id}`}>
+                                    <Button size="sm" variant="ghost" title="Investigate User">
+                                      <User className="h-4 w-4" />
+                                    </Button>
+                                  </Link>
+                                  {!prompt.reviewed && (
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => handleMarkReviewed(prompt.id)}
+                                    >
+                                      <CheckCircle className="h-4 w-4 mr-1" />
+                                      Mark Reviewed
+                                    </Button>
+                                  )}
+                                </div>
                               </TableCell>
                             </TableRow>
                           ))}
