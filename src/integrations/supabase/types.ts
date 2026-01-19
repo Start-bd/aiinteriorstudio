@@ -604,6 +604,48 @@ export type Database = {
           },
         ]
       }
+      suspicious_prompt_logs: {
+        Row: {
+          created_at: string
+          id: string
+          ip_address: string | null
+          matched_patterns: string[]
+          prompt_text: string
+          reviewed: boolean | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          source: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          matched_patterns: string[]
+          prompt_text: string
+          reviewed?: boolean | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          matched_patterns?: string[]
+          prompt_text?: string
+          reviewed?: boolean | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

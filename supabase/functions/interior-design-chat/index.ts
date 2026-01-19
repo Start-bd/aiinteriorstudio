@@ -289,6 +289,29 @@ serve(async (req) => {
 
     const messages = validation.sanitized!;
     console.log("Processing chat request with", messages.length, "messages for user:", user.id);
+    
+    // Log suspicious messages to database for admin review
+    if (validation.suspiciousMessages && validation.suspiciousMessages > 0) {
+      const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+      if (SUPABASE_SERVICE_ROLE_KEY) {
+        const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+        // Get the last user message that was suspicious
+        const lastUserMsg = body.messages.filter((m: {role: string}) => m.role === 'user').pop();
+        if (lastUserMsg) {
+          const injectionCheck = detectInjectionAttempt(lastUserMsg.content);
+          await supabaseAdmin.from('suspicious_prompt_logs').insert({
+            user_id: user.id,
+            prompt_text: lastUserMsg.content.substring(0, 1000),
+            matched_patterns: injectionCheck.patterns,
+            source: 'chat',
+            user_agent: req.headers.get('user-agent'),
+          }).then(({ error }) => {
+            if (error) console.error("Failed to log suspicious message:", error.message);
+            else console.log("Suspicious chat message logged for admin review");
+          });
+        }
+      }
+    }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

@@ -356,11 +356,19 @@ export default function Admin() {
 
         <main className="container mx-auto px-4 py-8">
           <div className="mb-8">
-            <div className="flex items-center gap-3 mb-2">
-              <Shield className="h-8 w-8 text-primary" />
-              <h1 className="text-3xl font-display font-bold text-foreground">
-                Admin Dashboard
-              </h1>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-3">
+                <Shield className="h-8 w-8 text-primary" />
+                <h1 className="text-3xl font-display font-bold text-foreground">
+                  Admin Dashboard
+                </h1>
+              </div>
+              <Link to="/admin/security">
+                <Button variant="outline" className="gap-2">
+                  <Shield className="h-4 w-4" />
+                  Security Dashboard
+                </Button>
+              </Link>
             </div>
             <p className="text-muted-foreground">
               Manage users, view system statistics, and configure application settings.
