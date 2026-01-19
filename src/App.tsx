@@ -18,6 +18,7 @@ import Pricing from "./pages/Pricing";
 import SharedCollection from "./pages/SharedCollection";
 import Admin from "./pages/Admin";
 import AdminUserDetail from "./pages/AdminUserDetail";
+import AdminSecurity from "./pages/AdminSecurity";
 import Contact from "./pages/Contact";
 import Terms from "./pages/Terms";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -47,6 +48,7 @@ const App = () => (
                   <Route path="/pricing" element={<Pricing />} />
                   <Route path="/collection/:shareToken" element={<SharedCollection />} />
                   <Route path="/admin" element={<Admin />} />
+                  <Route path="/admin/security" element={<AdminSecurity />} />
                   <Route path="/admin/user/:userId" element={<AdminUserDetail />} />
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/terms" element={<Terms />} />

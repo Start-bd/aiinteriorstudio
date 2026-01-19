@@ -269,6 +269,22 @@ serve(async (req) => {
     }
 
     const prompt = validation.sanitized!;
+    
+    // Log suspicious prompts to database for admin review
+    if (validation.suspicious && SUPABASE_SERVICE_ROLE_KEY) {
+      const injectionCheck = detectInjectionAttempt(body.prompt);
+      const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+      await supabaseAdmin.from('suspicious_prompt_logs').insert({
+        user_id: user.id,
+        prompt_text: body.prompt.substring(0, 1000),
+        matched_patterns: injectionCheck.patterns,
+        source: 'image_generation',
+        user_agent: req.headers.get('user-agent'),
+      }).then(({ error }) => {
+        if (error) console.error("Failed to log suspicious prompt:", error.message);
+        else console.log("Suspicious prompt logged for admin review");
+      });
+    }
 
     // Detect style from prompt
     const detectedStyle = detectStyle(prompt);
