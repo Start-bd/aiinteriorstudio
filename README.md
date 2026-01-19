@@ -59,6 +59,11 @@ This project is built with:
 - React
 - shadcn-ui
 - Tailwind CSS
+- Supabase (Lovable Cloud)
+
+## Documentation
+
+- **[Security Documentation](docs/SECURITY.md)** - RLS policies, access patterns, and security architecture
 
 ## How can I deploy this project?
 
