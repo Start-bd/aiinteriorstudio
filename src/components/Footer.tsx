@@ -191,7 +191,7 @@ const Footer = () => {
             </p>
           </div>
           <p className="text-sm text-muted-foreground text-center">
-            © 2022 AvailableView LLC. All rights reserved. Interior of AI is a registered trademark of AvailableView LLC. | Made with{" "}
+            © 2022-2026 AvailableView LLC. All rights reserved. Interior of AI is a registered trademark of AvailableView LLC. | Made with{" "}
             <Heart className="inline-block w-4 h-4 text-red-500 fill-red-500 mx-1" />
             for designers and dreamers.
           </p>
