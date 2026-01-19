@@ -22,7 +22,7 @@ const SocialProofSection = () => {
         {/* Stats */}
         <div className="flex flex-wrap justify-center gap-8 md:gap-16 mb-16">
           <div className="text-center">
-            <div className="text-4xl md:text-5xl font-display font-bold text-gradient-gold">447K</div>
+            <div className="text-4xl md:text-5xl font-display font-bold text-gradient-gold">431K+</div>
             <div className="text-muted-foreground mt-2">Instagram Followers</div>
           </div>
           <div className="text-center">

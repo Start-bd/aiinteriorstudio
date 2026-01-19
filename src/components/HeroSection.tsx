@@ -171,7 +171,7 @@ const HeroSection = () => {
               </div>
               <div className="flex items-center gap-2 text-foreground flex-shrink-0">
                 <Instagram className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                <span className="font-display font-bold text-lg sm:text-xl">433K</span>
+                <span className="font-display font-bold text-lg sm:text-xl">431K+</span>
                 <span className="text-muted-foreground text-xs sm:text-sm">Instagram</span>
               </div>
             </div>

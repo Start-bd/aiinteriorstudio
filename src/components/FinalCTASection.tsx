@@ -6,7 +6,7 @@ import { useScrollAnimation, getAnimationClasses } from "@/hooks/useScrollAnimat
 const trustBadges = [
   "2.5M+ designs created",
   "150K+ happy users",
-  "433K Instagram followers",
+  "431K+ Instagram followers",
 ];
 
 const FinalCTASection = () => {
