@@ -174,10 +174,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "credit_transactions_related_payment_id_fkey"
+            columns: ["related_payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments_safe"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "credit_transactions_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "credit_transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_safe"
             referencedColumns: ["user_id"]
           },
         ]
@@ -287,6 +301,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
           },
+          {
+            foreignKeyName: "generation_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_safe"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
       payments: {
@@ -347,6 +368,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_safe"
             referencedColumns: ["id"]
           },
         ]
@@ -420,6 +448,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "profiles_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "profiles_safe"
+            referencedColumns: ["id"]
+          },
         ]
       }
       rate_limits: {
@@ -486,10 +521,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "referrals_referred_id_fkey"
+            columns: ["referred_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_safe"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "referrals_referrer_id_fkey"
             columns: ["referrer_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_safe"
             referencedColumns: ["id"]
           },
         ]
@@ -614,6 +663,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_safe"
+            referencedColumns: ["id"]
+          },
         ]
       }
       suspicious_prompt_logs: {
@@ -684,7 +740,135 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      payments_safe: {
+        Row: {
+          amount: number | null
+          completed_at: string | null
+          created_at: string | null
+          credits_added: number | null
+          currency: string | null
+          id: string | null
+          payment_method: string | null
+          payment_type: string | null
+          status: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount?: number | null
+          completed_at?: string | null
+          created_at?: string | null
+          credits_added?: number | null
+          currency?: string | null
+          id?: string | null
+          payment_method?: string | null
+          payment_type?: string | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number | null
+          completed_at?: string | null
+          created_at?: string | null
+          credits_added?: number | null
+          currency?: string | null
+          id?: string | null
+          payment_method?: string | null
+          payment_type?: string | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles_safe: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          credits: number | null
+          display_name: string | null
+          id: string | null
+          preferred_language: string | null
+          referral_code: string | null
+          referred_by: string | null
+          status: string | null
+          status_reason: string | null
+          status_updated_at: string | null
+          status_updated_by: string | null
+          subscription_status: string | null
+          subscription_tier: string | null
+          total_generations: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          credits?: number | null
+          display_name?: string | null
+          id?: string | null
+          preferred_language?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
+          status?: string | null
+          status_reason?: string | null
+          status_updated_at?: string | null
+          status_updated_by?: string | null
+          subscription_status?: string | null
+          subscription_tier?: string | null
+          total_generations?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          credits?: number | null
+          display_name?: string | null
+          id?: string | null
+          preferred_language?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
+          status?: string | null
+          status_reason?: string | null
+          status_updated_at?: string | null
+          status_updated_by?: string | null
+          subscription_status?: string | null
+          subscription_tier?: string | null
+          total_generations?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "profiles_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       add_credits: {
