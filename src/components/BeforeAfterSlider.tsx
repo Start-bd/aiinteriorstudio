@@ -62,6 +62,10 @@ export function BeforeAfterSlider({
         src={afterImage}
         alt={afterLabel}
         className="absolute inset-0 w-full h-full object-cover"
+        width={800}
+        height={450}
+        loading="lazy"
+        decoding="async"
         draggable={false}
       />
 
@@ -75,6 +79,10 @@ export function BeforeAfterSlider({
           alt={beforeLabel}
           className="absolute inset-0 w-full h-full object-cover"
           style={{ width: containerRef.current?.offsetWidth || '100%' }}
+          width={800}
+          height={450}
+          loading="lazy"
+          decoding="async"
           draggable={false}
         />
       </div>

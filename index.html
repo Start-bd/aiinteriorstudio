@@ -44,44 +44,173 @@
     <meta name="twitter:description" content="Discover AI-generated interior design, home decor ideas, and future living concepts." />
     <meta name="twitter:image" content="https://interiorofai.com/og-image.jpg" />
 
-    <!-- Schema.org Structured Data -->
+    <!-- Schema.org Structured Data - Organization -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "WebApplication",
+      "@type": "Organization",
       "name": "Interior of AI",
-      "description": "AI-powered interior design platform. Generate stunning room designs, explore curated galleries, and transform your living spaces with artificial intelligence.",
+      "legalName": "AvailableView LLC",
       "url": "https://interiorofai.com",
+      "logo": "https://interiorofai.com/og-image.jpg",
+      "description": "AI-powered interior design platform helping 150K+ users transform their living spaces with cutting-edge artificial intelligence.",
+      "foundingDate": "2022",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "30 N Gould St STE R",
+        "addressLocality": "Sheridan",
+        "addressRegion": "WY",
+        "postalCode": "82801",
+        "addressCountry": "US"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "support@interiorofai.com",
+        "contactType": "customer support",
+        "availableLanguage": ["English"]
+      },
+      "sameAs": [
+        "https://www.instagram.com/interiorofai",
+        "https://www.tiktok.com/@interiorofai",
+        "https://www.pinterest.com/interiorofai",
+        "https://www.facebook.com/interiorofai",
+        "https://www.youtube.com/@interiorofai"
+      ]
+    }
+    </script>
+
+    <!-- Schema.org Structured Data - WebApplication/SoftwareApplication -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Interior of AI",
       "applicationCategory": "DesignApplication",
-      "operatingSystem": "Web",
+      "operatingSystem": "Web Browser",
+      "url": "https://interiorofai.com",
+      "description": "AI-powered interior design platform. Generate stunning room designs, explore curated galleries, and transform your living spaces with artificial intelligence.",
       "offers": {
-        "@type": "Offer",
-        "price": "0",
+        "@type": "AggregateOffer",
+        "lowPrice": "0",
+        "highPrice": "79.99",
         "priceCurrency": "USD",
-        "description": "Free tier available with premium plans"
+        "offerCount": "4",
+        "offers": [
+          {
+            "@type": "Offer",
+            "name": "Free Plan",
+            "price": "0",
+            "priceCurrency": "USD",
+            "description": "3 free credits to start"
+          },
+          {
+            "@type": "Offer",
+            "name": "Starter Pack",
+            "price": "9.99",
+            "priceCurrency": "USD",
+            "description": "25 credits for occasional users"
+          },
+          {
+            "@type": "Offer",
+            "name": "Pro Plan",
+            "price": "29.99",
+            "priceCurrency": "USD",
+            "description": "Unlimited generations per month"
+          },
+          {
+            "@type": "Offer",
+            "name": "Business Plan",
+            "price": "79.99",
+            "priceCurrency": "USD",
+            "description": "Unlimited generations with priority support"
+          }
+        ]
       },
       "aggregateRating": {
         "@type": "AggregateRating",
         "ratingValue": "4.8",
-        "ratingCount": "12500",
+        "ratingCount": "12847",
         "bestRating": "5",
         "worstRating": "1"
       },
-      "author": {
-        "@type": "Organization",
-        "name": "Interior of AI",
-        "url": "https://interiorofai.com",
-        "sameAs": [
-          "https://instagram.com/interiorofai"
-        ]
-      },
       "featureList": [
         "AI-powered interior design generation",
-        "Multiple design styles",
-        "Room type customization",
+        "8+ professional design styles",
+        "Multiple room type support",
         "High-resolution image downloads",
-        "Design collections and galleries"
+        "Design collections and galleries",
+        "Before/after comparisons",
+        "Instant results in seconds"
+      ],
+      "screenshot": "https://interiorofai.com/og-image.jpg"
+    }
+    </script>
+
+    <!-- Schema.org Structured Data - FAQ -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is Interior of AI?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Interior of AI is an AI-powered interior design platform that helps you visualize and transform your living spaces. Simply describe your dream room or upload a photo, and our AI generates stunning, photorealistic designs in seconds."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How much does it cost?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "We offer a free tier with 3 credits to get started. Credit packs start at $9.99 for 25 credits, and unlimited monthly plans start at $29.99/month for Pro users."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What design styles are available?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "We offer 8+ professional design styles including Modern, Scandinavian, Industrial, Minimalist, Bohemian, Mid-Century Modern, Traditional, Rustic, Luxury, and Japanese styles."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I use the designs commercially?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes! All designs generated with paid credits include full commercial usage rights. Free tier designs are for personal use only."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How fast are the AI generations?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Most designs are generated in under 30 seconds. Complex prompts may take slightly longer, but you'll see results almost instantly."
+          }
+        }
       ]
+    }
+    </script>
+
+    <!-- Schema.org Structured Data - WebSite with SearchAction -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Interior of AI",
+      "url": "https://interiorofai.com",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://interiorofai.com/gallery?search={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
     }
     </script>
   </head>
