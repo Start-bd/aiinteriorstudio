@@ -1,13 +1,19 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Mail, Check, Sparkles, Lightbulb, Zap } from "lucide-react";
+import { Mail, Check, Sparkles, Lightbulb, Zap, Shield, Lock, CreditCard } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const benefits = [
   { icon: Sparkles, text: "AI interior inspiration" },
   { icon: Lightbulb, text: "Future home design concepts" },
   { icon: Zap, text: "Tool recommendations & updates" },
+];
+
+const trustBadges = [
+  { icon: Shield, text: "100% Secure" },
+  { icon: Lock, text: "Privacy Protected" },
+  { icon: CreditCard, text: "No Card Required" },
 ];
 
 const NewsletterSection = () => {
@@ -76,6 +82,16 @@ const NewsletterSection = () => {
               <p className="text-xs text-muted-foreground mt-4">
                 No spam. Unsubscribe anytime.
               </p>
+              
+              {/* Trust badges */}
+              <div className="flex flex-wrap justify-center gap-4 mt-6 pt-4 border-t border-border/30">
+                {trustBadges.map((badge, index) => (
+                  <div key={index} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <badge.icon className="w-4 h-4 text-primary" />
+                    <span>{badge.text}</span>
+                  </div>
+                ))}
+              </div>
             </form>
           ) : (
             <div className="glass-card rounded-2xl p-8 max-w-md mx-auto">

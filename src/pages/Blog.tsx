@@ -3,6 +3,7 @@ import { Helmet } from "react-helmet-async";
 import { ArrowRight, Calendar, Clock, Tag } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import Breadcrumb from "@/components/Breadcrumb";
 import { Button } from "@/components/ui/button";
 import { blogPosts, getAllCategories } from "@/lib/blog-data";
 
@@ -28,6 +29,11 @@ const Blog = () => {
       <Header />
       
       <main className="min-h-screen bg-background pt-24">
+        {/* Breadcrumb */}
+        <div className="container mx-auto px-6">
+          <Breadcrumb items={[{ label: "Blog" }]} />
+        </div>
+
         {/* Hero Section */}
         <section className="py-16 bg-gradient-to-b from-muted/50 to-background">
           <div className="container mx-auto px-6 text-center">

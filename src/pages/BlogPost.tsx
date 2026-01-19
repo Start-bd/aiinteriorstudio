@@ -3,6 +3,7 @@ import { Helmet } from "react-helmet-async";
 import { ArrowLeft, Calendar, Clock, Tag, Twitter, Linkedin, Facebook } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import Breadcrumb from "@/components/Breadcrumb";
 import { Button } from "@/components/ui/button";
 import { getBlogPost, getRecentPosts } from "@/lib/blog-data";
 
@@ -82,15 +83,14 @@ const BlogPost = () => {
       <Header />
       
       <main className="min-h-screen bg-background pt-24">
-        {/* Back Navigation */}
-        <div className="container mx-auto px-6 py-6">
-          <Link 
-            to="/blog" 
-            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Blog
-          </Link>
+        {/* Breadcrumb Navigation */}
+        <div className="container mx-auto px-6">
+          <Breadcrumb 
+            items={[
+              { label: "Blog", href: "/blog" },
+              { label: post.title }
+            ]} 
+          />
         </div>
 
         {/* Article Header */}
