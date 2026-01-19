@@ -45,8 +45,9 @@ const Profile = () => {
       if (!user) return;
       
       try {
+        // Use profiles_safe view to avoid exposing sensitive fields
         const { data, error } = await supabase
-          .from("profiles")
+          .from("profiles_safe")
           .select("display_name")
           .eq("user_id", user.id)
           .single();
