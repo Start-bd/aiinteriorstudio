@@ -10,7 +10,7 @@ const productLinks = [
 ];
 
 const resourceLinks = [
-  { label: "Blog", href: "#" },
+  { label: "Blog", href: "/blog" },
   { label: "Design Inspiration", href: "/gallery" },
   { label: "Help Center", href: "#faq" },
   { label: "FAQ", href: "#faq" },
