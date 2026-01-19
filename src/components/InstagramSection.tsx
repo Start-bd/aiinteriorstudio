@@ -109,7 +109,10 @@ const InstagramSection = () => {
                 src={post.image}
                 alt={post.caption}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                width={400}
+                height={400}
                 loading="lazy"
+                decoding="async"
               />
               
               {/* Hover Overlay */}
