@@ -4,8 +4,8 @@ import { Link } from "react-router-dom";
 import { useScrollAnimation, getAnimationClasses } from "@/hooks/useScrollAnimation";
 
 const trustBadges = [
-  "2.5M+ designs created",
-  "150K+ happy users",
+  "2.5M+ designs created this year",
+  "Join 150K+ users this month",
   "431K+ Instagram followers",
 ];
 

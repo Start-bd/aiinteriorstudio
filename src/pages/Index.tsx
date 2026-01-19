@@ -16,9 +16,11 @@ import AboutPreviewSection from "@/components/AboutPreviewSection";
 import FinalCTASection from "@/components/FinalCTASection";
 import PricingSection from "@/components/PricingSection";
 import FAQSection from "@/components/FAQSection";
+import TestimonialsSection from "@/components/TestimonialsSection";
 import Footer from "@/components/Footer";
 import { ChatBot } from "@/components/ChatBot";
 import { AIGenerator } from "@/components/AIGenerator";
+import ExitIntentPopup from "@/components/ExitIntentPopup";
 import { Helmet } from "react-helmet-async";
 
 const Index = () => {
@@ -83,6 +85,7 @@ const Index = () => {
         <WhySection />
         <WhoUsesSection />
         <TransformationsSection />
+        <TestimonialsSection />
         <PricingSection />
         <FAQSection />
         <InstagramSection />
@@ -94,6 +97,7 @@ const Index = () => {
         <Footer />
       </main>
       <ChatBot />
+      <ExitIntentPopup />
     </>
   );
 };

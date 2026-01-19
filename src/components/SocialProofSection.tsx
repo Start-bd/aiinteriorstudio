@@ -19,7 +19,7 @@ const SocialProofSection = () => {
   return (
     <section className="py-20 bg-gradient-to-b from-background to-charcoal">
       <div className="container mx-auto px-6">
-        {/* Stats */}
+        {/* Stats with urgency */}
         <div className="flex flex-wrap justify-center gap-8 md:gap-16 mb-16">
           <div className="text-center">
             <div className="text-4xl md:text-5xl font-display font-bold text-gradient-gold">431K+</div>
@@ -27,11 +27,11 @@ const SocialProofSection = () => {
           </div>
           <div className="text-center">
             <div className="text-4xl md:text-5xl font-display font-bold text-gradient-gold">50M+</div>
-            <div className="text-muted-foreground mt-2">Impressions</div>
+            <div className="text-muted-foreground mt-2">Impressions This Month</div>
           </div>
           <div className="text-center">
             <div className="text-4xl md:text-5xl font-display font-bold text-gradient-gold">2.5M+</div>
-            <div className="text-muted-foreground mt-2">Designs Created</div>
+            <div className="text-muted-foreground mt-2">Designs This Year</div>
           </div>
           <div className="text-center">
             <div className="text-4xl md:text-5xl font-display font-bold text-gradient-gold">180+</div>

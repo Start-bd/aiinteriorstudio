@@ -151,9 +151,9 @@ const HeroSection = () => {
             </Link>
           </div>
 
-          {/* Trust statement */}
+          {/* Trust statement with urgency */}
           <p className="animate-fade-up opacity-0 delay-500 text-muted-foreground text-xs sm:text-sm px-4">
-            No credit card required • 2.5M+ designs created • Trusted by 150K+ users
+            No credit card required • 2.5M+ designs created • <span className="text-primary font-medium">Join 150K+ users this month</span>
           </p>
 
           {/* Stats - Horizontal scroll on mobile */}
