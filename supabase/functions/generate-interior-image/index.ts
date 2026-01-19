@@ -270,10 +270,12 @@ serve(async (req) => {
 
     const prompt = validation.sanitized!;
     
-    // Log suspicious prompts to database for admin review
+    // Log suspicious prompts to database and send email alert
     if (validation.suspicious && SUPABASE_SERVICE_ROLE_KEY) {
       const injectionCheck = detectInjectionAttempt(body.prompt);
       const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+      
+      // Log to database
       await supabaseAdmin.from('suspicious_prompt_logs').insert({
         user_id: user.id,
         prompt_text: body.prompt.substring(0, 1000),
@@ -284,6 +286,22 @@ serve(async (req) => {
         if (error) console.error("Failed to log suspicious prompt:", error.message);
         else console.log("Suspicious prompt logged for admin review");
       });
+      
+      // Send email alert (fire and forget - don't block the request)
+      fetch(`${SUPABASE_URL}/functions/v1/security-alert-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          promptPreview: body.prompt.substring(0, 200),
+          matchedPatterns: injectionCheck.patterns,
+          source: 'image_generation',
+          timestamp: new Date().toISOString(),
+        }),
+      }).catch(err => console.error("Failed to send security alert email:", err));
     }
 
     // Detect style from prompt

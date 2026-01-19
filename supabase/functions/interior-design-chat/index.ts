@@ -290,7 +290,7 @@ serve(async (req) => {
     const messages = validation.sanitized!;
     console.log("Processing chat request with", messages.length, "messages for user:", user.id);
     
-    // Log suspicious messages to database for admin review
+    // Log suspicious messages to database and send email alert
     if (validation.suspiciousMessages && validation.suspiciousMessages > 0) {
       const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
       if (SUPABASE_SERVICE_ROLE_KEY) {
@@ -299,6 +299,8 @@ serve(async (req) => {
         const lastUserMsg = body.messages.filter((m: {role: string}) => m.role === 'user').pop();
         if (lastUserMsg) {
           const injectionCheck = detectInjectionAttempt(lastUserMsg.content);
+          
+          // Log to database
           await supabaseAdmin.from('suspicious_prompt_logs').insert({
             user_id: user.id,
             prompt_text: lastUserMsg.content.substring(0, 1000),
@@ -309,6 +311,22 @@ serve(async (req) => {
             if (error) console.error("Failed to log suspicious message:", error.message);
             else console.log("Suspicious chat message logged for admin review");
           });
+          
+          // Send email alert (fire and forget - don't block the request)
+          fetch(`${SUPABASE_URL}/functions/v1/security-alert-email`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+            },
+            body: JSON.stringify({
+              userId: user.id,
+              promptPreview: lastUserMsg.content.substring(0, 200),
+              matchedPatterns: injectionCheck.patterns,
+              source: 'chat',
+              timestamp: new Date().toISOString(),
+            }),
+          }).catch(err => console.error("Failed to send security alert email:", err));
         }
       }
     }
