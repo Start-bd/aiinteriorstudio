@@ -183,9 +183,9 @@ export default function AdminUserDetail() {
     setLoading(true);
 
     try {
-      // Fetch profile
+      // Fetch profile using safe view (excludes stripe_customer_id)
       const { data: profile, error: profileError } = await supabase
-        .from("profiles")
+        .from("profiles_safe")
         .select("*")
         .eq("user_id", userId)
         .maybeSingle();
@@ -206,8 +206,9 @@ export default function AdminUserDetail() {
           .eq("user_id", userId)
           .order("created_at", { ascending: false })
           .limit(100),
+        // Use payments_safe view (excludes payment processor IDs)
         supabase
-          .from("payments")
+          .from("payments_safe")
           .select("*")
           .eq("user_id", profile.id)
           .order("created_at", { ascending: false })

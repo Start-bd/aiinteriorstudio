@@ -154,8 +154,9 @@ export default function Admin() {
       const from = (currentPage - 1) * USERS_PER_PAGE;
       const to = from + USERS_PER_PAGE - 1;
 
+      // Use profiles_safe view to exclude sensitive fields like stripe_customer_id
       let query = supabase
-        .from("profiles")
+        .from("profiles_safe")
         .select("*", { count: "exact" })
         .order("created_at", { ascending: false });
 

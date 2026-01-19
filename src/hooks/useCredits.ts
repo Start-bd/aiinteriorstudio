@@ -25,8 +25,9 @@ export function useCredits() {
     }
 
     try {
+      // Use profiles_safe view to avoid exposing sensitive fields like stripe_customer_id
       const { data, error } = await supabase
-        .from('profiles')
+        .from('profiles_safe')
         .select('credits, subscription_tier')
         .eq('user_id', user.id)
         .maybeSingle();
