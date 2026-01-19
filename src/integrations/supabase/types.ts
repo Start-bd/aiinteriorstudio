@@ -361,6 +361,10 @@ export type Database = {
           preferred_language: string | null
           referral_code: string | null
           referred_by: string | null
+          status: string | null
+          status_reason: string | null
+          status_updated_at: string | null
+          status_updated_by: string | null
           stripe_customer_id: string | null
           subscription_status: string | null
           subscription_tier: string | null
@@ -377,6 +381,10 @@ export type Database = {
           preferred_language?: string | null
           referral_code?: string | null
           referred_by?: string | null
+          status?: string | null
+          status_reason?: string | null
+          status_updated_at?: string | null
+          status_updated_by?: string | null
           stripe_customer_id?: string | null
           subscription_status?: string | null
           subscription_tier?: string | null
@@ -393,6 +401,10 @@ export type Database = {
           preferred_language?: string | null
           referral_code?: string | null
           referred_by?: string | null
+          status?: string | null
+          status_reason?: string | null
+          status_updated_at?: string | null
+          status_updated_by?: string | null
           stripe_customer_id?: string | null
           subscription_status?: string | null
           subscription_tier?: string | null

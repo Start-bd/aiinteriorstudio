@@ -11,6 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Table,
   TableBody,
@@ -26,6 +28,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import {
   ArrowLeft,
@@ -41,9 +51,16 @@ import {
   TrendingUp,
   TrendingDown,
   Clock,
+  AlertTriangle,
+  Ban,
+  AlertCircle,
+  CheckCircle,
+  MessageSquare,
+  Eye,
 } from "lucide-react";
 import { EditUserDialog } from "@/components/admin/EditUserDialog";
 import { AdjustCreditsDialog } from "@/components/admin/AdjustCreditsDialog";
+import { format } from "date-fns";
 
 interface UserProfile {
   id: string;
@@ -58,6 +75,10 @@ interface UserProfile {
   updated_at: string;
   referral_code: string | null;
   preferred_language: string | null;
+  status?: string | null;
+  status_reason?: string | null;
+  status_updated_at?: string | null;
+  status_updated_by?: string | null;
 }
 
 interface CreditTransaction {
@@ -96,7 +117,26 @@ interface UserRole {
   created_at: string;
 }
 
+interface SuspiciousPrompt {
+  id: string;
+  prompt_text: string;
+  matched_patterns: string[];
+  source: string;
+  reviewed: boolean;
+  created_at: string;
+}
+
+interface GeneratedImage {
+  id: string;
+  prompt: string;
+  image_url: string;
+  style: string;
+  room_type: string | null;
+  created_at: string;
+}
+
 type AppRole = "admin" | "moderator" | "user";
+type UserStatus = "active" | "warned" | "suspended" | "banned";
 
 export default function AdminUserDetail() {
   const navigate = useNavigate();
@@ -109,9 +149,15 @@ export default function AdminUserDetail() {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [roles, setRoles] = useState<UserRole[]>([]);
+  const [suspiciousPrompts, setSuspiciousPrompts] = useState<SuspiciousPrompt[]>([]);
+  const [generatedImages, setGeneratedImages] = useState<GeneratedImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [creditsDialogOpen, setCreditsDialogOpen] = useState(false);
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+  const [newStatus, setNewStatus] = useState<UserStatus>("active");
+  const [statusReason, setStatusReason] = useState("");
+  const [updatingStatus, setUpdatingStatus] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !currentUser) {
@@ -152,8 +198,8 @@ export default function AdminUserDetail() {
       }
       setUserProfile(profile);
 
-      // Fetch transactions, payments, subscriptions, and roles in parallel
-      const [transactionsRes, paymentsRes, subscriptionsRes, rolesRes] = await Promise.all([
+      // Fetch all data in parallel
+      const [transactionsRes, paymentsRes, subscriptionsRes, rolesRes, suspiciousRes, imagesRes] = await Promise.all([
         supabase
           .from("credit_transactions")
           .select("*")
@@ -175,12 +221,26 @@ export default function AdminUserDetail() {
           .from("user_roles")
           .select("role, created_at")
           .eq("user_id", userId),
+        supabase
+          .from("suspicious_prompt_logs")
+          .select("*")
+          .eq("user_id", userId)
+          .order("created_at", { ascending: false })
+          .limit(50),
+        supabase
+          .from("generated_images")
+          .select("id, prompt, image_url, style, room_type, created_at")
+          .eq("user_id", userId)
+          .order("created_at", { ascending: false })
+          .limit(50),
       ]);
 
       if (!transactionsRes.error) setTransactions(transactionsRes.data || []);
       if (!paymentsRes.error) setPayments(paymentsRes.data || []);
       if (!subscriptionsRes.error) setSubscriptions(subscriptionsRes.data || []);
       if (!rolesRes.error) setRoles(rolesRes.data || []);
+      if (!suspiciousRes.error) setSuspiciousPrompts(suspiciousRes.data as SuspiciousPrompt[] || []);
+      if (!imagesRes.error) setGeneratedImages(imagesRes.data as GeneratedImage[] || []);
     } catch (error) {
       console.error("Error fetching user data:", error);
       toast.error("Failed to fetch user data");
@@ -269,6 +329,42 @@ export default function AdminUserDetail() {
     }
   };
 
+  const handleUpdateStatus = async () => {
+    if (!userId || !userProfile || !currentUser) return;
+    
+    setUpdatingStatus(true);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          status: newStatus,
+          status_reason: statusReason || null,
+          status_updated_at: new Date().toISOString(),
+          status_updated_by: currentUser.id,
+        })
+        .eq("user_id", userId);
+
+      if (error) throw error;
+
+      await logAdminActivity(userId, `user_${newStatus}`, {
+        user_name: userProfile.display_name,
+        previous_status: userProfile.status || "active",
+        new_status: newStatus,
+        reason: statusReason,
+      });
+
+      toast.success(`User ${newStatus === "active" ? "restored" : newStatus} successfully`);
+      setStatusDialogOpen(false);
+      setStatusReason("");
+      fetchUserData();
+    } catch (error) {
+      console.error("Error updating user status:", error);
+      toast.error("Failed to update user status");
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
+
   const getTransactionIcon = (type: string, amount: number) => {
     if (amount > 0) {
       return <TrendingUp className="h-4 w-4 text-green-500" />;
@@ -295,6 +391,34 @@ export default function AdminUserDetail() {
       default:
         return type;
     }
+  };
+
+  const getStatusBadge = (status: string | null | undefined) => {
+    switch (status) {
+      case "warned":
+        return <Badge variant="outline" className="border-amber-500 text-amber-500"><AlertCircle className="h-3 w-3 mr-1" />Warned</Badge>;
+      case "suspended":
+        return <Badge variant="outline" className="border-orange-500 text-orange-500"><Clock className="h-3 w-3 mr-1" />Suspended</Badge>;
+      case "banned":
+        return <Badge variant="destructive"><Ban className="h-3 w-3 mr-1" />Banned</Badge>;
+      default:
+        return <Badge variant="outline" className="border-green-500 text-green-500"><CheckCircle className="h-3 w-3 mr-1" />Active</Badge>;
+    }
+  };
+
+  const getPatternLabel = (pattern: string) => {
+    if (pattern.includes("ignore")) return "Ignore Instructions";
+    if (pattern.includes("forget")) return "Forget Training";
+    if (pattern.includes("disregard")) return "Disregard Rules";
+    if (pattern.includes("you\\s+are\\s+now")) return "Role Override";
+    if (pattern.includes("persona|role")) return "Persona Change";
+    if (pattern.includes("system:|assistant:")) return "Role Marker";
+    if (pattern.includes("override")) return "Override Attempt";
+    if (pattern.includes("jailbreak|bypass")) return "Jailbreak";
+    if (pattern.includes("pretend")) return "Pretend Prompt";
+    if (pattern.includes("do\\s+not\\s+follow")) return "Rule Bypass";
+    if (pattern === "excessive_special_chars") return "Encoding Attack";
+    return pattern.substring(0, 20) + "...";
   };
 
   if (authLoading || roleLoading || loading) {
@@ -364,6 +488,7 @@ export default function AdminUserDetail() {
                       {userProfile.user_id}
                     </p>
                     <div className="flex flex-wrap gap-2 mt-2">
+                      {getStatusBadge(userProfile.status)}
                       <Badge
                         variant={
                           userProfile.subscription_tier === "pro" ||
@@ -390,10 +515,21 @@ export default function AdminUserDetail() {
                           {r.role}
                         </Badge>
                       ))}
+                      {suspiciousPrompts.length > 0 && (
+                        <Badge variant="destructive" className="gap-1">
+                          <AlertTriangle className="h-3 w-3" />
+                          {suspiciousPrompts.length} Security Flag{suspiciousPrompts.length !== 1 ? "s" : ""}
+                        </Badge>
+                      )}
                     </div>
+                    {userProfile.status_reason && userProfile.status !== "active" && (
+                      <p className="text-sm text-muted-foreground mt-2 italic">
+                        Reason: {userProfile.status_reason}
+                      </p>
+                    )}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Button
                     variant="outline"
                     size="sm"
@@ -411,6 +547,43 @@ export default function AdminUserDetail() {
                     <Coins className="h-4 w-4 mr-2" />
                     Adjust Credits
                   </Button>
+                  <Select 
+                    value=""
+                    onValueChange={(value: string) => {
+                      setNewStatus(value as UserStatus);
+                      setStatusDialogOpen(true);
+                    }}
+                  >
+                    <SelectTrigger className="w-40">
+                      <SelectValue placeholder="Change Status..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">
+                        <span className="flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          Restore
+                        </span>
+                      </SelectItem>
+                      <SelectItem value="warned">
+                        <span className="flex items-center gap-2">
+                          <AlertCircle className="h-4 w-4 text-amber-500" />
+                          Warn User
+                        </span>
+                      </SelectItem>
+                      <SelectItem value="suspended">
+                        <span className="flex items-center gap-2">
+                          <Clock className="h-4 w-4 text-orange-500" />
+                          Suspend
+                        </span>
+                      </SelectItem>
+                      <SelectItem value="banned">
+                        <span className="flex items-center gap-2">
+                          <Ban className="h-4 w-4 text-red-500" />
+                          Ban User
+                        </span>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </CardContent>
@@ -716,10 +889,198 @@ export default function AdminUserDetail() {
               )}
             </CardContent>
           </Card>
+
+          {/* Security Flags - Suspicious Prompts */}
+          <Card className="bg-card border-border mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-foreground">
+                <AlertTriangle className="h-5 w-5 text-amber-500" />
+                Security Flags
+                <span className="text-sm font-normal text-muted-foreground">
+                  ({suspiciousPrompts.length} suspicious prompts)
+                </span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {suspiciousPrompts.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Shield className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>No suspicious activity detected</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-border">
+                        <TableHead className="text-muted-foreground">Date</TableHead>
+                        <TableHead className="text-muted-foreground">Source</TableHead>
+                        <TableHead className="text-muted-foreground">Patterns</TableHead>
+                        <TableHead className="text-muted-foreground max-w-md">Prompt</TableHead>
+                        <TableHead className="text-muted-foreground">Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {suspiciousPrompts.map((prompt) => (
+                        <TableRow key={prompt.id} className="border-border">
+                          <TableCell className="text-foreground whitespace-nowrap">
+                            {format(new Date(prompt.created_at), "MMM d, HH:mm")}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="gap-1">
+                              {prompt.source === "image_generation" ? (
+                                <Image className="h-3 w-3" />
+                              ) : (
+                                <MessageSquare className="h-3 w-3" />
+                              )}
+                              {prompt.source === "image_generation" ? "Image" : "Chat"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-wrap gap-1">
+                              {prompt.matched_patterns.slice(0, 2).map((pattern, i) => (
+                                <Badge key={i} variant="destructive" className="text-xs">
+                                  {getPatternLabel(pattern)}
+                                </Badge>
+                              ))}
+                              {prompt.matched_patterns.length > 2 && (
+                                <Badge variant="secondary" className="text-xs">
+                                  +{prompt.matched_patterns.length - 2}
+                                </Badge>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell className="max-w-md">
+                            <p className="text-sm text-foreground truncate" title={prompt.prompt_text}>
+                              {prompt.prompt_text.substring(0, 80)}
+                              {prompt.prompt_text.length > 80 && "..."}
+                            </p>
+                          </TableCell>
+                          <TableCell>
+                            {prompt.reviewed ? (
+                              <Badge variant="secondary" className="gap-1">
+                                <CheckCircle className="h-3 w-3" />
+                                Reviewed
+                              </Badge>
+                            ) : (
+                              <Badge variant="destructive" className="gap-1">
+                                <AlertTriangle className="h-3 w-3" />
+                                Pending
+                              </Badge>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Generated Images */}
+          <Card className="bg-card border-border mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-foreground">
+                <Image className="h-5 w-5" />
+                Generated Images
+                <span className="text-sm font-normal text-muted-foreground">
+                  ({generatedImages.length} images)
+                </span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {generatedImages.length === 0 ? (
+                <p className="text-center py-8 text-muted-foreground">
+                  No generated images yet
+                </p>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                  {generatedImages.slice(0, 12).map((image) => (
+                    <div key={image.id} className="group relative aspect-square rounded-lg overflow-hidden bg-muted">
+                      <img
+                        src={image.image_url}
+                        alt={image.prompt.substring(0, 50)}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-2">
+                        <p className="text-white text-xs line-clamp-2">{image.prompt}</p>
+                        <div className="flex gap-1 mt-1">
+                          <Badge variant="secondary" className="text-xs">{image.style}</Badge>
+                          {image.room_type && (
+                            <Badge variant="outline" className="text-xs bg-white/20 border-white/30 text-white">
+                              {image.room_type}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {generatedImages.length > 12 && (
+                <p className="text-center text-muted-foreground text-sm mt-4">
+                  Showing 12 of {generatedImages.length} images
+                </p>
+              )}
+            </CardContent>
+          </Card>
         </main>
 
         <Footer />
       </div>
+
+      {/* Status Change Dialog */}
+      <Dialog open={statusDialogOpen} onOpenChange={setStatusDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {newStatus === "banned" && <Ban className="h-5 w-5 text-red-500" />}
+              {newStatus === "suspended" && <Clock className="h-5 w-5 text-orange-500" />}
+              {newStatus === "warned" && <AlertCircle className="h-5 w-5 text-amber-500" />}
+              {newStatus === "active" && <CheckCircle className="h-5 w-5 text-green-500" />}
+              {newStatus === "active" ? "Restore User" : `${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)} User`}
+            </DialogTitle>
+            <DialogDescription>
+              {newStatus === "active" 
+                ? "This will restore the user's account to active status."
+                : `This will ${newStatus === "banned" ? "permanently ban" : newStatus} the user's account.`}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <label className="text-sm font-medium text-foreground">
+                Reason {newStatus !== "active" && "(required)"}
+              </label>
+              <Textarea
+                placeholder={`Enter reason for ${newStatus === "active" ? "restoring" : newStatus}...`}
+                value={statusReason}
+                onChange={(e) => setStatusReason(e.target.value)}
+                className="mt-2"
+              />
+            </div>
+            {newStatus === "banned" && (
+              <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+                <p className="text-sm text-destructive font-medium">⚠️ Warning</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Banning a user will prevent them from accessing the platform. This action can be reversed by restoring the account.
+                </p>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setStatusDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant={newStatus === "banned" ? "destructive" : newStatus === "active" ? "default" : "outline"}
+              onClick={handleUpdateStatus}
+              disabled={updatingStatus || (newStatus !== "active" && !statusReason.trim())}
+            >
+              {updatingStatus ? "Updating..." : newStatus === "active" ? "Restore User" : `${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)} User`}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <EditUserDialog
         user={userWithRoles}
