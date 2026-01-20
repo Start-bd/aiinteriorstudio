@@ -78,6 +78,13 @@ export type Database = {
             referencedRelation: "generated_images"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "collection_images_image_id_fkey"
+            columns: ["image_id"]
+            isOneToOne: false
+            referencedRelation: "generated_images_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       collections: {
@@ -122,6 +129,13 @@ export type Database = {
             referencedRelation: "generated_images"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "collections_cover_image_id_fkey"
+            columns: ["cover_image_id"]
+            isOneToOne: false
+            referencedRelation: "generated_images_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       credit_transactions: {
@@ -164,6 +178,13 @@ export type Database = {
             columns: ["related_generation_id"]
             isOneToOne: false
             referencedRelation: "generated_images"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "credit_transactions_related_generation_id_fkey"
+            columns: ["related_generation_id"]
+            isOneToOne: false
+            referencedRelation: "generated_images_public"
             referencedColumns: ["id"]
           },
           {
@@ -221,6 +242,13 @@ export type Database = {
             columns: ["image_id"]
             isOneToOne: false
             referencedRelation: "generated_images"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "favorites_image_id_fkey"
+            columns: ["image_id"]
+            isOneToOne: false
+            referencedRelation: "generated_images_public"
             referencedColumns: ["id"]
           },
         ]
@@ -292,6 +320,13 @@ export type Database = {
             columns: ["generation_id"]
             isOneToOne: false
             referencedRelation: "generated_images"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generation_likes_generation_id_fkey"
+            columns: ["generation_id"]
+            isOneToOne: false
+            referencedRelation: "generated_images_public"
             referencedColumns: ["id"]
           },
           {
@@ -740,6 +775,45 @@ export type Database = {
       }
     }
     Views: {
+      generated_images_public: {
+        Row: {
+          created_at: string | null
+          downloads_count: number | null
+          id: string | null
+          image_url: string | null
+          is_featured: boolean | null
+          likes_count: number | null
+          prompt: string | null
+          room_type: string | null
+          style: string | null
+          views_count: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          downloads_count?: number | null
+          id?: string | null
+          image_url?: string | null
+          is_featured?: boolean | null
+          likes_count?: number | null
+          prompt?: string | null
+          room_type?: string | null
+          style?: string | null
+          views_count?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          downloads_count?: number | null
+          id?: string | null
+          image_url?: string | null
+          is_featured?: boolean | null
+          likes_count?: number | null
+          prompt?: string | null
+          room_type?: string | null
+          style?: string | null
+          views_count?: number | null
+        }
+        Relationships: []
+      }
       payments_safe: {
         Row: {
           amount: number | null
