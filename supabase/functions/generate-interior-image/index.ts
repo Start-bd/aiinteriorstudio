@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
+import { csrfMiddleware } from "../_shared/csrf.ts";
 
 // Allowed origins for CORS - restrict to known domains
 const allowedOrigins = [
@@ -16,7 +17,7 @@ function getCorsHeaders(req: Request) {
   
   return {
     'Access-Control-Allow-Origin': isAllowed ? origin : allowedOrigins[0],
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-csrf-token',
     'Access-Control-Allow-Credentials': 'true',
   };
 }
@@ -225,6 +226,12 @@ serve(async (req) => {
     }
 
     console.log("Authenticated user:", user.id);
+
+    // CSRF validation for state-changing requests
+    const csrfError = csrfMiddleware(req, user.id, corsHeaders);
+    if (csrfError) {
+      return csrfError;
+    }
 
     // Check rate limit using service role client
     if (SUPABASE_SERVICE_ROLE_KEY) {

@@ -18,6 +18,7 @@ import { useCredits } from '@/hooks/useCredits';
 import { useStyles } from '@/hooks/useStyles';
 import { useRoomTypes } from '@/hooks/useRoomTypes';
 import { supabase } from '@/integrations/supabase/client';
+import { getCsrfHeaders } from '@/lib/csrf';
 import { toast } from 'sonner';
 import { BeforeAfterSlider } from '@/components/BeforeAfterSlider';
 
@@ -97,7 +98,8 @@ export function AIGenerator({ onImageGenerated }: AIGeneratorProps) {
       if (!fullPrompt) fullPrompt = `${styleName} style ${roomName} interior design`;
 
       const { data, error } = await supabase.functions.invoke('generate-interior-image', {
-        body: { prompt: fullPrompt }
+        body: { prompt: fullPrompt },
+        headers: getCsrfHeaders()
       });
 
       if (error) {
