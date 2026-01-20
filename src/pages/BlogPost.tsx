@@ -1,6 +1,7 @@
 import { useParams, Link, Navigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { ArrowLeft, Calendar, Clock, Tag, Twitter, Linkedin, Facebook } from "lucide-react";
+import DOMPurify from "dompurify";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Breadcrumb from "@/components/Breadcrumb";
@@ -176,7 +177,7 @@ const BlogPost = () => {
           <div className="prose prose-lg prose-invert max-w-none mb-12">
             <div 
               className="blog-content"
-              dangerouslySetInnerHTML={{ __html: formatMarkdown(post.content) }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(formatMarkdown(post.content)) }}
             />
           </div>
 
@@ -308,6 +309,15 @@ const BlogPost = () => {
     </>
   );
 };
+
+// Sanitize HTML output using DOMPurify to prevent XSS attacks
+function sanitizeHtml(html: string): string {
+  return DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: ['h2', 'h3', 'p', 'strong', 'em', 'a', 'ul', 'ol', 'li', 'hr', 'blockquote'],
+    ALLOWED_ATTR: ['href', 'target', 'rel'],
+    ADD_ATTR: ['target'], // Allow target attribute on links
+  });
+}
 
 // Simple markdown to HTML converter for our blog content
 function formatMarkdown(content: string): string {
