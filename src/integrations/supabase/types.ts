@@ -428,7 +428,6 @@ export type Database = {
           status_reason: string | null
           status_updated_at: string | null
           status_updated_by: string | null
-          stripe_customer_id: string | null
           subscription_status: string | null
           subscription_tier: string | null
           total_generations: number | null
@@ -448,7 +447,6 @@ export type Database = {
           status_reason?: string | null
           status_updated_at?: string | null
           status_updated_by?: string | null
-          stripe_customer_id?: string | null
           subscription_status?: string | null
           subscription_tier?: string | null
           total_generations?: number | null
@@ -468,7 +466,6 @@ export type Database = {
           status_reason?: string | null
           status_updated_at?: string | null
           status_updated_by?: string | null
-          stripe_customer_id?: string | null
           subscription_status?: string | null
           subscription_tier?: string | null
           total_generations?: number | null
@@ -745,6 +742,30 @@ export type Database = {
           reviewed_by?: string | null
           source?: string
           user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_payment_identifiers: {
+        Row: {
+          created_at: string
+          id: string
+          stripe_customer_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          stripe_customer_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          stripe_customer_id?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []

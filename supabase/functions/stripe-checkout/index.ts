@@ -96,14 +96,14 @@ serve(async (req) => {
     const body = await req.json();
     const { mode, tier, billingPeriod, packId, credits, amount } = body;
 
-    // Get or create Stripe customer
-    const { data: profile } = await supabaseClient
-      .from("profiles")
+    // Get or create Stripe customer from restricted payment identifiers table
+    const { data: paymentIdentifier } = await supabaseClient
+      .from("user_payment_identifiers")
       .select("stripe_customer_id")
       .eq("user_id", user.id)
       .single();
 
-    let customerId = profile?.stripe_customer_id;
+    let customerId = paymentIdentifier?.stripe_customer_id;
 
     if (!customerId) {
       const customer = await stripe.customers.create({
@@ -112,10 +112,15 @@ serve(async (req) => {
       });
       customerId = customer.id;
 
+      // Insert or update the payment identifier record
       await supabaseClient
-        .from("profiles")
-        .update({ stripe_customer_id: customerId })
-        .eq("user_id", user.id);
+        .from("user_payment_identifiers")
+        .upsert({ 
+          user_id: user.id, 
+          stripe_customer_id: customerId 
+        }, { 
+          onConflict: 'user_id' 
+        });
     }
 
     const origin = req.headers.get("origin") || "https://interiorofai.com";

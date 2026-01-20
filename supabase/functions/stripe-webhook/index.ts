@@ -124,12 +124,14 @@ serve(async (req) => {
         const subscription = event.data.object as Stripe.Subscription;
         const customerId = subscription.customer as string;
 
-        // Find user by Stripe customer ID
-        const { data: profile } = await supabase
-          .from("profiles")
+        // Find user by Stripe customer ID from restricted payment identifiers table
+        const { data: paymentIdentifier } = await supabase
+          .from("user_payment_identifiers")
           .select("user_id")
           .eq("stripe_customer_id", customerId)
           .single();
+        
+        const profile = paymentIdentifier;
 
         if (profile) {
           const status = subscription.status === "active" ? "active" : 
@@ -159,11 +161,14 @@ serve(async (req) => {
         const subscription = event.data.object as Stripe.Subscription;
         const customerId = subscription.customer as string;
 
-        const { data: profile } = await supabase
-          .from("profiles")
+        // Find user by Stripe customer ID from restricted payment identifiers table
+        const { data: paymentIdentifier } = await supabase
+          .from("user_payment_identifiers")
           .select("user_id")
           .eq("stripe_customer_id", customerId)
           .single();
+        
+        const profile = paymentIdentifier;
 
         if (profile) {
           await supabase.from("subscriptions")
@@ -189,11 +194,14 @@ serve(async (req) => {
         const invoice = event.data.object as Stripe.Invoice;
         const customerId = invoice.customer as string;
 
-        const { data: profile } = await supabase
-          .from("profiles")
+        // Find user by Stripe customer ID from restricted payment identifiers table
+        const { data: paymentIdentifier } = await supabase
+          .from("user_payment_identifiers")
           .select("user_id")
           .eq("stripe_customer_id", customerId)
           .single();
+        
+        const profile = paymentIdentifier;
 
         if (profile) {
           await supabase.from("profiles").update({
