@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { getCsrfHeaders } from "@/lib/csrf";
 import { Loader2, Plus, Minus } from "lucide-react";
 
 interface UserProfile {
@@ -70,6 +71,7 @@ export function AdjustCreditsDialog({
           amount: numAmount,
           reason: reason || undefined,
         },
+        headers: getCsrfHeaders(),
       });
 
       if (response.error) {

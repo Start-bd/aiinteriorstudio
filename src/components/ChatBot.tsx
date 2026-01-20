@@ -3,6 +3,7 @@ import { MessageCircle, X, Send, Sparkles, Bot, User, Image, Loader2, LogIn } fr
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { getCsrfToken } from "@/lib/csrf";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -84,6 +85,7 @@ export function ChatBot() {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          "X-CSRF-Token": getCsrfToken(),
         },
         body: JSON.stringify({ prompt }),
       });
@@ -120,6 +122,7 @@ export function ChatBot() {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
+        "X-CSRF-Token": getCsrfToken(),
       },
       body: JSON.stringify({ messages: userMessages.map(m => ({ role: m.role, content: m.content })) }),
     });

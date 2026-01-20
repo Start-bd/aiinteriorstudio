@@ -1,5 +1,6 @@
 import { loadStripe, Stripe } from '@stripe/stripe-js';
 import { supabase } from '@/integrations/supabase/client';
+import { getCsrfHeaders } from './csrf';
 import type { PricingTier, CreditPack } from './pricing';
 
 let stripePromise: Promise<Stripe | null>;
@@ -25,7 +26,8 @@ export async function createSubscriptionCheckout(
       tier: tier.name,
       mode: 'subscription',
       billingPeriod
-    }
+    },
+    headers: getCsrfHeaders()
   });
 
   if (error) {
@@ -46,7 +48,8 @@ export async function createCreditPackCheckout(
       credits: pack.credits + pack.bonus,
       amount: pack.price.usd,
       mode: 'payment'
-    }
+    },
+    headers: getCsrfHeaders()
   });
 
   if (error) {
@@ -62,7 +65,8 @@ export async function createCustomerPortalSession(): Promise<string | null> {
   const { data, error } = await supabase.functions.invoke('stripe-checkout', {
     body: {
       mode: 'portal'
-    }
+    },
+    headers: getCsrfHeaders()
   });
 
   if (error) {
