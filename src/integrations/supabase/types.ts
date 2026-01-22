@@ -993,6 +993,7 @@ export type Database = {
         Returns: undefined
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      purge_old_suspicious_logs: { Args: never; Returns: number }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
