@@ -1,13 +1,42 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+// Allowed origins for CORS - restrict to known domains.
+// Note: This does not impact server-to-server scheduled calls.
+const allowedOrigins = [
+  "https://interiorofai.com",
+  "https://www.interiorofai.com",
+  "https://aiinteriorstudio.lovable.app",
+  "http://localhost:5173",
+  "http://localhost:8080",
+];
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("origin") || "";
+  const isAllowed = allowedOrigins.some(
+    (allowed) => origin === allowed || origin.endsWith(".lovable.app"),
+  );
+
+  return {
+    "Access-Control-Allow-Origin": isAllowed ? origin : allowedOrigins[0],
+    "Access-Control-Allow-Headers":
+      "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Credentials": "true",
+  };
+}
 
 Deno.serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  // Restrict browser invocations to POST to reduce accidental triggering.
+  if (req.method !== "POST") {
+    return new Response(JSON.stringify({ error: "Method not allowed" }), {
+      status: 405,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 
   try {
@@ -22,21 +51,19 @@ Deno.serve(async (req) => {
 
     if (error) {
       console.error("Error purging old logs:", error);
-      return new Response(
-        JSON.stringify({ success: false, error: error.message }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
+      // Avoid leaking internal details to callers.
+      return new Response(JSON.stringify({ success: false, error: "Purge failed" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const deletedCount = data ?? 0;
     console.log(`Purged ${deletedCount} old suspicious prompt logs`);
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
+      JSON.stringify({
+        success: true,
         deleted_count: deletedCount,
         message: `Purged ${deletedCount} logs older than 30 days`
       }),
