@@ -7,10 +7,8 @@ interface Style {
   display_name: string;
   description: string | null;
   thumbnail_url: string | null;
-  prompt_template: string;
-  negative_prompt_template: string | null;
-  is_premium: boolean;
-  sort_order: number;
+  is_premium: boolean | null;
+  sort_order: number | null;
 }
 
 export function useStyles() {
@@ -22,14 +20,14 @@ export function useStyles() {
     async function fetchStyles() {
       try {
         const { data, error } = await supabase
-          .from('styles')
+          .from('styles_public' as any)
           .select('*')
           .eq('is_active', true)
           .order('sort_order');
 
         if (error) throw error;
 
-        setStyles(data || []);
+        setStyles((data as unknown as Style[]) || []);
       } catch (err) {
         console.error('Error fetching styles:', err);
         setError('Failed to load styles');

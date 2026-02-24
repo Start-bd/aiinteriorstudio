@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { Helmet } from "react-helmet-async";
 import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
 
 const authSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -24,6 +25,8 @@ const Auth = () => {
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  
+  const [forgotPasswordSent, setForgotPasswordSent] = useState(false);
   
   const { signUp, signIn, signInWithGoogle } = useAuth();
   const { toast } = useToast();
@@ -229,6 +232,32 @@ const Auth = () => {
                   <p className="text-xs text-destructive mt-1">{errors.password}</p>
                 )}
               </div>
+
+              {!isSignUp && (
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (!email) {
+                        toast({ title: "Enter your email first", description: "We need your email to send a reset link.", variant: "destructive" });
+                        return;
+                      }
+                      try {
+                        await supabase.auth.resetPasswordForEmail(email, {
+                          redirectTo: `${window.location.origin}/auth`,
+                        });
+                        setForgotPasswordSent(true);
+                        toast({ title: "Check your email", description: "We've sent you a password reset link." });
+                      } catch {
+                        toast({ title: "Error", description: "Failed to send reset email.", variant: "destructive" });
+                      }
+                    }}
+                    className="text-sm text-primary hover:underline"
+                  >
+                    {forgotPasswordSent ? "Reset link sent ✓" : "Forgot password?"}
+                  </button>
+                </div>
+              )}
 
               <Button
                 type="submit"
