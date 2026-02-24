@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Download, X, Calendar, Sparkles, ArrowLeft, Filter, Heart, LogIn } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Download, X, Calendar, Sparkles, ArrowLeft, Filter, Heart, LogIn, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,11 +11,13 @@ import { Helmet } from "react-helmet-async";
 
 interface GeneratedImage {
   id: string;
-  prompt: string;
-  image_url: string;
-  style: string;
-  created_at: string;
+  prompt: string | null;
+  image_url: string | null;
+  style: string | null;
+  created_at: string | null;
 }
+
+const ITEMS_PER_PAGE = 24;
 
 const STYLE_CATEGORIES = [
   "All",
@@ -39,6 +41,7 @@ const AIGallery = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<GeneratedImage | null>(null);
   const [activeFilter, setActiveFilter] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
   
   const { user } = useAuth();
   const { isFavorite, toggleFavorite, favoriteIds } = useFavorites();
@@ -49,31 +52,63 @@ const AIGallery = () => {
   }, []);
 
   useEffect(() => {
+    let filtered: GeneratedImage[];
     if (activeFilter === "All") {
-      setFilteredImages(images);
+      filtered = images;
     } else if (activeFilter === "Favorites") {
-      setFilteredImages(images.filter((img) => favoriteIds.has(img.id)));
+      filtered = images.filter((img) => favoriteIds.has(img.id));
     } else {
-      setFilteredImages(images.filter((img) => img.style === activeFilter));
+      filtered = images.filter((img) => img.style === activeFilter);
     }
+    setFilteredImages(filtered);
+    setCurrentPage(1);
   }, [activeFilter, images, favoriteIds]);
+
+  // Keyboard navigation for lightbox
+  const selectedIndex = selectedImage ? filteredImages.findIndex(img => img.id === selectedImage.id) : -1;
+
+  const navigateLightbox = useCallback((direction: 'prev' | 'next') => {
+    if (selectedIndex === -1) return;
+    const newIndex = direction === 'prev' 
+      ? (selectedIndex - 1 + filteredImages.length) % filteredImages.length
+      : (selectedIndex + 1) % filteredImages.length;
+    setSelectedImage(filteredImages[newIndex]);
+  }, [selectedIndex, filteredImages]);
+
+  useEffect(() => {
+    if (!selectedImage) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSelectedImage(null);
+      else if (e.key === 'ArrowLeft') navigateLightbox('prev');
+      else if (e.key === 'ArrowRight') navigateLightbox('next');
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedImage, navigateLightbox]);
 
   const fetchImages = async () => {
     try {
       const { data, error } = await supabase
-        .from("generated_images")
+        .from("generated_images_public")
         .select("*")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setImages(data || []);
-      setFilteredImages(data || []);
+      setImages((data as GeneratedImage[]) || []);
+      setFilteredImages((data as GeneratedImage[]) || []);
     } catch (error) {
       console.error("Error fetching images:", error);
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Pagination
+  const totalPages = Math.ceil(filteredImages.length / ITEMS_PER_PAGE);
+  const paginatedImages = filteredImages.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   const handleToggleFavorite = async (e: React.MouseEvent, imageId: string) => {
     e.stopPropagation();
@@ -276,48 +311,76 @@ const AIGallery = () => {
                 )}
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredImages.map((image) => (
-                  <div
-                    key={image.id}
-                    className="group relative aspect-square rounded-xl overflow-hidden bg-secondary cursor-pointer hover-lift"
-                    onClick={() => setSelectedImage(image)}
-                  >
-                    <img
-                      src={image.image_url}
-                      alt={image.prompt}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    {/* Style Badge */}
-                    <div className="absolute top-3 left-3">
-                      <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-background/80 backdrop-blur text-foreground">
-                        {image.style}
-                      </span>
-                    </div>
-                    {/* Favorite Button */}
-                    <button
-                      onClick={(e) => handleToggleFavorite(e, image.id)}
-                      className={cn(
-                        "absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300",
-                        isFavorite(image.id)
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-background/80 backdrop-blur text-foreground opacity-0 group-hover:opacity-100"
-                      )}
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {paginatedImages.map((image) => (
+                    <div
+                      key={image.id}
+                      className="group relative aspect-square rounded-xl overflow-hidden bg-secondary cursor-pointer hover-lift"
+                      onClick={() => setSelectedImage(image)}
                     >
-                      <Heart className={cn("w-4 h-4", isFavorite(image.id) && "fill-current")} />
-                    </button>
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <div className="absolute bottom-0 left-0 right-0 p-4">
-                        <p className="text-sm text-foreground line-clamp-2 mb-2">{image.prompt}</p>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <Calendar className="w-3 h-3" />
-                          {formatDate(image.created_at)}
+                      <img
+                        src={image.image_url || ''}
+                        alt={image.prompt || 'AI generated interior design'}
+                        width={400}
+                        height={400}
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute top-3 left-3">
+                        <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-background/80 backdrop-blur text-foreground">
+                          {image.style}
+                        </span>
+                      </div>
+                      <button
+                        onClick={(e) => handleToggleFavorite(e, image.id)}
+                        className={cn(
+                          "absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300",
+                          isFavorite(image.id)
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-background/80 backdrop-blur text-foreground opacity-0 group-hover:opacity-100"
+                        )}
+                      >
+                        <Heart className={cn("w-4 h-4", isFavorite(image.id) && "fill-current")} />
+                      </button>
+                      <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="absolute bottom-0 left-0 right-0 p-4">
+                          <p className="text-sm text-foreground line-clamp-2 mb-2">{image.prompt}</p>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <Calendar className="w-3 h-3" />
+                            {formatDate(image.created_at || '')}
+                          </div>
                         </div>
                       </div>
                     </div>
+                  ))}
+                </div>
+
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-center gap-4 pt-10">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage(p => p - 1)}
+                    >
+                      <ChevronLeft className="w-4 h-4 mr-1" /> Previous
+                    </Button>
+                    <span className="text-sm text-muted-foreground">
+                      Page {currentPage} of {totalPages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage(p => p + 1)}
+                    >
+                      Next <ChevronRight className="w-4 h-4 ml-1" />
+                    </Button>
                   </div>
-                ))}
-              </div>
+                )}
+              </>
             )}
           </div>
         </section>
@@ -328,6 +391,25 @@ const AIGallery = () => {
             className="fixed inset-0 z-50 bg-background/95 backdrop-blur-lg flex items-center justify-center p-4"
             onClick={() => setSelectedImage(null)}
           >
+            {/* Nav arrows */}
+            {filteredImages.length > 1 && (
+              <>
+                <button
+                  onClick={(e) => { e.stopPropagation(); navigateLightbox('prev'); }}
+                  className="absolute left-4 z-10 w-10 h-10 rounded-full bg-background/80 backdrop-blur flex items-center justify-center text-foreground hover:bg-background transition-colors"
+                  aria-label="Previous image"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); navigateLightbox('next'); }}
+                  className="absolute right-4 z-10 w-10 h-10 rounded-full bg-background/80 backdrop-blur flex items-center justify-center text-foreground hover:bg-background transition-colors"
+                  aria-label="Next image"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </>
+            )}
             <div
               className="relative max-w-5xl w-full bg-card rounded-2xl overflow-hidden shadow-elevated"
               onClick={(e) => e.stopPropagation()}
@@ -342,8 +424,8 @@ const AIGallery = () => {
               <div className="flex flex-col lg:flex-row">
                 <div className="lg:w-2/3">
                   <img
-                    src={selectedImage.image_url}
-                    alt={selectedImage.prompt}
+                    src={selectedImage.image_url || ''}
+                    alt={selectedImage.prompt || 'AI generated interior design'}
                     className="w-full h-auto max-h-[70vh] object-contain bg-secondary"
                   />
                 </div>
@@ -371,13 +453,13 @@ const AIGallery = () => {
                     <p className="text-muted-foreground mb-4">{selectedImage.prompt}</p>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Calendar className="w-4 h-4" />
-                      {formatDate(selectedImage.created_at)}
+                      {formatDate(selectedImage.created_at || '')}
                     </div>
                   </div>
                   <Button
                     variant="gold"
                     className="w-full mt-6"
-                    onClick={() => downloadImage(selectedImage.image_url, selectedImage.prompt)}
+                    onClick={() => downloadImage(selectedImage.image_url || '', selectedImage.prompt || '')}
                   >
                     <Download className="w-4 h-4 mr-2" />
                     Download Image

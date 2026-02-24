@@ -964,6 +964,42 @@ export type Database = {
           },
         ]
       }
+      styles_public: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          display_name: string | null
+          id: string | null
+          is_active: boolean | null
+          is_premium: boolean | null
+          name: string | null
+          sort_order: number | null
+          thumbnail_url: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          display_name?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          is_premium?: boolean | null
+          name?: string | null
+          sort_order?: number | null
+          thumbnail_url?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          display_name?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          is_premium?: boolean | null
+          name?: string | null
+          sort_order?: number | null
+          thumbnail_url?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       add_credits: {

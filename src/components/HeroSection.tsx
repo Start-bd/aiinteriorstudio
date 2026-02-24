@@ -3,32 +3,6 @@ import { ArrowRight, Sparkles, Users, Image, Instagram } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useParallax } from "@/hooks/useParallax";
 
-// Floating particle component
-const FloatingParticle = ({ 
-  size, 
-  left, 
-  top, 
-  delay, 
-  duration 
-}: { 
-  size: number; 
-  left: string; 
-  top: string; 
-  delay: number; 
-  duration: number;
-}) => (
-  <div
-    className="absolute rounded-full bg-primary/20"
-    style={{
-      width: size,
-      height: size,
-      left,
-      top,
-      animation: `float ${duration}s ease-in-out ${delay}s infinite`,
-    }}
-  />
-);
-
 const HeroSection = () => {
   const { slow, medium, fast } = useParallax();
 
@@ -160,17 +134,17 @@ const HeroSection = () => {
           <div className="animate-fade-up opacity-0 delay-600 pt-6 sm:pt-8 w-full">
             <div className="flex justify-start sm:justify-center gap-4 sm:gap-6 md:gap-10 overflow-x-auto pb-2 px-4 sm:px-0 scrollbar-hide">
               <div className="flex items-center gap-2 text-foreground flex-shrink-0">
-                <Image className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                <Image className="w-4 h-4 sm:w-5 sm:h-5 text-primary" aria-hidden="true" />
                 <span className="font-display font-bold text-lg sm:text-xl">2.5M+</span>
                 <span className="text-muted-foreground text-xs sm:text-sm">Designs</span>
               </div>
               <div className="flex items-center gap-2 text-foreground flex-shrink-0">
-                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-primary" aria-hidden="true" />
                 <span className="font-display font-bold text-lg sm:text-xl">150K+</span>
                 <span className="text-muted-foreground text-xs sm:text-sm">Users</span>
               </div>
               <div className="flex items-center gap-2 text-foreground flex-shrink-0">
-                <Instagram className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                <Instagram className="w-4 h-4 sm:w-5 sm:h-5 text-primary" aria-hidden="true" />
                 <span className="font-display font-bold text-lg sm:text-xl">431K+</span>
                 <span className="text-muted-foreground text-xs sm:text-sm">Instagram</span>
               </div>
