@@ -9,7 +9,6 @@ interface Subscription {
   current_period_start: string | null;
   current_period_end: string | null;
   cancel_at_period_end: boolean;
-  stripe_subscription_id: string | null;
 }
 
 interface SubscriptionState {
@@ -35,7 +34,7 @@ export function useSubscription() {
     try {
       const { data, error } = await supabase
         .from('subscriptions')
-        .select('*')
+        .select('id, user_id, tier, status, current_period_start, current_period_end, cancel_at_period_end, cancelled_at, created_at, updated_at')
         .eq('user_id', user.id)
         .eq('status', 'active')
         .maybeSingle();

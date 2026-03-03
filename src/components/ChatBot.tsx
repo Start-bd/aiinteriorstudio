@@ -280,8 +280,12 @@ export function ChatBot() {
       const enhancedInput = input.toLowerCase().includes("generate") || input.toLowerCase().includes("create")
         ? input
         : `Generate an interior design of ${input}`;
-      setInput(enhancedInput);
-      setTimeout(() => handleSend(), 100);
+      // Use functional state update and call handleSend directly with the enhanced input
+      const syntheticMessage = enhancedInput;
+      setInput("");
+      // Directly invoke send logic with the constructed message
+      const userMessage: { role: "user"; content: string } = { role: "user", content: syntheticMessage };
+      setMessages((prev) => [...prev, userMessage]);
     }
   };
 
@@ -484,7 +488,7 @@ export function ChatBot() {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onKeyDown={handleKeyPress}
               placeholder="Describe your dream space..."
               disabled={isLoading || isGeneratingImage}
               className={cn(

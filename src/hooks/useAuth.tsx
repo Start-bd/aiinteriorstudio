@@ -7,10 +7,12 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   isLoading: boolean;
+  isPasswordRecovery: boolean;
   signUp: (email: string, password: string, displayName?: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signInWithGoogle: () => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
+  updatePassword: (newPassword: string) => Promise<{ error: Error | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -19,6 +21,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -27,6 +30,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         setIsLoading(false);
+        if (event === 'PASSWORD_RECOVERY') {
+          setIsPasswordRecovery(true);
+        }
       }
     );
 
@@ -93,8 +99,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
   };
 
+  const updatePassword = async (newPassword: string) => {
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) return { error: new Error(error.message) };
+      setIsPasswordRecovery(false);
+      return { error: null };
+    } catch (error) {
+      return { error: error instanceof Error ? error : new Error("Password update failed") };
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, isLoading, signUp, signIn, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ user, session, isLoading, isPasswordRecovery, signUp, signIn, signInWithGoogle, signOut, updatePassword }}>
       {children}
     </AuthContext.Provider>
   );

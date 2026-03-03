@@ -264,6 +264,7 @@ serve(async (req) => {
     }
 
     const body = await req.json();
+    const roomType = typeof body.room_type === 'string' ? body.room_type : 'living_room';
     
     // Validate and sanitize prompt
     const validation = validatePrompt(body.prompt);
@@ -425,7 +426,26 @@ serve(async (req) => {
       }),
     });
 
+    // Helper to refund credits on failure
+    const refundCredits = async () => {
+      try {
+        const refundClient = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
+        await refundClient.rpc('add_credits', {
+          p_user_id: user.id,
+          p_amount: 1,
+          p_type: 'refund',
+          p_description: 'Refund for failed image generation'
+        });
+        console.log("Credit refunded for user:", user.id);
+      } catch (refundErr) {
+        console.error("Failed to refund credit:", refundErr);
+      }
+    };
+
     if (!response.ok) {
+      // Refund the credit since generation failed
+      await refundCredits();
+
       if (response.status === 429) {
         console.error("Rate limit exceeded");
         return new Response(JSON.stringify({ error: "Rate limits exceeded. Please try again later." }), {
@@ -456,6 +476,7 @@ serve(async (req) => {
 
     if (!imageUrl) {
       console.error("No image in response");
+      await refundCredits();
       return new Response(JSON.stringify({ error: "No image was generated" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -475,6 +496,7 @@ serve(async (req) => {
           image_url: imageUrl,
           style: detectedStyle,
           user_id: user.id,
+          room_type: roomType,
         });
 
       if (dbError) {
@@ -494,6 +516,28 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error("Image generation error:", error);
+    // Attempt credit refund on unexpected errors
+    try {
+      if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
+        const refundClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+        const authHeader = req.headers.get("Authorization");
+        if (authHeader) {
+          const token = authHeader.replace("Bearer ", "");
+          const { data: { user: failedUser } } = await refundClient.auth.getUser(token);
+          if (failedUser) {
+            await refundClient.rpc('add_credits', {
+              p_user_id: failedUser.id,
+              p_amount: 1,
+              p_type: 'refund',
+              p_description: 'Refund for failed image generation (unexpected error)'
+            });
+            console.log("Credit refunded after unexpected error for user:", failedUser.id);
+          }
+        }
+      }
+    } catch (refundErr) {
+      console.error("Failed to refund credit after unexpected error:", refundErr);
+    }
     return new Response(
       JSON.stringify({ error: "An unexpected error occurred" }),
       {
