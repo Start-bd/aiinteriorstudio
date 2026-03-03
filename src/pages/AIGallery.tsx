@@ -126,11 +126,12 @@ const AIGallery = () => {
       return;
     }
     
+    const wasFavorite = isFavorite(imageId);
     const success = await toggleFavorite(imageId);
     if (success) {
       toast({
-        title: isFavorite(imageId) ? "Removed from favorites" : "Added to favorites",
-        description: isFavorite(imageId) 
+        title: wasFavorite ? "Removed from favorites" : "Added to favorites",
+        description: wasFavorite 
           ? "Design removed from your collection" 
           : "Design saved to your collection",
       });

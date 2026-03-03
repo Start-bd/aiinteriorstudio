@@ -98,7 +98,7 @@ export function AIGenerator({ onImageGenerated }: AIGeneratorProps) {
       if (!fullPrompt) fullPrompt = `${styleName} style ${roomName} interior design`;
 
       const { data, error } = await supabase.functions.invoke('generate-interior-image', {
-        body: { prompt: fullPrompt },
+        body: { prompt: fullPrompt, room_type: selectedRoom || 'living_room' },
         headers: getCsrfHeaders()
       });
 
