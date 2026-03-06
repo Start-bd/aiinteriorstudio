@@ -37,7 +37,7 @@ const STYLE_CATEGORIES = [
 
 const AIGallery = () => {
   const [images, setImages] = useState<GeneratedImage[]>([]);
-  const [filteredImages, setFilteredImages] = useState<GeneratedImage[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<GeneratedImage | null>(null);
   const [activeFilter, setActiveFilter] = useState("All");
@@ -47,33 +47,66 @@ const AIGallery = () => {
   const { isFavorite, toggleFavorite, favoriteIds } = useFavorites();
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchImages();
-  }, []);
+  const fetchImages = useCallback(async (page: number, filter: string) => {
+    setIsLoading(true);
+    try {
+      const from = (page - 1) * ITEMS_PER_PAGE;
+      const to = from + ITEMS_PER_PAGE - 1;
+
+      let query = supabase
+        .from("generated_images_public")
+        .select("*", { count: "exact" })
+        .order("created_at", { ascending: false });
+
+      if (filter !== "All" && filter !== "Favorites") {
+        query = query.eq("style", filter);
+      }
+
+      // Favorites filter needs client-side handling since favoriteIds are local
+      if (filter === "Favorites") {
+        const favArray = Array.from(favoriteIds);
+        if (favArray.length === 0) {
+          setImages([]);
+          setTotalCount(0);
+          setIsLoading(false);
+          return;
+        }
+        query = query.in("id", favArray);
+      }
+
+      query = query.range(from, to);
+
+      const { data, count, error } = await query;
+
+      if (error) throw error;
+      setImages((data as GeneratedImage[]) || []);
+      setTotalCount(count || 0);
+    } catch (error) {
+      console.error("Error fetching images:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [favoriteIds]);
 
   useEffect(() => {
-    let filtered: GeneratedImage[];
-    if (activeFilter === "All") {
-      filtered = images;
-    } else if (activeFilter === "Favorites") {
-      filtered = images.filter((img) => favoriteIds.has(img.id));
-    } else {
-      filtered = images.filter((img) => img.style === activeFilter);
-    }
-    setFilteredImages(filtered);
+    fetchImages(currentPage, activeFilter);
+  }, [currentPage, activeFilter, fetchImages]);
+
+  const handleFilterChange = (filter: string) => {
+    setActiveFilter(filter);
     setCurrentPage(1);
-  }, [activeFilter, images, favoriteIds]);
+  };
 
   // Keyboard navigation for lightbox
-  const selectedIndex = selectedImage ? filteredImages.findIndex(img => img.id === selectedImage.id) : -1;
+  const selectedIndex = selectedImage ? images.findIndex(img => img.id === selectedImage.id) : -1;
 
   const navigateLightbox = useCallback((direction: 'prev' | 'next') => {
     if (selectedIndex === -1) return;
     const newIndex = direction === 'prev' 
-      ? (selectedIndex - 1 + filteredImages.length) % filteredImages.length
-      : (selectedIndex + 1) % filteredImages.length;
-    setSelectedImage(filteredImages[newIndex]);
-  }, [selectedIndex, filteredImages]);
+      ? (selectedIndex - 1 + images.length) % images.length
+      : (selectedIndex + 1) % images.length;
+    setSelectedImage(images[newIndex]);
+  }, [selectedIndex, images]);
 
   useEffect(() => {
     if (!selectedImage) return;
@@ -86,29 +119,8 @@ const AIGallery = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedImage, navigateLightbox]);
 
-  const fetchImages = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("generated_images_public")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setImages((data as GeneratedImage[]) || []);
-      setFilteredImages((data as GeneratedImage[]) || []);
-    } catch (error) {
-      console.error("Error fetching images:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   // Pagination
-  const totalPages = Math.ceil(filteredImages.length / ITEMS_PER_PAGE);
-  const paginatedImages = filteredImages.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
   const handleToggleFavorite = async (e: React.MouseEvent, imageId: string) => {
     e.stopPropagation();
@@ -164,9 +176,9 @@ const AIGallery = () => {
   };
 
   const getStyleCount = (style: string) => {
-    if (style === "All") return images.length;
+    if (style === activeFilter) return totalCount;
     if (style === "Favorites") return favoriteIds.size;
-    return images.filter((img) => img.style === style).length;
+    return null; // Don't show count for inactive filters with server-side pagination
   };
 
   return (
@@ -231,14 +243,14 @@ const AIGallery = () => {
             <div className="flex flex-wrap gap-2">
               {STYLE_CATEGORIES.map((style) => {
                 const count = getStyleCount(style);
-                // Hide Favorites tab if not logged in or empty non-style categories
+                // Hide Favorites tab if not logged in
                 if (style === "Favorites" && !user) return null;
-                if (style !== "All" && style !== "Favorites" && count === 0) return null;
+                
                 
                 return (
                   <button
                     key={style}
-                    onClick={() => setActiveFilter(style)}
+                    onClick={() => handleFilterChange(style)}
                     className={cn(
                       "px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-1.5",
                       activeFilter === style
@@ -248,12 +260,14 @@ const AIGallery = () => {
                   >
                     {style === "Favorites" && <Heart className="w-3.5 h-3.5" />}
                     {style}
-                    <span className={cn(
-                      "text-xs",
-                      activeFilter === style ? "text-primary-foreground/80" : "text-muted-foreground"
-                    )}>
-                      ({count})
-                    </span>
+                    {count !== null && (
+                      <span className={cn(
+                        "text-xs",
+                        activeFilter === style ? "text-primary-foreground/80" : "text-muted-foreground"
+                      )}>
+                        ({count})
+                      </span>
+                    )}
                   </button>
                 );
               })}
@@ -270,7 +284,7 @@ const AIGallery = () => {
                   <div key={i} className="aspect-square rounded-xl bg-secondary animate-pulse" />
                 ))}
               </div>
-            ) : filteredImages.length === 0 ? (
+            ) : images.length === 0 ? (
               <div className="text-center py-20">
                 <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-secondary flex items-center justify-center">
                   {activeFilter === "Favorites" ? (
@@ -285,7 +299,7 @@ const AIGallery = () => {
                     <p className="text-muted-foreground mb-6">
                       Click the heart icon on any design to save it here.
                     </p>
-                    <Button variant="gold-outline" onClick={() => setActiveFilter("All")}>
+                    <Button variant="gold-outline" onClick={() => handleFilterChange("All")}>
                       Browse All Designs
                     </Button>
                   </>
@@ -305,7 +319,7 @@ const AIGallery = () => {
                     <p className="text-muted-foreground mb-6">
                       Try generating a {activeFilter.toLowerCase()} interior design!
                     </p>
-                    <Button variant="gold-outline" onClick={() => setActiveFilter("All")}>
+                    <Button variant="gold-outline" onClick={() => handleFilterChange("All")}>
                       View All Designs
                     </Button>
                   </>
@@ -314,7 +328,7 @@ const AIGallery = () => {
             ) : (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {paginatedImages.map((image) => (
+                  {images.map((image) => (
                     <div
                       key={image.id}
                       className="group relative aspect-square rounded-xl overflow-hidden bg-secondary cursor-pointer hover-lift"
@@ -393,7 +407,7 @@ const AIGallery = () => {
             onClick={() => setSelectedImage(null)}
           >
             {/* Nav arrows */}
-            {filteredImages.length > 1 && (
+            {images.length > 1 && (
               <>
                 <button
                   onClick={(e) => { e.stopPropagation(); navigateLightbox('prev'); }}
