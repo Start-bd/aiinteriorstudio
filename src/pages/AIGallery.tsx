@@ -189,6 +189,18 @@ const AIGallery = () => {
           name="description"
           content="Browse stunning AI-generated interior designs created by our community. Filter by style, save favorites, and download high-quality room concepts."
         />
+        <link rel="canonical" href="https://interiorofai.com/gallery" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "ImageGallery",
+          "name": "AI Interior Design Gallery",
+          "description": "Browse stunning AI-generated interior designs created by our community.",
+          "url": "https://interiorofai.com/gallery",
+          "publisher": {
+            "@type": "Organization",
+            "name": "Interior of AI"
+          }
+        })}</script>
       </Helmet>
 
       <div className="min-h-screen bg-background">

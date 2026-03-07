@@ -82,6 +82,7 @@ export default function Pricing() {
       <Helmet>
         <title>Pricing | Interior of AI</title>
         <meta name="description" content="Choose your Interior of AI plan. Start free, upgrade anytime for unlimited AI interior design generations." />
+        <link rel="canonical" href="https://interiorofai.com/pricing" />
       </Helmet>
 
       <Header />

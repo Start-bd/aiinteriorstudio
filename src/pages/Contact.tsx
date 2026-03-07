@@ -105,6 +105,7 @@ const Contact = () => {
           name="description"
           content="Get in touch with Interior of AI by AvailableView LLC. Contact our support team for questions about AI interior design, partnerships, or enterprise solutions."
         />
+        <link rel="canonical" href="https://interiorofai.com/contact" />
       </Helmet>
 
       <Header />

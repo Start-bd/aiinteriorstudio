@@ -2,9 +2,11 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Users, Image, Instagram } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useParallax } from "@/hooks/useParallax";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const HeroSection = () => {
   const { slow, medium, fast } = useParallax();
+  const isMobile = useIsMobile();
 
   // Generate random particles
   const particles = [
@@ -36,8 +38,8 @@ const HeroSection = () => {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-background via-[hsl(20,15%,8%)] to-background">
-      {/* Animated floating particles with parallax */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {/* Animated floating particles with parallax — hidden on mobile for performance */}
+      {!isMobile && <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {particles.map((particle, i) => (
           <div
             key={i}
@@ -52,7 +54,7 @@ const HeroSection = () => {
             }}
           />
         ))}
-      </div>
+      </div>}
 
       {/* Grid pattern overlay with slow parallax */}
       <div 
