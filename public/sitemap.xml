@@ -3,86 +3,108 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://interiorofai.com/</loc>
-    <lastmod>2026-01-19</lastmod>
+    <lastmod>2026-03-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://interiorofai.com/og-image.jpg</image:loc>
+      <image:title>Interior of AI - AI Interior Design Platform</image:title>
+      <image:caption>AI-powered interior design and home decor inspiration platform</image:caption>
+    </image:image>
   </url>
   <url>
     <loc>https://interiorofai.com/gallery</loc>
-    <lastmod>2026-01-19</lastmod>
+    <lastmod>2026-03-07</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://interiorofai.com/og-image.jpg</image:loc>
+      <image:title>AI-Generated Interior Design Gallery</image:title>
+      <image:caption>Browse stunning AI-generated interior designs in various styles</image:caption>
+    </image:image>
   </url>
   <url>
     <loc>https://interiorofai.com/pricing</loc>
-    <lastmod>2026-01-19</lastmod>
+    <lastmod>2026-03-07</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://interiorofai.com/generate</loc>
-    <lastmod>2026-01-19</lastmod>
+    <lastmod>2026-03-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
     <loc>https://interiorofai.com/contact</loc>
-    <lastmod>2026-01-19</lastmod>
+    <lastmod>2026-03-07</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://interiorofai.com/auth</loc>
-    <lastmod>2026-01-19</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://interiorofai.com/terms</loc>
-    <lastmod>2026-01-19</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
-  <url>
-    <loc>https://interiorofai.com/privacy</loc>
-    <lastmod>2026-01-19</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
-  <url>
-    <loc>https://interiorofai.com/cookies</loc>
-    <lastmod>2026-01-19</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
-  <url>
-    <loc>https://interiorofai.com/refund</loc>
-    <lastmod>2026-01-19</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
-  <url>
     <loc>https://interiorofai.com/blog</loc>
-    <lastmod>2026-01-19</lastmod>
+    <lastmod>2026-03-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://interiorofai.com/blog/10-modern-living-room-design-ideas-using-ai</loc>
-    <lastmod>2026-01-15</lastmod>
+    <lastmod>2026-03-07</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://interiorofai.com/og-image.jpg</image:loc>
+      <image:title>10 Modern Living Room Design Ideas Using AI</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://interiorofai.com/blog/how-to-use-ai-for-interior-design-complete-guide</loc>
-    <lastmod>2026-01-10</lastmod>
+    <lastmod>2026-03-07</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://interiorofai.com/og-image.jpg</image:loc>
+      <image:title>How to Use AI for Interior Design - Complete Guide</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://interiorofai.com/blog/before-and-after-real-room-transformations</loc>
-    <lastmod>2026-01-05</lastmod>
+    <lastmod>2026-03-07</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://interiorofai.com/og-image.jpg</image:loc>
+      <image:title>Before and After Real Room Transformations</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://interiorofai.com/auth</loc>
+    <lastmod>2026-03-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://interiorofai.com/terms</loc>
+    <lastmod>2026-03-07</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://interiorofai.com/privacy</loc>
+    <lastmod>2026-03-07</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://interiorofai.com/cookies</loc>
+    <lastmod>2026-03-07</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://interiorofai.com/refund</loc>
+    <lastmod>2026-03-07</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
   </url>
 </urlset>

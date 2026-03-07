@@ -1,67 +1,46 @@
 
 
-# SEO Audit, Mobile Optimization & Sitemap Update
+# Remaining Action Items - Verification & Fixes
 
-## Findings
+## Verified as Already Fixed
 
-### Sitemap Issues
-1. **Outdated `lastmod` dates** -- All entries show `2026-01-19`, nearly 2 months stale
-2. **Missing routes** -- `/contact` page exists but isn't in sitemap; blog posts have old dates
-3. **Sitemap URL mismatch** -- robots.txt references `interiorofai.com/sitemap.xml` but the published URL is `aiinteriorstudio.lovable.app`; needs to work for both
-4. **No `<image:image>` tags** despite declaring the image namespace -- missed opportunity for image SEO on gallery/blog pages
+- **room_type storage**: `AIGenerator.tsx` line 101 passes `room_type: selectedRoom || 'living_room'` to the edge function, and the edge function stores it at line 499. Fixed.
+- **Credit refund logic**: Fully implemented with `refundCredits()` helper at lines 430-443, called on HTTP errors (line 447), missing image (line 479), and unexpected catch block (lines 520-536). Fixed.
+- **ChatBot setTimeout**: Replaced with direct message construction at lines 278-289. Fixed.
+- **`generated_images_public` view**: Confirmed via SQL — the view definition includes `WHERE (is_featured = true)`. Only featured images are exposed. No issue.
 
-### Mobile SEO Gaps
-5. **No `theme-color` meta tag** -- Browsers/PWA don't get brand color on mobile
-6. **No Apple touch icon** -- iOS home screen bookmark shows generic icon
-7. **Missing `mobile-web-app-capable` meta** -- No PWA-lite support
-8. **Hero section** -- 15 floating particles render on mobile, wasting GPU for elements users barely see on small screens
+## Still Needs Fixing (2 items)
 
-### Meta & Structured Data
-9. **Pricing page** missing `canonical` link
-10. **Contact page** missing `canonical` link  
-11. **Gallery page** missing `canonical` link and structured data
-12. **Blog index** has canonical but blog posts lack `article:published_time` and `article:author` OG tags
+### 1. Gallery pagination is still client-side
 
----
+`AIGallery.tsx` lines 91-94 fetch ALL rows from `generated_images_public` with no `.limit()` or `.range()`. Lines 107-111 then slice the full array client-side. This defeats the purpose of pagination — all data is still downloaded.
+
+**Fix:** Replace with server-side pagination using `.range()` and a count query:
+```typescript
+const from = (currentPage - 1) * ITEMS_PER_PAGE;
+const to = from + ITEMS_PER_PAGE - 1;
+
+const { data, count, error } = await supabase
+  .from("generated_images_public")
+  .select("*", { count: "exact" })
+  .order("created_at", { ascending: false })
+  .range(from, to);
+```
+This requires refactoring `fetchImages` to accept the current page and filter, and re-fetching when page or filter changes. The `totalPages` calculation uses `count` from the query instead of `filteredImages.length`.
+
+### 2. Mobile cookie banner overlap
+
+On 390px viewports, the cookie banner's `p-4` padding and multi-line text consume significant screen space, pushing content below the fold.
+
+**Fix:** Reduce padding and text size on mobile, and cap max height:
+```css
+/* Change from p-4 to p-3 sm:p-4, text-xs on mobile */
+className="fixed bottom-0 left-0 right-0 z-50 p-3 sm:p-4 max-h-[40vh] overflow-y-auto bg-background/95 ..."
+```
+Also make the description text `text-xs sm:text-sm` and stack buttons vertically on very small screens.
 
 ## Implementation Plan
 
-### 1. Regenerate sitemap.xml with current dates and all routes
-- Update all `lastmod` to `2026-03-07`
-- Add missing `/contact` route
-- Add `<image:image>` entries for key pages (homepage og-image, blog featured images)
-- Keep `interiorofai.com` as the canonical domain
-
-### 2. Update robots.txt
-- Add `Disallow: /collection/` for shared collection private URLs
-- Keep sitemap reference as-is (points to production domain)
-
-### 3. Mobile meta tags in index.html
-- Add `<meta name="theme-color" content="#1a1a1a">` 
-- Add `<link rel="apple-touch-icon" href="/og-image.jpg">`
-- Add `<meta name="mobile-web-app-capable" content="yes">`
-
-### 4. Add canonical links to pages missing them
-- **Pricing.tsx**: Add `<link rel="canonical" href="https://interiorofai.com/pricing" />`
-- **Contact.tsx**: Add `<link rel="canonical" href="https://interiorofai.com/contact" />`
-- **AIGallery.tsx**: Add `<link rel="canonical" href="https://interiorofai.com/gallery" />`
-- **BlogPost.tsx**: Add `article:published_time` and `article:author` OG meta tags
-
-### 5. Mobile performance: skip particles on small screens
-- In `HeroSection.tsx`, use the `useIsMobile` hook to render 0 particles on mobile (< 768px), saving GPU/paint cycles
-
-### 6. Add structured data to Gallery page
-- Add `ImageGallery` schema markup via JSON-LD in AIGallery.tsx
-
----
-
-### Files to modify:
-- `public/sitemap.xml` -- full regeneration
-- `public/robots.txt` -- add collection disallow
-- `index.html` -- mobile meta tags
-- `src/pages/Pricing.tsx` -- canonical link
-- `src/pages/Contact.tsx` -- canonical link
-- `src/pages/AIGallery.tsx` -- canonical + gallery schema
-- `src/pages/BlogPost.tsx` -- article OG meta
-- `src/components/HeroSection.tsx` -- skip particles on mobile
+1. **Refactor AIGallery to server-side pagination** — Change `fetchImages` to use `.range()` with `{ count: "exact" }`, trigger re-fetch on page/filter change via `useEffect`, remove client-side slicing
+2. **Fix mobile cookie banner** — Reduce padding, shrink text, and cap banner height on small screens
 
