@@ -234,6 +234,7 @@ const Auth = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
+                    autoComplete="email"
                     className={cn("w-full pl-10 pr-4 py-3 rounded-xl bg-secondary border-0", "text-foreground placeholder:text-muted-foreground", "focus:outline-none focus:ring-2 focus:ring-primary", errors.email && "ring-2 ring-destructive")}
                   />
                 </div>
