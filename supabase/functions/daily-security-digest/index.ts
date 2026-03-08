@@ -43,8 +43,23 @@ function getPatternLabel(pattern: string): string {
 }
 
 const handler = async (req: Request): Promise<Response> => {
+  const corsHeaders = getCorsHeaders(req);
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  // Authentication check: only service role or scheduled invocations
+  const authHeader = req.headers.get("Authorization");
+  const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (authHeader) {
+    const token = authHeader.replace("Bearer ", "");
+    if (token !== supabaseServiceKey) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
   }
 
   try {
