@@ -131,6 +131,7 @@ const Profile = () => {
       <Helmet>
         <title>My Profile | Interior of AI</title>
         <meta name="description" content="Manage your profile and view your saved interior design inspirations." />
+        <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
       <Header />

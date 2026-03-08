@@ -166,11 +166,13 @@ const Dashboard = () => {
     if (!user) return;
 
     try {
-      // Fetch all user images for stats calculation
+      // Fetch user images for stats calculation (limit to last 1000 for performance)
       const { data: allImages, error } = await supabase
         .from("generated_images")
         .select("created_at, style")
-        .eq("user_id", user.id);
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1000);
 
       if (error) throw error;
 
@@ -371,6 +373,7 @@ const Dashboard = () => {
           name="description"
           content="View your AI interior design generation history and usage statistics."
         />
+        <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
       <Header />

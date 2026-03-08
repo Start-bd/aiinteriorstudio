@@ -114,36 +114,48 @@ const handler = async (req: Request): Promise<Response> => {
     const safeSubjectLabel = escapeHtml(subjectLabel);
 
     // Send notification email to support team
-    const supportEmailRes = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-      },
-      body: JSON.stringify({
-        from: "Interior of AI <noreply@interiorofai.com>",
-        to: ["support@interiorofai.com"],
-        reply_to: email,
-        subject: `[Contact Form] ${safeSubjectLabel} - ${safeName}`,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #b8860b;">New Contact Form Submission</h2>
-            <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <p><strong>From:</strong> ${safeName}</p>
-              <p><strong>Email:</strong> ${safeEmail}</p>
-              <p><strong>Subject:</strong> ${safeSubjectLabel}</p>
+    const supportController = new AbortController();
+    const supportTimeoutId = setTimeout(() => supportController.abort(), 15000);
+    let supportEmailRes: Response;
+    try {
+      supportEmailRes = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${RESEND_API_KEY}`,
+        },
+        body: JSON.stringify({
+          from: "Interior of AI <noreply@interiorofai.com>",
+          to: ["support@interiorofai.com"],
+          reply_to: email,
+          subject: `[Contact Form] ${safeSubjectLabel} - ${safeName}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #b8860b;">New Contact Form Submission</h2>
+              <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <p><strong>From:</strong> ${safeName}</p>
+                <p><strong>Email:</strong> ${safeEmail}</p>
+                <p><strong>Subject:</strong> ${safeSubjectLabel}</p>
+              </div>
+              <div style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+                <h3 style="margin-top: 0;">Message:</h3>
+                <p style="white-space: pre-wrap;">${safeMessage}</p>
+              </div>
+              <p style="color: #666; font-size: 12px; margin-top: 20px;">
+                This email was sent from the Interior of AI contact form.
+              </p>
             </div>
-            <div style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
-              <h3 style="margin-top: 0;">Message:</h3>
-              <p style="white-space: pre-wrap;">${safeMessage}</p>
-            </div>
-            <p style="color: #666; font-size: 12px; margin-top: 20px;">
-              This email was sent from the Interior of AI contact form.
-            </p>
-          </div>
-        `,
-      }),
-    });
+          `,
+        }),
+        signal: supportController.signal,
+      });
+    } catch (fetchErr) {
+      clearTimeout(supportTimeoutId);
+      const isTimeout = fetchErr instanceof DOMException && fetchErr.name === 'AbortError';
+      console.error("Support email fetch failed:", isTimeout ? "timeout" : fetchErr);
+      throw new Error("Failed to send support notification");
+    }
+    clearTimeout(supportTimeoutId);
 
     if (!supportEmailRes.ok) {
       const errorData = await supportEmailRes.json();
@@ -154,41 +166,49 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Support notification sent successfully");
 
     // Send confirmation email to the user
-    const confirmationEmailRes = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-      },
-      body: JSON.stringify({
-        from: "Interior of AI <noreply@interiorofai.com>",
-        to: [email],
-        subject: "We received your message - Interior of AI",
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #b8860b;">Thank you for contacting us, ${safeName}!</h2>
-            <p>We have received your message and our team will get back to you within 24-48 hours.</p>
-            <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <p><strong>Subject:</strong> ${safeSubjectLabel}</p>
-              <p><strong>Your message:</strong></p>
-              <p style="white-space: pre-wrap; color: #555;">${safeMessage}</p>
+    const confirmController = new AbortController();
+    const confirmTimeoutId = setTimeout(() => confirmController.abort(), 15000);
+    try {
+      const confirmationEmailRes = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${RESEND_API_KEY}`,
+        },
+        body: JSON.stringify({
+          from: "Interior of AI <noreply@interiorofai.com>",
+          to: [email],
+          subject: "We received your message - Interior of AI",
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #b8860b;">Thank you for contacting us, ${safeName}!</h2>
+              <p>We have received your message and our team will get back to you within 24-48 hours.</p>
+              <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <p><strong>Subject:</strong> ${safeSubjectLabel}</p>
+                <p><strong>Your message:</strong></p>
+                <p style="white-space: pre-wrap; color: #555;">${safeMessage}</p>
+              </div>
+              <p>In the meantime, feel free to explore our AI interior design tools at <a href="https://interiorofai.com" style="color: #b8860b;">interiorofai.com</a>.</p>
+              <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+              <p style="color: #666; font-size: 12px;">
+                AvailableView LLC | 30 N Gould St STE R, Sheridan, WY 82801, USA<br>
+                <a href="mailto:support@interiorofai.com" style="color: #b8860b;">support@interiorofai.com</a>
+              </p>
             </div>
-            <p>In the meantime, feel free to explore our AI interior design tools at <a href="https://interiorofai.com" style="color: #b8860b;">interiorofai.com</a>.</p>
-            <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
-            <p style="color: #666; font-size: 12px;">
-              AvailableView LLC | 30 N Gould St STE R, Sheridan, WY 82801, USA<br>
-              <a href="mailto:support@interiorofai.com" style="color: #b8860b;">support@interiorofai.com</a>
-            </p>
-          </div>
-        `,
-      }),
-    });
+          `,
+        }),
+        signal: confirmController.signal,
+      });
 
-    if (!confirmationEmailRes.ok) {
-      console.error("Failed to send confirmation email");
-    } else {
-      console.log("Confirmation email sent successfully");
+      if (!confirmationEmailRes.ok) {
+        console.error("Failed to send confirmation email");
+      } else {
+        console.log("Confirmation email sent successfully");
+      }
+    } catch (fetchErr) {
+      console.error("Confirmation email fetch failed:", fetchErr);
     }
+    clearTimeout(confirmTimeoutId);
 
     return new Response(
       JSON.stringify({ success: true, message: "Emails sent successfully" }),

@@ -94,7 +94,7 @@ serve(async (req) => {
     const [profilesRes, imagesRes, paymentsRes, subsRes] = await Promise.all([
       adminClient.from('profiles').select('id', { count: 'exact', head: true }),
       adminClient.from('generated_images').select('id', { count: 'exact', head: true }),
-      adminClient.from('payments').select('id', { count: 'exact', head: true }).eq('status', 'completed'),
+      adminClient.from('payments').select('id', { count: 'exact', head: true }).eq('status', 'succeeded'),
       adminClient.from('subscriptions').select('id', { count: 'exact', head: true }).eq('status', 'active'),
     ]);
     

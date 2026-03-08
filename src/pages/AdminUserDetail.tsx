@@ -215,7 +215,7 @@ export default function AdminUserDetail() {
           .limit(50),
         supabase
           .from("subscriptions")
-          .select("*")
+          .select("id, tier, status, current_period_start, current_period_end, cancel_at_period_end, cancelled_at, created_at, updated_at")
           .eq("user_id", profile.id)
           .order("created_at", { ascending: false }),
         supabase

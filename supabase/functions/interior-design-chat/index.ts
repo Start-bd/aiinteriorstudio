@@ -331,21 +331,36 @@ serve(async (req) => {
       }
     }
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          ...messages,
-        ],
-        stream: true,
-      }),
-    });
+    const chatController = new AbortController();
+    const chatTimeoutId = setTimeout(() => chatController.abort(), 30000);
+    let response: Response;
+    try {
+      response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash",
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            ...messages,
+          ],
+          stream: true,
+        }),
+        signal: chatController.signal,
+      });
+    } catch (fetchErr) {
+      clearTimeout(chatTimeoutId);
+      const isTimeout = fetchErr instanceof DOMException && fetchErr.name === 'AbortError';
+      console.error("AI gateway fetch failed:", isTimeout ? "timeout" : fetchErr);
+      return new Response(JSON.stringify({ error: isTimeout ? "Chat request timed out. Please try again." : "AI service temporarily unavailable" }), {
+        status: isTimeout ? 504 : 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    clearTimeout(chatTimeoutId);
 
     if (!response.ok) {
       if (response.status === 429) {
