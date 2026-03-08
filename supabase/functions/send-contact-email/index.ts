@@ -114,36 +114,48 @@ const handler = async (req: Request): Promise<Response> => {
     const safeSubjectLabel = escapeHtml(subjectLabel);
 
     // Send notification email to support team
-    const supportEmailRes = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-      },
-      body: JSON.stringify({
-        from: "Interior of AI <noreply@interiorofai.com>",
-        to: ["support@interiorofai.com"],
-        reply_to: email,
-        subject: `[Contact Form] ${safeSubjectLabel} - ${safeName}`,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #b8860b;">New Contact Form Submission</h2>
-            <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <p><strong>From:</strong> ${safeName}</p>
-              <p><strong>Email:</strong> ${safeEmail}</p>
-              <p><strong>Subject:</strong> ${safeSubjectLabel}</p>
+    const supportController = new AbortController();
+    const supportTimeoutId = setTimeout(() => supportController.abort(), 15000);
+    let supportEmailRes: Response;
+    try {
+      supportEmailRes = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${RESEND_API_KEY}`,
+        },
+        body: JSON.stringify({
+          from: "Interior of AI <noreply@interiorofai.com>",
+          to: ["support@interiorofai.com"],
+          reply_to: email,
+          subject: `[Contact Form] ${safeSubjectLabel} - ${safeName}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #b8860b;">New Contact Form Submission</h2>
+              <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <p><strong>From:</strong> ${safeName}</p>
+                <p><strong>Email:</strong> ${safeEmail}</p>
+                <p><strong>Subject:</strong> ${safeSubjectLabel}</p>
+              </div>
+              <div style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+                <h3 style="margin-top: 0;">Message:</h3>
+                <p style="white-space: pre-wrap;">${safeMessage}</p>
+              </div>
+              <p style="color: #666; font-size: 12px; margin-top: 20px;">
+                This email was sent from the Interior of AI contact form.
+              </p>
             </div>
-            <div style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
-              <h3 style="margin-top: 0;">Message:</h3>
-              <p style="white-space: pre-wrap;">${safeMessage}</p>
-            </div>
-            <p style="color: #666; font-size: 12px; margin-top: 20px;">
-              This email was sent from the Interior of AI contact form.
-            </p>
-          </div>
-        `,
-      }),
-    });
+          `,
+        }),
+        signal: supportController.signal,
+      });
+    } catch (fetchErr) {
+      clearTimeout(supportTimeoutId);
+      const isTimeout = fetchErr instanceof DOMException && fetchErr.name === 'AbortError';
+      console.error("Support email fetch failed:", isTimeout ? "timeout" : fetchErr);
+      throw new Error("Failed to send support notification");
+    }
+    clearTimeout(supportTimeoutId);
 
     if (!supportEmailRes.ok) {
       const errorData = await supportEmailRes.json();
