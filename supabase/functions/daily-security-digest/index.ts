@@ -319,7 +319,7 @@ const handler = async (req: Request): Promise<Response> => {
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in daily-security-digest:", error);
     return new Response(
       JSON.stringify({ error: "Failed to generate security digest" }),

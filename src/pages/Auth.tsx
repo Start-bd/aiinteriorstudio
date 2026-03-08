@@ -250,6 +250,7 @@ const Auth = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
+                    autoComplete={isLogin ? "current-password" : "new-password"}
                     className={cn("w-full pl-10 pr-12 py-3 rounded-xl bg-secondary border-0", "text-foreground placeholder:text-muted-foreground", "focus:outline-none focus:ring-2 focus:ring-primary", errors.password && "ring-2 ring-destructive")}
                   />
                   <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">

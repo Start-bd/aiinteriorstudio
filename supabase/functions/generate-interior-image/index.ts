@@ -408,23 +408,39 @@ serve(async (req) => {
 
     console.log("Generating image for user:", user.id);
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash-image-preview",
-        messages: [
-          {
-            role: "user",
-            content: enhancedPrompt,
-          },
-        ],
-        modalities: ["image", "text"],
-      }),
-    });
+    const aiController = new AbortController();
+    const aiTimeoutId = setTimeout(() => aiController.abort(), 60000); // 60s for image gen
+    let response: Response;
+    try {
+      response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash-image-preview",
+          messages: [
+            {
+              role: "user",
+              content: enhancedPrompt,
+            },
+          ],
+          modalities: ["image", "text"],
+        }),
+        signal: aiController.signal,
+      });
+    } catch (fetchErr) {
+      clearTimeout(aiTimeoutId);
+      await refundCredits();
+      const isTimeout = fetchErr instanceof DOMException && fetchErr.name === 'AbortError';
+      console.error("AI gateway fetch failed:", isTimeout ? "timeout" : fetchErr);
+      return new Response(JSON.stringify({ error: isTimeout ? "Image generation timed out. Please try again." : "Image generation failed" }), {
+        status: isTimeout ? 504 : 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    clearTimeout(aiTimeoutId);
 
     // Helper to refund credits on failure
     const refundCredits = async () => {

@@ -373,6 +373,7 @@ const Dashboard = () => {
           name="description"
           content="View your AI interior design generation history and usage statistics."
         />
+        <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
       <Header />
