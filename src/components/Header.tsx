@@ -180,7 +180,7 @@ const Header = () => {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden py-6 border-t border-border animate-fade-in">
+          <div className="md:hidden py-6 border-t border-border animate-fade-in bg-background">
             <div className="flex flex-col gap-4">
               {navLinks.map((link) =>
                 link.isRoute ? (
