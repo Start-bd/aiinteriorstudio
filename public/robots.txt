@@ -1,22 +1,18 @@
 # Interior of AI - Robots.txt
 # https://interiorofai.com
 
-# Allow all major search engines full access
+# Google (does not support Crawl-delay)
 User-agent: Googlebot
 Allow: /
-Crawl-delay: 1
 
 User-agent: Bingbot
 Allow: /
-Crawl-delay: 2
 
 User-agent: Slurp
 Allow: /
-Crawl-delay: 2
 
 User-agent: DuckDuckBot
 Allow: /
-Crawl-delay: 2
 
 # Social media crawlers
 User-agent: Twitterbot
@@ -34,7 +30,6 @@ Allow: /
 # Default rule for all other bots
 User-agent: *
 Allow: /
-Crawl-delay: 5
 
 # Disallow admin and private routes
 Disallow: /admin
