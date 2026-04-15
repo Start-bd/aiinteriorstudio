@@ -43,6 +43,7 @@ const Index = () => {
     <>
       <Helmet>
         <title>Interior of AI | AI Interior Design & Home Decor Inspiration</title>
+        <link rel="canonical" href="https://interiorofai.com/" />
         <meta
           name="description"
           content="Discover AI-generated interior design, home decor ideas, and future living concepts. Interior of AI is the global hub for AI-powered interiors."
