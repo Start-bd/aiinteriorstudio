@@ -1,46 +1,69 @@
 
 
-# Remaining Action Items - Verification & Fixes
+# SEO Audit & Fix Plan for interiorofai.com
 
-## Verified as Already Fixed
+## Issues Found
 
-- **room_type storage**: `AIGenerator.tsx` line 101 passes `room_type: selectedRoom || 'living_room'` to the edge function, and the edge function stores it at line 499. Fixed.
-- **Credit refund logic**: Fully implemented with `refundCredits()` helper at lines 430-443, called on HTTP errors (line 447), missing image (line 479), and unexpected catch block (lines 520-536). Fixed.
-- **ChatBot setTimeout**: Replaced with direct message construction at lines 278-289. Fixed.
-- **`generated_images_public` view**: Confirmed via SQL — the view definition includes `WHERE (is_featured = true)`. Only featured images are exposed. No issue.
+From Google Search Console screenshots and code analysis:
 
-## Still Needs Fixing (2 items)
+### 1. Soft 404 (12 pages)
+The `NotFound` component returns HTTP 200 (normal SPA behavior). Google crawls URLs like `/shop` that don't exist, gets a 200 response with minimal content, and flags them as "Soft 404." The fix: add a proper `<meta name="robots" content="noindex">` and a `410` status signal to the NotFound page, plus remove any links/references to non-existent pages like `/shop`.
 
-### 1. Gallery pagination is still client-side
+### 2. Missing Canonical Links (7 pages)
+These pages lack `<link rel="canonical">`:
+- `/generate`
+- `/terms`
+- `/privacy`
+- `/cookies`
+- `/refund`
+- `/auth`
+- `/dashboard` (also has noindex, which is correct)
 
-`AIGallery.tsx` lines 91-94 fetch ALL rows from `generated_images_public` with no `.limit()` or `.range()`. Lines 107-111 then slice the full array client-side. This defeats the purpose of pagination — all data is still downloaded.
+The static `index.html` has `<link rel="canonical" href="https://interiorofai.com">` which loads on every route before React hydrates — causing Google to see duplicate canonicals pointing to the homepage.
 
-**Fix:** Replace with server-side pagination using `.range()` and a count query:
-```typescript
-const from = (currentPage - 1) * ITEMS_PER_PAGE;
-const to = from + ITEMS_PER_PAGE - 1;
+### 3. Sitemap Contradictions
+The sitemap includes `/dashboard` and `/profile`, but both have `<meta name="robots" content="noindex, nofollow">`. This sends conflicting signals to Google. These should be removed from the sitemap.
 
-const { data, count, error } = await supabase
-  .from("generated_images_public")
-  .select("*", { count: "exact" })
-  .order("created_at", { ascending: false })
-  .range(from, to);
-```
-This requires refactoring `fetchImages` to accept the current page and filter, and re-fetching when page or filter changes. The `totalPages` calculation uses `count` from the query instead of `filteredImages.length`.
+### 4. Missing `noindex` on Auth Page
+`/auth` is a login/signup page — should have `noindex` and not be in the sitemap.
 
-### 2. Mobile cookie banner overlap
+## Plan
 
-On 390px viewports, the cookie banner's `p-4` padding and multi-line text consume significant screen space, pushing content below the fold.
+### Step 1: Fix `index.html` — Remove static canonical
+Remove the hardcoded `<link rel="canonical" href="https://interiorofai.com">` from `index.html`. Each page will set its own canonical via `react-helmet-async`.
 
-**Fix:** Reduce padding and text size on mobile, and cap max height:
-```css
-/* Change from p-4 to p-3 sm:p-4, text-xs on mobile */
-className="fixed bottom-0 left-0 right-0 z-50 p-3 sm:p-4 max-h-[40vh] overflow-y-auto bg-background/95 ..."
-```
-Also make the description text `text-xs sm:text-sm` and stack buttons vertically on very small screens.
+### Step 2: Add canonical links to all public pages
+Add `<link rel="canonical">` to pages missing them:
+- `Generate.tsx` → `https://interiorofai.com/generate`
+- `Terms.tsx` → `https://interiorofai.com/terms`
+- `PrivacyPolicy.tsx` → `https://interiorofai.com/privacy`
+- `CookiePolicy.tsx` → `https://interiorofai.com/cookies`
+- `RefundPolicy.tsx` → `https://interiorofai.com/refund`
 
-## Implementation Plan
+### Step 3: Add `noindex` + `nofollow` to Auth page
+Update `Auth.tsx` Helmet to include `<meta name="robots" content="noindex, nofollow">`.
 
-1. **Refactor AIGallery to server-side pagination** — Change `fetchImages` to use `.range()` with `{ count: "exact" }`, trigger re-fetch on page/filter change via `useEffect`, remove client-side slicing
-2. **Fix mobile cookie banner** — Reduce padding, shrink text, and cap banner height on small screens
+### Step 4: Fix NotFound page for Soft 404
+Update `NotFound.tsx` to include:
+- `<meta name="robots" content="noindex">`
+- A proper title like "Page Not Found | Interior of AI"
+- Helmet meta tags so Google understands this is a dead-end
+
+### Step 5: Clean up sitemap
+Remove `/dashboard`, `/profile`, and `/auth` from `sitemap.xml` since they have `noindex` or are private. These pages should not be discoverable by search engines.
+
+### Step 6: Update robots.txt
+The `Disallow: /dashboard` and `Disallow: /profile` rules are already present, which is good. Add `Disallow: /auth` to block crawling of the auth page.
+
+### Files to modify
+- `index.html` — remove static canonical
+- `src/pages/Generate.tsx` — add canonical
+- `src/pages/Terms.tsx` — add canonical
+- `src/pages/PrivacyPolicy.tsx` — add canonical
+- `src/pages/CookiePolicy.tsx` — add canonical
+- `src/pages/RefundPolicy.tsx` — add canonical
+- `src/pages/Auth.tsx` — add noindex
+- `src/pages/NotFound.tsx` — add Helmet with noindex + proper title
+- `public/sitemap.xml` — remove /dashboard, /profile, /auth
+- `public/robots.txt` — add Disallow /auth
 
