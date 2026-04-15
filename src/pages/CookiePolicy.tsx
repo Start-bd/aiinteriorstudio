@@ -8,6 +8,7 @@ const CookiePolicy = () => {
       <Helmet>
         <title>Cookie Policy | Interior of AI</title>
         <meta name="description" content="Cookie Policy for Interior of AI - Learn about our use of cookies and how to manage your preferences." />
+        <link rel="canonical" href="https://interiorofai.com/cookies" />
       </Helmet>
       
       <div className="min-h-screen bg-background">

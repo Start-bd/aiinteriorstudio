@@ -8,6 +8,7 @@ const PrivacyPolicy = () => {
       <Helmet>
         <title>Privacy Policy | Interior of AI</title>
         <meta name="description" content="Privacy Policy for Interior of AI - Learn how we collect, use, and protect your personal information." />
+        <link rel="canonical" href="https://interiorofai.com/privacy" />
       </Helmet>
       
       <div className="min-h-screen bg-background">
