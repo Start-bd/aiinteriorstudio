@@ -10,6 +10,7 @@ export default function Generate() {
       <Helmet>
         <title>Generate Interior Design | AI Interior Design</title>
         <meta name="description" content="Create stunning AI-powered interior designs in seconds. Choose your style, room type, and describe your vision." />
+        <link rel="canonical" href="https://interiorofai.com/generate" />
       </Helmet>
       
       <div className="min-h-screen flex flex-col bg-background">

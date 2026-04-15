@@ -184,6 +184,7 @@ const Auth = () => {
       <Helmet>
         <title>{isSignUp ? "Sign Up" : "Sign In"} | Interior of AI</title>
         <meta name="description" content="Sign in to Interior of AI to save your favorite AI-generated interior designs and build your personal collection." />
+        <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
       <div className="min-h-screen bg-background flex">

@@ -7,10 +7,8 @@ const Terms = () => {
     <>
       <Helmet>
         <title>Terms of Service | Interior of AI</title>
-        <meta
-          name="description"
-          content="Terms of Service for Interior of AI - AI-powered interior design platform by AvailableView LLC."
-        />
+        <meta name="description" content="Terms of Service for Interior of AI - AI-powered interior design platform by AvailableView LLC." />
+        <link rel="canonical" href="https://interiorofai.com/terms" />
       </Helmet>
 
       <div className="min-h-screen bg-background">

@@ -8,6 +8,7 @@ const RefundPolicy = () => {
       <Helmet>
         <title>Refund Policy | Interior of AI</title>
         <meta name="description" content="Refund Policy for Interior of AI - Clear terms for credit purchases and subscription refunds." />
+        <link rel="canonical" href="https://interiorofai.com/refund" />
       </Helmet>
       
       <div className="min-h-screen bg-background">
