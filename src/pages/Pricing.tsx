@@ -71,11 +71,21 @@ export default function Pricing() {
     }
   };
 
-  const getPrice = (usd: number, bdt: number) => {
-    const basePrice = currency === 'USD' ? usd : bdt;
-    const yearlyPrice = billingPeriod === 'yearly' ? basePrice * 12 * 0.8 : basePrice;
-    return formatCurrency(yearlyPrice, currency);
+  // Stripe always charges in USD. BDT is shown only as an approximate conversion
+  // so the displayed amount matches what the customer is actually billed.
+  const USD_TO_BDT = 122;
+
+  const getPrice = (usd: number, _bdt?: number) => {
+    const yearlyUsd = billingPeriod === 'yearly' ? usd * 12 * 0.8 : usd;
+    return currency === 'USD'
+      ? formatCurrency(yearlyUsd, 'USD')
+      : formatCurrency(Math.round(yearlyUsd * USD_TO_BDT), 'BDT');
   };
+
+  const getPackPrice = (usd: number) =>
+    currency === 'USD'
+      ? formatCurrency(usd, 'USD')
+      : formatCurrency(Math.round(usd * USD_TO_BDT), 'BDT');
 
   return (
     <>
@@ -96,6 +106,11 @@ export default function Pricing() {
             <p className="text-xl text-muted-foreground mb-8">
               Start free, upgrade anytime
             </p>
+            {currency === 'BDT' && (
+              <p className="text-sm text-muted-foreground mb-4">
+                BDT amounts are approximate. All payments are processed and charged in USD.
+              </p>
+            )}
 
             {/* Currency & Billing Period Toggles */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
@@ -260,7 +275,7 @@ export default function Pricing() {
 
                     <div className="text-center mb-4">
                       <div className="text-2xl font-bold text-primary">
-                        {formatCurrency(currency === 'USD' ? pack.price.usd : pack.price.bdt, currency)}
+                        {getPackPrice(pack.price.usd)}
                       </div>
                     </div>
 

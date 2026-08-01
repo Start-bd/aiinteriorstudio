@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Mail, Check, Sparkles, Lightbulb, Zap, Shield, Lock, CreditCard } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const benefits = [
   { icon: Sparkles, text: "AI interior inspiration" },
@@ -19,17 +20,34 @@ const trustBadges = [
 const NewsletterSection = () => {
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) {
-      setIsSubmitted(true);
+    if (!email || isSaving) return;
+
+    setIsSaving(true);
+    const { error } = await supabase
+      .from("newsletter_subscribers")
+      .insert({ email: email.trim(), source: "newsletter" });
+    setIsSaving(false);
+
+    // 23505 = already subscribed, treat as success
+    if (error && error.code !== "23505") {
       toast({
-        title: "Welcome to Interior of AI!",
-        description: "You'll receive AI interior inspiration in your inbox soon.",
+        title: "Subscription failed",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
       });
+      return;
     }
+
+    setIsSubmitted(true);
+    toast({
+      title: "You're on the list!",
+      description: "We'll email you AI interior inspiration as new content goes out.",
+    });
   };
 
   return (
@@ -75,8 +93,8 @@ const NewsletterSection = () => {
                     required
                   />
                 </div>
-                <Button type="submit" variant="gold" size="xl">
-                  Subscribe
+                <Button type="submit" variant="gold" size="xl" disabled={isSaving}>
+                  {isSaving ? "Subscribing..." : "Subscribe"}
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground mt-4">
@@ -100,7 +118,7 @@ const NewsletterSection = () => {
               </div>
               <h3 className="text-xl font-display font-semibold mb-2">You're in!</h3>
               <p className="text-muted-foreground">
-                Welcome to Interior of AI. Check your inbox for AI design inspiration.
+                Thanks for subscribing — we'll send AI design inspiration to {email}.
               </p>
             </div>
           )}
