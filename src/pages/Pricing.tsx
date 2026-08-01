@@ -93,6 +93,9 @@ export default function Pricing() {
         <title>Pricing | Interior of AI</title>
         <meta name="description" content="Choose your Interior of AI plan. Start free, upgrade anytime for unlimited AI interior design generations." />
         <link rel="canonical" href="https://interiorofai.com/pricing" />
+        <meta property="og:title" content="Pricing & Credit Plans | Interior of AI" />
+        <meta property="og:description" content="Start free, then upgrade for more AI interior design generations. Simple credit packs and monthly plans." />
+        <meta property="og:url" content="https://interiorofai.com/pricing" />
       </Helmet>
 
       <Header />

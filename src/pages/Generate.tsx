@@ -11,6 +11,9 @@ export default function Generate() {
         <title>Generate Interior Design | AI Interior Design</title>
         <meta name="description" content="Create stunning AI-powered interior designs in seconds. Choose your style, room type, and describe your vision." />
         <link rel="canonical" href="https://interiorofai.com/generate" />
+        <meta property="og:title" content="Generate an AI Interior Design in Seconds" />
+        <meta property="og:description" content="Pick a style and room type, describe your vision, and get a photorealistic AI room design in seconds." />
+        <meta property="og:url" content="https://interiorofai.com/generate" />
       </Helmet>
       
       <div className="min-h-screen flex flex-col bg-background">

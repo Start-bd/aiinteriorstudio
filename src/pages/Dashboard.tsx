@@ -374,6 +374,7 @@ const Dashboard = () => {
           content="View your AI interior design generation history and usage statistics."
         />
         <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href="https://interiorofai.com/dashboard" />
       </Helmet>
 
       <Header />

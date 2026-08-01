@@ -42,13 +42,13 @@ const Index = () => {
   return (
     <>
       <Helmet>
-        <title>Interior of AI | AI Interior Design & Home Decor Inspiration</title>
+        <title>Interior of AI | AI Interior Design & Decor Ideas</title>
         <link rel="canonical" href="https://interiorofai.com/" />
         <meta
           name="description"
           content="Discover AI-generated interior design, home decor ideas, and future living concepts. Interior of AI is the global hub for AI-powered interiors."
         />
-        <meta property="og:title" content="Interior of AI | AI Interior Design & Home Decor Inspiration" />
+        <meta property="og:title" content="Interior of AI | AI Interior Design & Decor Ideas" />
         <meta
           property="og:description"
           content="Discover AI-generated interior design, home decor ideas, and future living concepts. Interior of AI is the global hub for AI-powered interiors."
