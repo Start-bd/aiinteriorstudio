@@ -351,7 +351,7 @@ const AIGallery = () => {
                     >
                       <img
                         src={image.image_url || ''}
-                        alt={image.prompt || `${image.style ?? 'AI'} style ${image.room_type ?? 'room'} interior design generated with AI`}
+                        alt={image.prompt || `${image.style ?? 'AI'} style interior room design generated with AI`}
                         width={400}
                         height={400}
                         loading="lazy"
@@ -455,7 +455,7 @@ const AIGallery = () => {
                 <div className="lg:w-2/3">
                   <img
                     src={selectedImage.image_url || ''}
-                    alt={selectedImage.prompt || `${selectedImage.style ?? 'AI'} style ${selectedImage.room_type ?? 'room'} interior design generated with AI`}
+                    alt={selectedImage.prompt || `${selectedImage.style ?? 'AI'} style interior room design generated with AI, shown full size`}
                     className="w-full h-auto max-h-[70vh] object-contain bg-secondary"
                   />
                 </div>
