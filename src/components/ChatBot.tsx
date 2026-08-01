@@ -275,17 +275,60 @@ export function ChatBot() {
     }
   };
 
-  const handleGenerateClick = () => {
-    if (input.trim()) {
-      const enhancedInput = input.toLowerCase().includes("generate") || input.toLowerCase().includes("create")
-        ? input
-        : `Generate an interior design of ${input}`;
-      // Use functional state update and call handleSend directly with the enhanced input
-      const syntheticMessage = enhancedInput;
-      setInput("");
-      // Directly invoke send logic with the constructed message
-      const userMessage: { role: "user"; content: string } = { role: "user", content: syntheticMessage };
-      setMessages((prev) => [...prev, userMessage]);
+  const handleGenerateClick = async () => {
+    if (!input.trim() || isLoading || isGeneratingImage) return;
+
+    if (!user) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to use the AI design assistant.",
+      });
+      return;
+    }
+
+    const raw = input.trim();
+    const prompt =
+      raw.toLowerCase().includes("generate") || raw.toLowerCase().includes("create")
+        ? raw
+        : `Generate an interior design of ${raw}`;
+
+    setInput("");
+    setMessages((prev) => [
+      ...prev,
+      { role: "user", content: prompt },
+      { role: "assistant", content: "✨ Creating your AI interior design visualization..." },
+    ]);
+    setIsGeneratingImage(true);
+
+    try {
+      const imageUrl = await generateImage(prompt);
+      setMessages((prev) => {
+        const updated = [...prev];
+        updated[updated.length - 1] = imageUrl
+          ? {
+              role: "assistant",
+              content:
+                "Here's your AI-generated interior design concept! Would you like me to create variations or adjust the style?",
+              imageUrl,
+            }
+          : {
+              role: "assistant",
+              content:
+                "I wasn't able to generate an image this time. Could you try describing your vision with more details?",
+            };
+        return updated;
+      });
+    } catch (error) {
+      setMessages((prev) => {
+        const updated = [...prev];
+        updated[updated.length - 1] = {
+          role: "assistant",
+          content: "I encountered an issue generating the image. Please try again with a different description.",
+        };
+        return updated;
+      });
+    } finally {
+      setIsGeneratingImage(false);
     }
   };
 
