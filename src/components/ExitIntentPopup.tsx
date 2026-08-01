@@ -4,12 +4,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Mail, X, Sparkles, Shield, Gift } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 const ExitIntentPopup = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [hasShown, setHasShown] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Check if popup was already shown in this session
@@ -39,16 +43,32 @@ const ExitIntentPopup = () => {
     };
   }, [hasShown]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) {
+    if (!email || isSaving) return;
+
+    setIsSaving(true);
+    const { error } = await supabase
+      .from("newsletter_subscribers")
+      .insert({ email: email.trim(), source: "exit_intent" });
+    setIsSaving(false);
+
+    if (error && error.code !== "23505") {
       toast({
-        title: "Welcome to Interior of AI!",
-        description: "Check your inbox for your free design credits.",
+        title: "Subscription failed",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
       });
-      setIsOpen(false);
-      localStorage.setItem("exitIntentSubscribed", "true");
+      return;
     }
+
+    localStorage.setItem("exitIntentSubscribed", "true");
+    setIsOpen(false);
+    toast({
+      title: "You're on the list!",
+      description: "Create your free account to start with 3 design credits.",
+    });
+    navigate(`/auth?mode=signup&email=${encodeURIComponent(email.trim())}`);
   };
 
   return (
@@ -70,7 +90,8 @@ const ExitIntentPopup = () => {
             Wait! Get <span className="text-gradient-gold">3 Free Credits</span>
           </DialogTitle>
           <DialogDescription className="text-muted-foreground mt-2">
-            Don't leave empty-handed. Subscribe now and get 3 free design credits to transform any room.
+            Don't leave empty-handed. Join our list and create a free account — every free
+            account starts with 3 design credits to transform any room.
           </DialogDescription>
         </DialogHeader>
 
@@ -86,9 +107,9 @@ const ExitIntentPopup = () => {
               required
             />
           </div>
-          <Button type="submit" variant="gold" size="xl" className="w-full">
+          <Button type="submit" variant="gold" size="xl" className="w-full" disabled={isSaving}>
             <Sparkles className="w-5 h-5 mr-2" />
-            Claim My Free Credits
+            {isSaving ? "Just a moment..." : "Claim My Free Credits"}
           </Button>
         </form>
 
@@ -104,7 +125,7 @@ const ExitIntentPopup = () => {
           </div>
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <span className="text-primary">✓</span>
-            150K+ subscribers
+            Free to join
           </div>
         </div>
       </DialogContent>
