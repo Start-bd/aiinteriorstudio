@@ -1,0 +1,27 @@
+# Interior of AI
+
+> AI-powered interior design: upload a room photo or describe a space and get photorealistic redesigns in seconds. A product of AvailableView LLC.
+
+Interior of AI generates interior design concepts across styles such as modern, Scandinavian, industrial, minimalist, bohemian and mid-century. Users can generate designs, browse a public gallery, and buy credits or subscribe for more generations.
+
+## Pages
+
+- [Home](/): Overview of the AI interior design platform, how it works, and sample transformations.
+- [Generate](/generate): Create an AI interior design by choosing a style and room type.
+- [Gallery](/gallery): Browse AI-generated interior designs from the community, filtered by style.
+- [Pricing](/pricing): Free plan, credit packs, and subscription tiers.
+- [Contact](/contact): Support, partnership, and enterprise enquiries.
+
+## Blog
+
+- [Blog](/blog): Guides and tips on using AI for interior design.
+- [How to Use AI for Interior Design](/blog/how-to-use-ai-for-interior-design-complete-guide): Complete step-by-step guide.
+- [10 Modern Living Room Design Ideas Using AI](/blog/10-modern-living-room-design-ideas-using-ai): Style ideas for living rooms.
+- [Before and After Real Room Transformations](/blog/before-and-after-real-room-transformations): Real AI redesign examples.
+
+## Optional
+
+- [Terms of Service](/terms): Usage terms.
+- [Privacy Policy](/privacy): How user data is handled.
+- [Cookie Policy](/cookies): Cookie and analytics usage.
+- [Refund Policy](/refund): Billing and refunds.

@@ -190,6 +190,9 @@ const AIGallery = () => {
           content="Browse stunning AI-generated interior designs created by our community. Filter by style, save favorites, and download high-quality room concepts."
         />
         <link rel="canonical" href="https://interiorofai.com/gallery" />
+        <meta property="og:title" content="AI Interior Design Gallery" />
+        <meta property="og:description" content="Browse AI-generated room designs by style and room type, save favorites, and download high-quality concepts." />
+        <meta property="og:url" content="https://interiorofai.com/gallery" />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "ImageGallery",
@@ -348,7 +351,7 @@ const AIGallery = () => {
                     >
                       <img
                         src={image.image_url || ''}
-                        alt={image.prompt || 'AI generated interior design'}
+                        alt={image.prompt || `${image.style ?? 'AI'} style interior room design generated with AI`}
                         width={400}
                         height={400}
                         loading="lazy"
@@ -452,7 +455,7 @@ const AIGallery = () => {
                 <div className="lg:w-2/3">
                   <img
                     src={selectedImage.image_url || ''}
-                    alt={selectedImage.prompt || 'AI generated interior design'}
+                    alt={selectedImage.prompt || `${selectedImage.style ?? 'AI'} style interior room design generated with AI, shown full size`}
                     className="w-full h-auto max-h-[70vh] object-contain bg-secondary"
                   />
                 </div>

@@ -106,6 +106,9 @@ const Contact = () => {
           content="Get in touch with Interior of AI by AvailableView LLC. Contact our support team for questions about AI interior design, partnerships, or enterprise solutions."
         />
         <link rel="canonical" href="https://interiorofai.com/contact" />
+        <meta property="og:title" content="Contact Interior of AI Support" />
+        <meta property="og:description" content="Questions about AI interior design, billing, partnerships or enterprise plans? Reach the Interior of AI team." />
+        <meta property="og:url" content="https://interiorofai.com/contact" />
       </Helmet>
 
       <Header />
