@@ -275,7 +275,7 @@ export default function Pricing() {
 
                     <div className="text-center mb-4">
                       <div className="text-2xl font-bold text-primary">
-                        {formatCurrency(currency === 'USD' ? pack.price.usd : pack.price.bdt, currency)}
+                        {getPackPrice(pack.price.usd)}
                       </div>
                     </div>
 
