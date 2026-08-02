@@ -107,6 +107,7 @@ const Header = () => {
               href="https://www.instagram.com/interiorofai?igsh=bWFyb3VrZXA1ejQ4"
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="Interior of AI on Instagram"
               className="text-muted-foreground hover:text-gold transition-colors duration-300"
             >
               <Instagram className="w-5 h-5" />
@@ -117,7 +118,10 @@ const Header = () => {
                 <CreditsWidget />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="w-9 h-9 rounded-full bg-gradient-gold flex items-center justify-center text-primary-foreground hover:opacity-90 transition-opacity">
+                    <button
+                      aria-label="Open account menu"
+                      className="w-9 h-9 rounded-full bg-gradient-gold flex items-center justify-center text-primary-foreground hover:opacity-90 transition-opacity"
+                    >
                       <User className="w-4 h-4" />
                     </button>
                   </DropdownMenuTrigger>
@@ -172,6 +176,8 @@ const Header = () => {
           {/* Mobile Menu Button */}
           <button
             className="md:hidden text-foreground"
+            aria-label={isMobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+            aria-expanded={isMobileMenuOpen}
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -211,6 +217,7 @@ const Header = () => {
                   href="https://www.instagram.com/interiorofai?igsh=bWFyb3VrZXA1ejQ4"
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label="Interior of AI on Instagram"
                   className="text-muted-foreground hover:text-gold transition-colors duration-300"
                 >
                   <Instagram className="w-5 h-5" />
