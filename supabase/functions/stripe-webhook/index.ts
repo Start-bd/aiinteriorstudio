@@ -40,6 +40,26 @@ serve(async (req) => {
 
     console.log(`Received event: ${event.type}`);
 
+    // Idempotency: skip events we've already processed (Stripe retries deliveries)
+    const { error: dedupeError } = await supabase
+      .from("processed_webhook_events")
+      .insert({ event_id: event.id, event_type: event.type });
+
+    if (dedupeError) {
+      if (dedupeError.code === "23505") {
+        console.log(`Duplicate event ignored: ${event.id}`);
+        return new Response(JSON.stringify({ received: true, duplicate: true }), {
+          headers: { "Content-Type": "application/json" },
+          status: 200
+        });
+      }
+      console.error("Failed to record webhook event");
+      return new Response(JSON.stringify({ error: "Request processing failed" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
