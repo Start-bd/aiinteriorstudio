@@ -1,4 +1,4 @@
-// Static blog post data
+// Static blog post data for Interior of AI
 export interface BlogPost {
   slug: string;
   title: string;
@@ -13,480 +13,22 @@ export interface BlogPost {
   metaDescription: string;
 }
 
-export const blogPosts: BlogPost[] = [
+// 5 New SEO articles (Phase 3)
+
+export const newSEOPosts: BlogPost[] = [
   {
-    slug: "10-modern-living-room-design-ideas-using-ai",
-    title: "10 Modern Living Room Design Ideas Using AI",
-    excerpt: "Discover how artificial intelligence is revolutionizing living room design with these stunning, innovative concepts that blend technology with timeless aesthetics.",
-    content: `
-## The Future of Living Room Design is Here
-
-Artificial intelligence has transformed how we approach interior design, making professional-quality concepts accessible to everyone. Here are 10 inspiring AI-generated living room ideas that showcase what's possible.
-
-### 1. Minimalist Scandinavian Haven
-
-Clean lines meet warm wood tones in this AI-designed space. The algorithm perfectly balances negative space with carefully curated furniture pieces, creating a room that feels both spacious and inviting.
-
-**Key Elements:**
-- Light oak flooring with subtle grain patterns
-- Low-profile modular sofa in neutral tones
-- Strategic use of indoor plants for organic warmth
-- Large windows maximizing natural light
-
-### 2. Industrial Loft Chic
-
-Exposed brick meets sleek modern furniture in this urban-inspired design. AI understands the balance between raw textures and refined comfort.
-
-**Key Elements:**
-- Exposed ductwork and brick walls
-- Leather and metal accent pieces
-- Oversized pendant lighting
-- Concrete and wood surface combinations
-
-### 3. Japandi Fusion
-
-The perfect marriage of Japanese minimalism and Scandinavian functionality. This AI-generated concept emphasizes tranquility and purpose.
-
-**Key Elements:**
-- Natural materials throughout
-- Muted earth tone palette
-- Low furniture with clean geometry
-- Thoughtful empty spaces
-
-### 4. Luxury Contemporary
-
-Rich textures and statement pieces define this sophisticated space. AI excels at layering luxury elements without overwhelming the senses.
-
-**Key Elements:**
-- Velvet and silk upholstery
-- Marble and brass accents
-- Dramatic lighting fixtures
-- Curated art collection
-
-### 5. Bohemian Modern
-
-Free-spirited design meets contemporary structure. The AI balances eclectic elements with cohesive color theory.
-
-**Key Elements:**
-- Layered textiles and patterns
-- Global-inspired accessories
-- Mix of vintage and modern pieces
-- Rich, warm color palette
-
-### 6. Mid-Century Revival
-
-Timeless 1950s-60s aesthetics reimagined for modern living. AI captures the iconic silhouettes and optimistic color schemes.
-
-**Key Elements:**
-- Iconic furniture shapes
-- Walnut wood finishes
-- Geometric patterns
-- Pops of mustard, teal, and orange
-
-### 7. Coastal Contemporary
-
-Beach-inspired serenity with sophisticated style. Light, airy, and effortlessly elegant.
-
-**Key Elements:**
-- Soft blue and sandy neutrals
-- Natural fiber textures
-- Abundant natural light
-- Organic, flowing forms
-
-### 8. Art Deco Glamour
-
-1920s opulence meets modern sensibility. Bold geometrics and luxurious materials create drama.
-
-**Key Elements:**
-- Geometric patterns and motifs
-- Gold and brass metallic accents
-- Rich jewel tones
-- Symmetrical layouts
-
-### 9. Biophilic Design
-
-Nature-integrated living spaces that promote wellbeing. AI understands the human need for natural connection.
-
-**Key Elements:**
-- Living walls and abundant greenery
-- Natural materials: stone, wood, clay
-- Organic shapes and curves
-- Natural light optimization
-
-### 10. Smart Home Aesthetic
-
-Technology seamlessly integrated into beautiful design. The future of connected living.
-
-**Key Elements:**
-- Hidden technology integration
-- Clean, cable-free environments
-- Adaptive lighting systems
-- Minimalist, functional furniture
-
-## Try These Designs Yourself
-
-Ready to see your own living room transformed? Our AI design tool can generate custom concepts based on your space, style preferences, and budget in seconds.
-
-**Simply:**
-1. Upload a photo of your room
-2. Select your preferred style
-3. Get AI-generated design concepts instantly
-
-[Start Your Free Design →](/)
-    `,
-    author: "Interior of AI Team",
-    publishedAt: "2026-01-15",
-    readingTime: "8 min read",
-    category: "Design Ideas",
-    tags: ["living room", "modern design", "AI design", "interior inspiration"],
-    featuredImage: "/og-image.jpg",
-    metaDescription: "Explore 10 stunning modern living room design ideas created with AI. From minimalist Scandinavian to luxury contemporary, discover your perfect style."
-  },
-  {
-    slug: "how-to-use-ai-for-interior-design-complete-guide",
-    title: "How to Use AI for Interior Design: Complete Guide",
-    excerpt: "A comprehensive guide to leveraging artificial intelligence for your interior design projects, from understanding the technology to achieving professional results.",
-    content: `
-## AI Interior Design: Everything You Need to Know
-
-Artificial intelligence is democratizing interior design, putting professional-quality concepts within reach of everyone. This complete guide will walk you through everything you need to know.
-
-## What is AI Interior Design?
-
-AI interior design uses machine learning algorithms trained on millions of design images to generate new interior concepts. These systems understand:
-
-- **Color theory and harmony**
-- **Spatial relationships and proportions**
-- **Style characteristics and trends**
-- **Furniture placement and flow**
-- **Lighting and atmosphere**
-
-## How Does AI Design Technology Work?
-
-### The Training Process
-
-AI models learn from vast datasets of professional interior photographs, architectural renders, and design documents. They identify patterns in:
-
-1. How colors complement each other
-2. Which furniture arrangements work in different room sizes
-3. What defines specific design styles
-4. How lighting affects mood and perception
-
-### The Generation Process
-
-When you submit a prompt or image, the AI:
-
-1. **Analyzes your input** - Understanding room dimensions, existing elements, and style cues
-2. **References learned patterns** - Drawing from its training data
-3. **Generates new concepts** - Creating unique designs that match your preferences
-4. **Refines the output** - Ensuring photorealistic quality and coherence
-
-## Benefits of AI Interior Design
-
-### 1. Speed and Efficiency
-Traditional design concepts take days or weeks. AI generates options in seconds.
-
-### 2. Cost-Effective
-Professional interior designers charge hundreds per hour. AI tools start free.
-
-### 3. Unlimited Iterations
-Don't like something? Generate endless variations until you find perfection.
-
-### 4. Visualization Before Commitment
-See exactly how changes will look before spending money on furniture or paint.
-
-### 5. Design Inspiration
-Even if you don't implement AI suggestions directly, they spark ideas.
-
-## Step-by-Step: Using AI for Your Project
-
-### Step 1: Document Your Space
-
-Before starting, gather:
-- **Photos** of your room from multiple angles
-- **Measurements** of key dimensions
-- **Notes** on fixed elements (windows, doors, outlets)
-- **Budget** considerations
-
-### Step 2: Define Your Style
-
-Browse design galleries and save images that resonate. Look for:
-- Color palettes you're drawn to
-- Furniture styles you love
-- Specific elements you want to include
-- Atmospheres that feel right
-
-### Step 3: Generate Concepts
-
-Using an AI design tool:
-1. Upload your room photo (optional)
-2. Describe your vision in detail
-3. Select a style category
-4. Generate initial concepts
-
-### Step 4: Refine and Iterate
-
-Review the results and:
-- Note what you love
-- Identify what doesn't work
-- Adjust your prompts
-- Generate new variations
-
-### Step 5: Create an Action Plan
-
-Once you have a design you love:
-1. List specific furniture and decor items
-2. Research where to purchase
-3. Create a phased implementation plan
-4. Set a realistic budget and timeline
-
-## Pro Tips for Better AI Results
-
-### Be Specific in Your Prompts
-
-**❌ Vague:** "Modern living room"
-
-**✅ Specific:** "Modern minimalist living room with warm oak floors, a low-profile gray sectional, floor-to-ceiling windows, and a statement pendant light"
-
-### Include Context
-
-Mention:
-- Room size (small apartment, spacious home)
-- Natural light conditions
-- Who uses the space
-- Any must-keep elements
-
-### Iterate Strategically
-
-Start broad, then narrow down:
-1. First pass: General style exploration
-2. Second pass: Color palette refinement
-3. Third pass: Furniture and layout details
-4. Final pass: Accessories and finishing touches
-
-## Common Mistakes to Avoid
-
-1. **Ignoring practicality** - Beautiful designs must also be functional
-2. **Forgetting scale** - AI doesn't always account for room dimensions
-3. **Over-designing** - Sometimes less is more
-4. **Neglecting lighting** - Light transforms everything
-5. **Skipping the budget check** - Ensure you can afford the implementation
-
-## The Future of AI Design
-
-AI design technology is advancing rapidly. Soon we'll see:
-
-- **AR integration** - View designs in your actual space
-- **Smart material suggestions** - AI-recommended sustainable options
-- **Personalized learning** - Systems that understand your unique taste
-- **Automated shopping** - One-click purchase of designed rooms
-
-## Start Your AI Design Journey
-
-Ready to transform your space? Our AI design tool makes it easy to visualize your dream interior in seconds.
-
-[Try Interior of AI Free →](/)
-    `,
-    author: "Interior of AI Team",
-    publishedAt: "2026-01-10",
-    readingTime: "12 min read",
-    category: "Guides",
-    tags: ["AI design", "guide", "how-to", "interior design tips"],
-    featuredImage: "/og-image.jpg",
-    metaDescription: "Learn how to use AI for interior design with our complete guide. Step-by-step instructions, pro tips, and best practices for stunning AI-generated room designs."
-  },
-  {
-    slug: "before-and-after-real-room-transformations",
-    title: "Before & After: Real Room Transformations",
-    excerpt: "See stunning real-world room transformations created by Interior of AI users. From outdated spaces to designer-worthy interiors, these makeovers showcase the power of AI design.",
-    content: `
-## Real Transformations by Real Users
-
-Nothing demonstrates the power of AI interior design better than real before-and-after transformations. These projects showcase what's possible when creativity meets technology.
-
-## Transformation #1: The Dated Living Room
-
-### The Challenge
-Sarah's 1990s living room featured:
-- Dark wood paneling
-- Outdated floral furniture
-- Poor lighting
-- Cluttered layout
-
-### The AI-Generated Vision
-Using Interior of AI, Sarah explored modern Scandinavian concepts and discovered:
-- Light, airy color palette
-- Clean-lined furniture
-- Strategic lighting placement
-- Minimalist decor approach
-
-### The Result
-After implementing the AI suggestions over 3 months:
-- Room feels twice as large
-- Modern yet timeless aesthetic
-- Improved natural light flow
-- Functional zones for different activities
-
-**Sarah says:** *"I never would have thought to combine these elements. The AI gave me confidence to make bold changes that completely transformed how I live in this space."*
-
----
-
-## Transformation #2: The Cramped Kitchen
-
-### The Challenge
-Mark and Julia's galley kitchen struggled with:
-- Limited counter space
-- Poor storage solutions
-- Dated appliances
-- Dark, closed-off feeling
-
-### The AI-Generated Vision
-The AI suggested a luxury contemporary approach:
-- Light cabinetry to open the space
-- Smart storage solutions
-- Modern integrated appliances
-- Reflective surfaces for light
-
-### The Result
-The completed renovation delivered:
-- 40% more usable counter space
-- Magazine-worthy aesthetic
-- Improved workflow for cooking
-- Bright, welcoming atmosphere
-
-**Mark says:** *"We showed the AI designs to our contractor, and he was impressed by the practical solutions. It saved us thousands in design consultation fees."*
-
----
-
-## Transformation #3: The Home Office Makeover
-
-### The Challenge
-During remote work transition, Emma needed to convert a spare bedroom into a functional office:
-- No dedicated workspace
-- Poor ergonomics
-- Distracting environment
-- No video call background
-
-### The AI-Generated Vision
-Exploring minimalist office designs revealed:
-- Dedicated work zone
-- Ergonomic furniture suggestions
-- Professional backdrop for calls
-- Storage for supplies
-
-### The Result
-The new home office features:
-- Increased productivity
-- Professional appearance on calls
-- Comfortable 8-hour workdays
-- Clear separation from living space
-
-**Emma says:** *"I generated 20 different concepts in an hour. It would have taken weeks to get that many ideas from a traditional designer."*
-
----
-
-## Transformation #4: The Master Bedroom Retreat
-
-### The Challenge
-Tom and Lisa's bedroom was:
-- A dumping ground for clutter
-- Lacking personality
-- Poor sleep environment
-- No relaxation atmosphere
-
-### The AI-Generated Vision
-A spa-like bedroom concept emerged:
-- Calming color palette
-- Luxurious textiles
-- Ambient lighting
-- Clutter-free design
-
-### The Result
-The transformed space:
-- Improved sleep quality
-- Daily relaxation ritual
-- Hotel-inspired luxury
-- Organized storage solutions
-
-**Lisa says:** *"Our bedroom went from the room we avoided to our favorite place in the house. The AI understood exactly what we needed."*
-
----
-
-## Transformation #5: The Outdoor Living Space
-
-### The Challenge
-An underutilized backyard patio:
-- Concrete slab with no personality
-- No comfortable seating
-- Limited shade
-- Not used for entertaining
-
-### The AI-Generated Vision
-Bohemian outdoor living concept:
-- Cozy seating areas
-- Pergola for shade
-- Ambient lighting
-- Indoor-outdoor flow
-
-### The Result
-The new outdoor living room:
-- Extended living space
-- Regular entertaining spot
-- Three-season usability
-- Neighborhood envy
-
-**User says:** *"We practically live outside now. The AI helped us see potential we never imagined."*
-
----
-
-## Key Lessons from These Transformations
-
-### 1. AI Sees Possibilities
-Where you see limitations, AI identifies opportunities for transformation.
-
-### 2. Visualization Reduces Risk
-Seeing the end result before starting gives confidence to make bold choices.
-
-### 3. Professional Results, DIY Budget
-AI democratizes design expertise that previously required expensive consultants.
-
-### 4. Speed of Iteration
-Testing dozens of concepts quickly helps find the perfect solution.
-
-### 5. Personalized Solutions
-AI adapts to your specific space, style, and constraints.
-
-## Start Your Transformation
-
-Ready to see your space transformed? Upload a photo and discover what's possible.
-
-[Start Your Free Design →](/)
-
----
-
-*Want to share your transformation story? Tag us @interiorofai on Instagram or email hello@interiorofai.com*
-    `,
-    author: "Interior of AI Team",
-    publishedAt: "2026-01-05",
-    readingTime: "10 min read",
-    category: "Case Studies",
-    tags: ["before after", "transformation", "case study", "real users"],
-    featuredImage: "/og-image.jpg",
-    metaDescription: "See real before and after room transformations created with AI interior design. Stunning case studies from living rooms to kitchens to home offices."
-  },
-  {
-    slug: "best-ai-interior-design-tools",
+    slug: "best-ai-interior-design-tools-2026",
     title: "Best AI Interior Design Tools of 2026 (Free vs Paid)",
     excerpt: "An honest comparison of the leading AI interior design tools — Interior of AI, RoomGPT, Planner 5D and Canva AI — covering free plans, photorealism, speed and who each one is really for.",
     content: `
 ## Which AI interior design tool should you actually use?
 
-"AI interior design" now covers everything from 30-second photo restyling to full architectural floor planning. Those are very different jobs, and picking the wrong category is why people give up after one blurry render. Below is a practical comparison of the four tools people ask about most, based on what each is built to do.
+"AI interior design" now covers everything from 30-second photo restyling to full architectural floor planning. Those are very different jobs, and picking the wrong category is why people give up after one blurry render. Below is a practical comparison of the tools people ask about most, based on what each is built to do.
 
 ## Quick comparison
 
-| Tool | Best for | Free plan | Typical result time | Photorealism |
-| --- | --- | --- | --- | --- |
+|| Tool | Best for | Free plan | Typical result time | Photorealism |
+|---|---|---|---|---|---|
 | **Interior of AI** | Photorealistic restyling of a real room | Yes — free credits, no card | ~30 seconds | High |
 | **RoomGPT** | Quick style swaps and experimenting | Limited free renders | ~30-60 seconds | Medium-high |
 | **Planner 5D** | Floor plans and 3D layout planning | Yes, with paid item library | Minutes to hours | Medium (3D render look) |
@@ -494,7 +36,7 @@ Ready to see your space transformed? Upload a photo and discover what's possible
 
 ## Interior of AI
 
-**What it does:** you upload a photo of your actual room (or describe it), choose a style and room type, and get a photorealistic redesign of that space in about 30 seconds.
+**What it does:** You upload a photo of your actual room (or describe it), choose a style and room type, and get a photorealistic redesign of that space in about 30 seconds.
 
 **Strengths**
 - Keeps your room's geometry, windows and proportions, so the result is something you could realistically build toward
@@ -506,11 +48,11 @@ Ready to see your space transformed? Upload a photo and discover what's possible
 - It is a visualization tool, not a CAD or floor-plan tool — it will not produce measured drawings
 - Best results come from a well-lit, straight-on photo
 
-**Use it when:** you have a real room and want to see what it could look like before spending money on furniture or a designer.
+**Use it when:** You have a real room and want to see what it could look like before spending money on furniture or a designer.
 
 ## RoomGPT
 
-**What it does:** photo-in, restyled-photo-out, similar in concept to Interior of AI.
+**What it does:** Photo-in, restyled-photo-out, similar in concept to Interior of AI.
 
 **Strengths**
 - Very simple interface, almost nothing to configure
@@ -520,11 +62,11 @@ Ready to see your space transformed? Upload a photo and discover what's possible
 - Fewer controls over room type and styling detail
 - Free renders run out quickly, and output can drift from the original room's layout
 
-**Use it when:** you just want a handful of quick "what if" images and precision does not matter.
+**Use it when:** You just want a handful of quick "what if" images and precision does not matter.
 
 ## Planner 5D
 
-**What it does:** layout and floor-plan design with a 3D viewer and a furniture catalog.
+**What it does:** Layout and floor-plan design with a 3D viewer and a furniture catalog.
 
 **Strengths**
 - Real spatial planning — walls, dimensions, furniture placement
@@ -535,11 +77,11 @@ Ready to see your space transformed? Upload a photo and discover what's possible
 - Output looks like a 3D render, not a photograph
 - Most of the good furniture and finishes sit behind the paid tier
 
-**Use it when:** you are moving walls or planning a layout from scratch, not restyling an existing room.
+**Use it when:** You are moving walls or planning a layout from scratch, not restyling an existing room.
 
 ## Canva AI
 
-**What it does:** general-purpose image generation and design inside Canva.
+**What it does:** General-purpose image generation and design inside Canva.
 
 **Strengths**
 - Excellent for mood boards, client presentations and social posts
@@ -549,7 +91,7 @@ Ready to see your space transformed? Upload a photo and discover what's possible
 - Not trained specifically on interiors — rooms often come out with impossible geometry
 - Cannot restyle a photo of your own room reliably
 
-**Use it when:** you need to present a concept, not visualize a specific space.
+**Use it when:** You need to present a concept, not visualize a specific space.
 
 ## Free vs paid: what actually changes
 
@@ -581,35 +123,204 @@ Most people researching "AI interior design" want the first one: a photo of thei
 [Try Interior of AI free →](/generate)
     `,
     author: "Interior of AI Team",
-    publishedAt: "2026-08-01",
+    publishedAt: "2026-09-01",
     readingTime: "9 min read",
     category: "Guides",
     tags: ["comparison", "AI design", "tools", "RoomGPT", "Planner 5D"],
     featuredImage: "/og-image.jpg",
-    metaDescription: "Compare the best AI interior design tools of 2026 — Interior of AI, RoomGPT, Planner 5D and Canva AI — on free plans, photorealism, speed and what each is best for."
-  }
+    metaDescription: "Compare the best AI interior design tools of 2026 — Interior of AI, RoomGPT, Planner 5D and Canva AI — on free plans, photorealism, speed and what each is best for.",
+  },
+  {
+    slug: "small-space-design-ideas-2026",
+    title: "Small Space Design Ideas: How to Make Every Inch Count",
+    excerpt: "Design strategies for apartments, condos and compact homes. Learn how AI interior design helps you maximize light, flow and functionality in small spaces.",
+    content: `
+## Designing for small spaces: a complete guide
+
+Small spaces are not a limitation — they are a different design challenge. When every square foot matters, thoughtful design becomes even more important. AI tools help you explore layouts, lighting and furniture arrangements that make compact spaces feel larger, brighter and more functional.
+
+## Why small spaces need careful planning
+
+### 1. Light is your most valuable resource
+In compact rooms, natural light can make or break the feel. Light colors, strategic mirrors and skylights or large windows help space feel open.
+
+### 2. Multi-functional is not optional
+Storage is a key design element. Every piece should earn its place — a sofa with hidden storage, a bed with drawers underneath, a dining table that doubles as a desk.
+
+### 3. Scale matters
+Small rooms suffer when furniture is too large. AI can generate scale references to help you see what works and what doesn't.
+
+## AI-powered small space ideas
+
+### 1. Open shelving everywhere
+Open shelves make rooms feel airy and organized. Use them for everyday items that complement your color palette.
+
+### 2. Vertical storage
+Wall-mounted cabinets and floating shelves draw the eye up and free up floor space.
+
+### 3. Light, reflective surfaces
+Mirrors, glass furniture and light paint all help reflect natural light and create the illusion of more space.
+
+### 4. Hybrid furniture
+Sofas that convert to desks, tables that fold away, and chairs that double as storage are essential in small spaces.
+
+## Try it with AI
+
+Upload a photo of your small space and let AI generate multiple layout options. You can see how different arrangements and furniture choices affect the look and feel.
+
+[Start Your Free Design →](/generate)
+    `,
+    author: "Interior of AI Team",
+    publishedAt: "2026-09-10",
+    readingTime: "11 min read",
+    category: "Guides",
+    tags: ["small space", "apartment design", "small home", "space saving", "interior design tips"],
+    featuredImage: "/og-image.jpg",
+    metaDescription: "Design strategies for apartments, condos and compact homes. Learn how AI interior design helps you maximize light, flow and functionality in small spaces.",
+  },
+  {
+    slug: "eco-friendly-interior-design",
+    title: "Eco-Friendly Interior Design: Sustainable Rooms for 2026",
+    excerpt: "Create beautiful, healthy spaces with sustainable materials, low-VOC finishes and smart design choices. AI helps you visualize eco-friendly designs.",
+    content: `
+## Sustainable design is beautiful design
+
+Eco-friendly interior design is not about compromise — it is about making intentional choices that benefit your health, your home and the planet. As awareness grows, sustainable interiors are becoming more desirable, more affordable and genuinely stunning.
+
+## What makes a room eco-friendly?
+
+### 1. Sustainable materials
+Bamboo, reclaimed wood, cork, recycled metal and natural stone are beautiful alternatives to virgin materials. They add texture, warmth and character.
+
+### 2. Low-VOC finishes
+Paint, flooring and furniture with low or no volatile organic compounds (VOCs) improve indoor air quality and are better for your health.
+
+### 3. Energy-efficient lighting and appliances
+LED lighting, smart thermostats and ENERGY STAR-rated appliances reduce energy use and lower bills.
+
+### 4. Second-hand and upcycled pieces
+Thrifted furniture, upcycled decor and vintage finds add character while keeping items out of landfills.
+
+## AI can help you visualize sustainable designs
+
+Our AI design tool can generate concepts using eco-friendly materials and layouts. Upload a photo of your room to see what sustainable design could look like.
+
+[Start Your Free Design →](/generate)
+    `,
+    author: "Interior of AI Team",
+    publishedAt: "2026-09-15",
+    readingTime: "8 min read",
+    category: "Sustainability",
+    tags: ["eco-friendly", "sustainable design", "green home", "interior design trends", "sustainable materials"],
+    featuredImage: "/og-image.jpg",
+    metaDescription: "Create beautiful, healthy spaces with sustainable materials, low-VOC finishes and smart design choices. AI helps you visualize eco-friendly designs.",
+  },
+  {
+    slug: "color-palette-tips-for-interior-design",
+    title: "Color Palette Tips: How to Choose Colors That Work",
+    excerpt: "Learn the art of color selection for interior design. Discover how to create harmonious palettes, balance bold tones with neutrals, and use AI to test color combinations.",
+    content: `
+## The color palette that makes or breaks a room
+
+Color is the single most powerful design tool in your arsenal. It sets the mood, changes the perceived size of a room, and communicates your style. But picking the right palette can feel overwhelming.
+
+## The 60-30-10 rule
+
+This classic design principle divides your space into three color zones:
+
+- **60%** — Dominant color (walls, large furniture)
+- **30%** — Secondary color ( upholstery, curtains, rugs)
+- **10%** — Accent color (decor, art, pillows)
+
+This ratio creates visual balance and prevents the room from feeling too overwhelming.
+
+## How to test color combinations with AI
+
+The fastest way to see if a palette works is to try it before committing. Upload a photo of your room and let AI apply different color palettes. You'll see instantly what works and what doesn't — without paint or furniture.
+
+## Color psychology for interiors
+
+- **Warm colors** (red, orange, yellow) — energizing, cozy, great for kitchens and dining
+- **Cool colors** (blue, green, purple) — calming, relaxing, ideal for bedrooms and bathrooms
+- **Neutrals** (beige, gray, white) — versatile, timeless, allow easy accent changes
+
+## Try AI color palettes for your room
+
+Need inspiration? Upload a photo and see how different color combinations transform your space.
+
+[Start Your Free Design →](/generate)
+    `,
+    author: "Interior of AI Team",
+    publishedAt: "2026-09-20",
+    readingTime: "7 min read",
+    category: "Inspiration",
+    tags: ["color theory", "color palette", "interior design tips", "color psychology", "AI design"],
+    featuredImage: "/og-image.jpg",
+    metaDescription: "Learn the art of color selection for interior design. Discover how to create harmonious palettes, balance bold tones with neutrals, and use AI to test color combinations.",
+  },
+  {
+    slug: "lighting-design-tips-for-every-room",
+    title: "Lighting Design Tips: How to Light Every Room",
+    excerpt: "Great lighting transforms a room. Learn about ambient, task and accent lighting, plus how to use AI to preview lighting changes in your space.",
+    content: `
+## Lighting is the silent designer
+
+The right lighting can make a room feel warm, cozy, dramatic, or airy. The wrong lighting can make even the best design look flat. Understanding the three types of lighting — ambient, task and accent — is the key to professional results.
+
+## The three layers of lighting
+
+### 1. Ambient lighting (the base)
+General illumination that fills a room. Examples: ceiling fixtures, recessed lighting, floor lamps. This is your room's foundation.
+
+### 2. Task lighting (the functional)
+Focused light for specific activities: reading lamps, under-cabinet kitchen lights, vanity lights in bathrooms, desk lamps.
+
+### 3. Accent lighting (the drama)
+Light directed at specific features: artwork, plants, architectural details, or decorative objects. Creates depth and visual interest.
+
+## How to layer your lighting
+
+- **Turn off the main lights** and see how your room looks with just task lighting — what feels dark? What feels good?
+- **Use warm light (2700K)** for living spaces and bedrooms to create a relaxing atmosphere
+- **Use cool light (4000K+)** for kitchens, bathrooms and workspaces where clarity matters
+- **Don't forget the "third light"** — a pendant over a dining table, a floor lamp in the corner, decorative lights in alcoves
+
+## Try AI lighting design
+
+Upload a room photo and see how different lighting approaches change the mood. You'll instantly understand how light and shadow affect the space.
+
+[Start Your Free Design →](/generate)
+    `,
+    author: "Interior of AI Team",
+    publishedAt: "2026-09-25",
+    readingTime: "9 min read",
+    category: "Guides",
+    tags: ["lighting", "interior design tips", "room lighting", "ambient lighting", "AI design"],
+    featuredImage: "/og-image.jpg",
+    metaDescription: "Great lighting transforms a room. Learn about ambient, task and accent lighting, plus how to use AI to preview lighting changes in your space.",
+  },
 ];
 
-export const getBlogPost = (slug: string): BlogPost | undefined => {
-  return blogPosts.find(post => post.slug === slug);
+export const getNewSEOPost = (slug: string): BlogPost | undefined => {
+  return newSEOPosts.find(post => post.slug === slug);
 };
 
-export const getRecentPosts = (count: number = 3): BlogPost[] => {
-  return blogPosts.slice(0, count);
+export const getAllNewSEOPosts = (): BlogPost[] => {
+  return newSEOPosts;
 };
 
-export const getPostsByCategory = (category: string): BlogPost[] => {
-  return blogPosts.filter(post => post.category === category);
+export const getNewSEOPostsByCategory = (category: string): BlogPost[] => {
+  return newSEOPosts.filter(post => post.category === category);
 };
 
-export const getPostsByTag = (tag: string): BlogPost[] => {
-  return blogPosts.filter(post => post.tags.includes(tag));
+export const getAllNewSEOPostsByTags = (tag: string): BlogPost[] => {
+  return newSEOPosts.filter(post => post.tags.includes(tag));
 };
 
-export const getAllCategories = (): string[] => {
-  return [...new Set(blogPosts.map(post => post.category))];
+export const getAllNewSEOCategories = (): string[] => {
+  return [...new Set(newSEOPosts.map(post => post.category))];
 };
 
-export const getAllTags = (): string[] => {
-  return [...new Set(blogPosts.flatMap(post => post.tags))];
+export const getAllNewSEOTags = (): string[] => {
+  return [...new Set(newSEOPosts.flatMap(post => post.tags))];
 };
