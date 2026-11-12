@@ -78,6 +78,7 @@ const App = () => (
                     <Route path="/cookies" element={<CookiePolicy />} />
                     <Route path="/refund" element={<RefundPolicy />} />
                     <Route path="/coohom-interior-design" element={<CoohomLandingPage />} />
+                    <Route path="/room/:slug" element={<RoomCategoryPage />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </Suspense>
