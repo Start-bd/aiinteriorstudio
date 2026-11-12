@@ -19,7 +19,7 @@ const AboutPreviewSection = () => {
               <p className="text-lg text-muted-foreground leading-relaxed mb-4">
                 Interior of AI, a product of <span className="text-foreground font-medium">AvailableView LLC</span>, 
                 combines advanced machine learning with design expertise to deliver instant, photorealistic room makeovers. 
-                We've helped over 150,000 users transform 2.5M+ rooms using cutting-edge AI technology.
+                We've helped over <span className="text-white/80 font-medium">verified users</span> transform <span className="text-white/80 font-medium">2.5M+ rooms</span> using cutting-edge AI technology.
               </p>
               <p className="text-lg text-muted-foreground leading-relaxed mb-8">
                 With a community of <span className="text-foreground font-medium">431K+ followers on Instagram</span> and 

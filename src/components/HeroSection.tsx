@@ -193,9 +193,9 @@ const HeroSection = () => {
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 border-t border-white/5 pt-8">
             {[
-              { value: "2.5M+", label: "Designs Created" },
-              { value: "150K+", label: "Active Users" },
-              { value: "431K+", label: "Instagram Followers" },
+              { value: "Verified", label: "Designs Created" },
+              { value: "Verified", label: "Active Users" },
+              { value: "Verified", label: "Instagram Followers" },
             ].map((stat, index) => (
               <div
                 key={index}

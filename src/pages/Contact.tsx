@@ -200,7 +200,7 @@ const Contact = () => {
                   <h3 className="font-semibold text-foreground mb-4">Our Global Reach</h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <p className="text-2xl font-bold text-primary">150K+</p>
+                      <p className="text-2xl font-bold text-primary">Verified</p>
                       <p className="text-sm text-muted-foreground">Users worldwide</p>
                     </div>
                     <div>
@@ -208,11 +208,11 @@ const Contact = () => {
                       <p className="text-sm text-muted-foreground">Countries served</p>
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-primary">2.5M+</p>
+                      <p className="text-2xl font-bold text-primary">Verified</p>
                       <p className="text-sm text-muted-foreground">Rooms transformed</p>
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-primary">431K+</p>
+                      <p className="text-2xl font-bold text-primary">Verified</p>
                       <p className="text-sm text-muted-foreground">Instagram followers</p>
                     </div>
                   </div>

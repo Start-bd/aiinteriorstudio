@@ -89,7 +89,34 @@ const PrivacyPolicy = () => {
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold mb-4">6. Your Rights Under CCPA</h2>
+              <h2 className="text-2xl font-semibold mb-4">6. Analytics and Cookie Consent</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                We use analytics tools to understand how visitors interact with our platform. This data helps us improve the user experience and measure marketing performance.
+              </p>
+              <ul className="list-disc pl-6 text-muted-foreground space-y-2">
+                <li><strong>Analytics:</strong> We may collect anonymized usage data (pages visited, features used, time spent). This data does not include your uploaded room photos.</li>
+                <li><strong>Cookies:</strong> Essential cookies keep the site running. Optional cookies are used for analytics and marketing. You can manage preferences at any time through the cookie consent banner.</li>
+                <li><strong>Affiliate Tracking:</strong> We use third-party advertising networks for affiliate tracking. We only use approved partner links (e.g., MaxBounty). Your affiliate clicks are tracked through approved partner links only.</li>
+                <li><strong>Consent:</strong> By using this site, you consent to the use of analytics and cookies. You may withdraw consent at any time via your account settings or the cookie consent banner.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-semibold mb-4">8. Uploaded Room Photos: Storage and Processing</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                When you upload room photos to our AI generator, your images are processed as follows:
+              </p>
+              <ul className="list-disc pl-6 text-muted-foreground space-y-2">
+                <li><strong>Collection:</strong> We receive the images you upload for AI room visualization.</li>
+                <li><strong>Processing:</strong> Your photos are processed temporarily by our AI model to generate design concepts. Photos are automatically deleted from our servers after processing is complete.</li>
+                <li><strong>Retention:</strong> We do not store or permanently retain your uploaded room photos unless you explicitly choose to save them to your account library.</li>
+                <li><strong>Sharing:</strong> Your uploaded photos are not shared with third parties. They are processed solely to provide the AI design service you request.</li>
+                <li><strong>Your Rights:</strong> You may delete your account and all associated data, including uploaded photos, at any time via your account settings or by contacting us at privacy@interiorofai.com.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-semibold mb-4">9. Your Rights Under CCPA</h2>
               <p className="text-muted-foreground mb-4">If you are a California resident, you have the right to:</p>
               <ul className="list-disc pl-6 text-muted-foreground space-y-2">
                 <li><strong>Know:</strong> What personal information we collect, use, and disclose</li>
@@ -98,7 +125,7 @@ const PrivacyPolicy = () => {
                 <li><strong>Non-Discrimination:</strong> Not be discriminated against for exercising your rights</li>
               </ul>
               <p className="text-muted-foreground mt-4">
-                To submit a CCPA request, email us at privacy@interiorofai.com or call (307) 555-0100.
+                To submit a CCPA request, email us at privacy@interiorofai.com or call (307) 555-0100 [PENDING VERIFICATION].
               </p>
             </section>
 

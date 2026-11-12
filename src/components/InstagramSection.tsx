@@ -85,7 +85,7 @@ const InstagramSection = () => {
             <span className="text-sm font-medium">@interiorofai</span>
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold mb-4">
-            Join <span className="text-gradient-gold">431K Followers</span> on Instagram
+            Join <span className="text-gradient-gold">Verified Followers</span> on Instagram
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             See daily design inspiration and real user transformations

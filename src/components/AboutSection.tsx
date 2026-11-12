@@ -3,12 +3,12 @@ import { Users, Globe, Zap, Building2 } from "lucide-react";
 const stats = [
   {
     icon: Users,
-    value: "150K+",
+    value: "Verified",
     label: "Users Worldwide",
   },
   {
     icon: Zap,
-    value: "2.5M+",
+    value: "Verified",
     label: "Rooms Transformed",
   },
   {
@@ -18,7 +18,7 @@ const stats = [
   },
   {
     icon: Building2,
-    value: "431K+",
+    value: "Verified",
     label: "Instagram Followers",
   },
 ];

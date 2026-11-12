@@ -65,20 +65,29 @@ const TestimonialsSection = () => {
   const { ref: sectionRef, isVisible } = useScrollAnimation();
 
   return (
-    <section ref={sectionRef} className="py-20 bg-gradient-to-b from-background to-charcoal relative overflow-hidden">
+    <section ref={sectionRef} className="py-20 sm:py-28 bg-[#0a0a0a] relative overflow-hidden">
       {/* Background decoration */}
-      <div className="absolute top-1/4 -left-32 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-1/4 -right-32 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
+      <div className="absolute top-1/4 -left-32 w-64 h-64 bg-gold/3 rounded-full blur-3xl" />
+      <div className="absolute bottom-1/4 -right-32 w-64 h-64 bg-gold/3 rounded-full blur-3xl" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-[hsl(25,10%,6%)] to-background" />
 
       <div className="container mx-auto px-6 relative z-10">
         {/* Section Header */}
         <div className={`text-center mb-16 ${getAnimationClasses(isVisible)}`}>
-          <span className="text-primary uppercase tracking-widest text-sm font-medium">Testimonials</span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold mt-4 mb-4">
-            Loved by <span className="text-gradient-gold">150,000+</span> Users
+          <span className="text-gold uppercase tracking-[0.2em] text-xs sm:text-sm font-medium">
+            Testimonials
+          </span>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold mt-4 mb-4 text-white">
+            Loved by <span className="text-gradient-gold">users worldwide</span>
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-white/40 text-lg max-w-2xl mx-auto">
             See what homeowners, designers, and professionals are saying about their experience.
+          </p>
+          <p className="text-xs text-white/30 mt-2">
+            <span className="inline-flex items-center gap-1.5">
+              <Star className="w-3 h-3 text-gold/60" />
+              Verified data pending — real numbers from GA4 and Instagram insights will replace placeholders.
+            </span>
           </p>
         </div>
 
@@ -87,33 +96,35 @@ const TestimonialsSection = () => {
           {testimonials.map((testimonial, index) => (
             <div
               key={index}
-              className={`glass-card rounded-2xl p-6 hover-lift relative ${getAnimationClasses(isVisible)}`}
-              style={{ transitionDelay: isVisible ? `${index * 100}ms` : '0ms' }}
+              className="bg-[#141414] border border-white/5 rounded-xl p-6 hover:border-white/10 transition-all duration-500 hover:shadow-gold"
+              style={{ transitionDelay: isVisible ? `${index * 100}ms` : "0ms" }}
             >
               {/* Quote icon */}
-              <Quote className="absolute top-4 right-4 w-8 h-8 text-primary/20" />
+              <Quote className="absolute top-4 right-4 w-6 h-6 text-gold/10" />
 
               {/* Stars */}
-              <div className="flex gap-1 mb-4">
+              <div className="flex gap-0.5 mb-4">
                 {[...Array(testimonial.rating)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-primary text-primary" />
+                  <Star key={i} className="w-4 h-4 fill-gold text-gold" />
                 ))}
               </div>
 
               {/* Quote */}
-              <p className="text-foreground mb-6 leading-relaxed">"{testimonial.quote}"</p>
+              <p className="text-white/80 mb-6 leading-relaxed text-sm sm:text-base">
+                "{testimonial.quote}"
+              </p>
 
               {/* Author */}
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 <img
                   src={testimonial.avatar}
                   alt={testimonial.name}
-                  className="w-12 h-12 rounded-full object-cover border-2 border-primary/20"
+                  className="w-10 h-10 rounded-full object-cover border-2 border-white/10"
                   loading="lazy"
                 />
-                <div>
-                  <div className="font-semibold text-foreground">{testimonial.name}</div>
-                  <div className="text-sm text-muted-foreground">
+                <div className="min-w-0">
+                  <div className="font-semibold text-white text-sm">{testimonial.name}</div>
+                  <div className="text-xs text-white/40 truncate">
                     {testimonial.role} • {testimonial.location}
                   </div>
                 </div>
@@ -123,19 +134,17 @@ const TestimonialsSection = () => {
         </div>
 
         {/* Bottom stats */}
-        <div className={`flex flex-wrap justify-center gap-8 mt-12 pt-8 border-t border-border ${getAnimationClasses(isVisible)}`} style={{ transitionDelay: isVisible ? '600ms' : '0ms' }}>
-          <div className="text-center">
-            <div className="text-2xl md:text-3xl font-display font-bold text-gradient-gold">4.9/5</div>
-            <div className="text-sm text-muted-foreground">Average Rating</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl md:text-3xl font-display font-bold text-gradient-gold">12,847</div>
-            <div className="text-sm text-muted-foreground">Reviews</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl md:text-3xl font-display font-bold text-gradient-gold">98%</div>
-            <div className="text-sm text-muted-foreground">Satisfaction Rate</div>
-          </div>
+        <div className={`flex flex-wrap justify-center gap-8 mt-12 pt-8 border-t border-white/5 ${getAnimationClasses(isVisible)}`} style={{ transitionDelay: isVisible ? "600ms" : "0ms" }}>
+          {[
+            { value: "Verified", label: "Average Rating" },
+            { value: "Verified", label: "Reviews" },
+            { value: "Verified", label: "Satisfaction Rate" },
+          ].map((stat, index) => (
+            <div key={index} className="text-center">
+              <div className="stat-number text-gold">{stat.value}</div>
+              <div className="text-sm text-white/40">{stat.label}</div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
