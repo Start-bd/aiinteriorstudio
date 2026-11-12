@@ -77,6 +77,7 @@ const App = () => (
                     <Route path="/privacy" element={<PrivacyPolicy />} />
                     <Route path="/cookies" element={<CookiePolicy />} />
                     <Route path="/refund" element={<RefundPolicy />} />
+                    <Route path="/coohom-interior-design" element={<CoohomLandingPage />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </Suspense>
