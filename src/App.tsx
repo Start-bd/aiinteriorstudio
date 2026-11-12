@@ -8,7 +8,8 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { I18nProvider } from "@/lib/i18n";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import CookieConsent from "@/components/CookieConsent";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
+import { initGA4 } from "@/lib/ga4";
 
 // Critical routes loaded eagerly
 import Index from "./pages/Index";
@@ -40,6 +41,11 @@ const LazyFallback = () => (
     <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
   </div>
 );
+
+// Initialize GA4 on mount (script will load asynchronously)
+useEffect(() => {
+  initGA4();
+}, []);
 
 const App = () => (
   <ErrorBoundary>
