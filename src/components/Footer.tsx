@@ -116,83 +116,129 @@ const Footer = () => {
   };
 
   return (
-    <footer className="py-16 bg-charcoal border-t border-border">
-      <div className="container mx-auto px-6">
-        {/* Main Footer Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12 mb-12">
-          {/* Column 1: Brand */}
-          <div className="space-y-5">
-            <h3 className="text-2xl font-display font-bold">
-              Interior <span className="text-gradient-gold">of AI</span>
-            </h3>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              AI-powered interior design tool for homeowners, designers, and agencies. Generate professional room makeovers in seconds.
-            </p>
-            <div className="flex gap-3">
-              {socialLinks.map((social, index) => {
-                const IconComponent = social.icon;
-                return (
-                  <a
-                    key={index}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-all duration-300"
-                    aria-label={social.label}
-                  >
-                    <IconComponent className="w-5 h-5" />
-                  </a>
-                );
-              })}
+    <footer className="relative min-h-screen bg-[#050505] border-t border-white/5 text-white/60">
+      <div className="container mx-auto px-6 pt-16 pb-8">
+        {/* Brand bar */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-8 border-b border-white/5 mb-8">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-gold/10 border border-gold/20 flex items-center justify-center">
+              <Heart className="w-5 h-5 text-gold" />
             </div>
+            <div>
+              <h3 className="text-lg font-display font-bold text-white">
+                Interior <span className="text-gradient-gold">of AI</span>
+              </h3>
+              <p className="text-xs text-white/40 mt-0.5">
+                AI interior design &amp; 3D décor inspiration
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-4">
+            {socialLinks.map((social, index) => {
+              const IconComponent = social.icon;
+              return (
+                <a
+                  key={index}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-gold/20 hover:border-gold/30 transition-all duration-300"
+                  aria-label={social.label}
+                >
+                  <IconComponent className="w-5 h-5 text-white/70" />
+                </a>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Main Footer Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12 mb-10">
+          {/* Column 1: Brand */}
+          <div className="space-y-4">
+            <h4 className="text-sm uppercase tracking-widest text-white/40 font-semibold">
+              Brand
+            </h4>
+            <p className="text-sm text-white/50 leading-relaxed max-w-md">
+              AI-powered interior design platform helping homeowners, Interior Designers, and agencies visualize spaces with AI-generated renderings and 3D décor recommendations.
+            </p>
           </div>
 
           {/* Column 2: Product */}
           <div>
-            <h4 className="text-sm uppercase tracking-widest text-foreground font-semibold mb-5">
+            <h4 className="text-sm uppercase tracking-widest text-white/40 font-semibold mb-5">
               Product
             </h4>
             <ul className="space-y-3">
-              {productLinks.map((link, index) => renderLink(link, index))}
+              {productLinks.map((link, index) => (
+                <li key={index}>
+                  <a
+                    href={link.href}
+                    className="text-sm text-white/50 hover:text-gold transition-colors duration-300"
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
 
           {/* Column 3: Resources */}
           <div>
-            <h4 className="text-sm uppercase tracking-widest text-foreground font-semibold mb-5">
+            <h4 className="text-sm uppercase tracking-widest text-white/40 font-semibold mb-5">
               Resources
             </h4>
             <ul className="space-y-3">
-              {resourceLinks.map((link, index) => renderLink(link, index))}
+              {resourceLinks.map((link, index) => (
+                <li key={index}>
+                  <a
+                    href={link.href}
+                    className="text-sm text-white/50 hover:text-gold transition-colors duration-300"
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
 
           {/* Column 4: Company */}
           <div>
-            <h4 className="text-sm uppercase tracking-widest text-foreground font-semibold mb-5">
+            <h4 className="text-sm uppercase tracking-widest text-white/40 font-semibold mb-5">
               Company
             </h4>
             <ul className="space-y-3">
-              {companyLinks.map((link, index) => renderLink(link, index))}
+              {companyLinks.map((link, index) => (
+                <li key={index}>
+                  <a
+                    href={link.href}
+                    className="text-sm text-white/50 hover:text-gold transition-colors duration-300"
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-border space-y-4">
-          <div className="text-center text-sm text-muted-foreground">
-            <p className="font-medium text-foreground mb-1">AvailableView LLC</p>
-            <p>30 N Gould St STE R, Sheridan, WY 82801, USA</p>
+        <div className="pt-8 border-t border-white/5 space-y-4">
+          <div className="text-center text-sm text-white/40">
+            <p className="text-white/60 font-medium">AvailableView LLC</p>
+            <p className="text-white/40">30 N Gould St STE R, Sheridan, WY 82801, USA</p>
             <p className="mt-2">
-              <a href="mailto:hello@interiorofai.com" className="hover:text-primary transition-colors">hello@interiorofai.com</a>
+              <a href="mailto:hello@interiorofai.com" className="text-white/60 hover:text-gold transition-colors">
+                hello@interiorofai.com
+              </a>
               {" · "}
-              <a href="mailto:support@interiorofai.com" className="hover:text-primary transition-colors">support@interiorofai.com</a>
+              <a href="mailto:support@interiorofai.com" className="text-white/60 hover:text-gold transition-colors">
+                support@interiorofai.com
+              </a>
             </p>
           </div>
-          <p className="text-sm text-muted-foreground text-center">
-            © 2022-2026 AvailableView LLC. All rights reserved. Interior of AI is a registered trademark of AvailableView LLC. | Made with{" "}
-            <Heart className="inline-block w-4 h-4 text-red-500 fill-red-500 mx-1" />
-            for designers and dreamers.
+          <p className="text-xs text-white/30 text-center">
+            © 2022-2026 AvailableView LLC. All rights reserved. Interior of AI is a registered trademark of AvailableView LLC. | Made with care for designers and dreamers.
           </p>
         </div>
       </div>
