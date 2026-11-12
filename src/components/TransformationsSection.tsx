@@ -122,25 +122,31 @@ const TransformationsSection = () => {
   }, [api]);
 
   return (
-    <section ref={sectionRef} className="py-24 bg-muted/30 relative overflow-hidden">
-      <div className="container mx-auto px-6">
+    <section ref={sectionRef} className="py-16 sm:py-24 bg-[#0a0a0a] relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute top-1/4 left-1/3 w-72 h-72 bg-gold/3 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/3 w-72 h-72 bg-gold/3 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-[hsl(25,10%,6%)] to-background" />
+
+      <div className="container mx-auto px-6 relative z-10">
         {/* Section Header */}
-        <div className={`text-center mb-16 ${getAnimationClasses(isVisible)}`}>
-          <span className="text-primary uppercase tracking-widest text-sm font-medium">
+        <div className={`text-center mb-10 sm:mb-14 ${getAnimationClasses(isVisible)}`}>
+          <span className="text-gold uppercase tracking-[0.2em] text-xs sm:text-sm font-medium">
             Transformations
           </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold mt-4 mb-6">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold mt-3 mb-4 text-white">
             Real Transformations by <span className="text-gradient-gold">Our Users</span>
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            See what's possible with Interior of AI
+          <p className="text-white/40 text-lg max-w-2xl mx-auto">
+            See what's possible with Interior of AI — before and after, in your style.
           </p>
         </div>
 
         {/* Carousel */}
-        <div 
-          className={`max-w-5xl mx-auto mb-8 ${getAnimationClasses(isVisible)}`}
-          style={{ transitionDelay: isVisible ? '200ms' : '0ms' }}
+        <div
+          className={`max-w-6xl mx-auto mb-8 rounded-2xl overflow-hidden ${getAnimationClasses(isVisible)}`
+          }
+          style={{ transitionDelay: isVisible ? "200ms" : "0ms" }}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
@@ -156,7 +162,7 @@ const TransformationsSection = () => {
               {transformations.map((transformation, index) => (
                 <CarouselItem key={index} className="pl-4 md:basis-1/2 lg:basis-1/2">
                   <div className="p-1">
-                    <div className="relative rounded-xl overflow-hidden shadow-xl">
+                    <div className="relative rounded-xl overflow-hidden shadow-gold">
                       <BeforeAfterSlider
                         beforeImage={transformation.before}
                         afterImage={transformation.after}
@@ -165,10 +171,10 @@ const TransformationsSection = () => {
                       />
                       {/* Labels */}
                       <div className="absolute bottom-12 left-3 right-3 flex justify-between items-center pointer-events-none">
-                        <span className="bg-background/90 backdrop-blur-sm text-foreground text-xs font-medium px-3 py-1.5 rounded-full">
+                        <span className="bg-[#141414] border border-white/10 backdrop-blur-sm text-white/80 text-xs font-medium px-3.5 py-1.5 rounded-full">
                           {transformation.roomType}
                         </span>
-                        <span className="bg-primary/90 backdrop-blur-sm text-primary-foreground text-xs font-medium px-3 py-1.5 rounded-full">
+                        <span className="bg-gold/20 backdrop-blur-sm text-gold text-xs font-medium px-3.5 py-1.5 rounded-full">
                           {transformation.style}
                         </span>
                       </div>
@@ -177,8 +183,8 @@ const TransformationsSection = () => {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="hidden md:flex -left-12 bg-background/80 backdrop-blur-sm border-border hover:bg-background" />
-            <CarouselNext className="hidden md:flex -right-12 bg-background/80 backdrop-blur-sm border-border hover:bg-background" />
+            <CarouselPrevious className="hidden md:flex -left-12 bg-[#141414]/90 backdrop-blur-sm border-white/10 hover:bg-[#141414] text-white/80" />
+            <CarouselNext className="hidden md:flex -right-12 bg-[#141414]/90 backdrop-blur-sm border-white/10 hover:bg-[#141414] text-white/80" />
           </Carousel>
 
           {/* Progress Indicators */}
@@ -189,13 +195,13 @@ const TransformationsSection = () => {
                 onClick={() => scrollTo(index)}
                 className={cn(
                   "relative h-1.5 rounded-full overflow-hidden transition-all duration-300",
-                  index === current ? "w-8 bg-muted" : "w-1.5 bg-muted hover:bg-muted-foreground/30"
+                  index === current ? "w-10 bg-gold" : "w-1.5 bg-white/30 hover:bg-white/50"
                 )}
                 aria-label={`Go to slide ${index + 1}`}
               >
                 {index === current && (
                   <div
-                    className="absolute inset-y-0 left-0 bg-primary rounded-full transition-all duration-50"
+                    className="absolute inset-y-0 left-0 bg-gold-dark rounded-full transition-all duration-50"
                     style={{ width: `${progress}%` }}
                   />
                 )}
@@ -203,16 +209,9 @@ const TransformationsSection = () => {
             ))}
           </div>
 
-          {/* Pause indicator */}
-          {isPaused && (
-            <div className="flex justify-center mt-3">
-              <span className="text-xs text-muted-foreground">Paused</span>
-            </div>
-          )}
-
           {/* Mobile Navigation Hint */}
           <div className="flex justify-center mt-4 md:hidden">
-            <div className="flex items-center gap-2 text-muted-foreground text-sm">
+            <div className="flex items-center gap-2 text-white/40 text-sm">
               <ChevronLeft className="w-4 h-4" />
               <span>Swipe to explore</span>
               <ChevronRight className="w-4 h-4" />
@@ -223,9 +222,13 @@ const TransformationsSection = () => {
         {/* CTA Button */}
         <div className="text-center">
           <Link to="/gallery">
-            <Button variant="outline" size="lg" className="text-lg px-8 py-6 font-semibold group border-primary/50 hover:border-primary hover:bg-primary/10">
+            <Button
+              variant="gold"
+              size="lg"
+              className="text-lg px-8 py-5 font-semibold"
+            >
               See More Examples
-              <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+              <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </Link>
         </div>
