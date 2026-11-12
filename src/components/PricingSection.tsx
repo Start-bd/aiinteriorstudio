@@ -1,69 +1,41 @@
-import { ArrowRight, Check, Sparkles, Crown, Building2 } from "lucide-react";
+import { ArrowRight, Check, Sparkles, Zap, Crown, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useScrollAnimation, getAnimationClasses } from "@/hooks/useScrollAnimation";
+import { PRICING_TIERS, formatCurrency } from "@/lib/pricing";
 
-const pricingPlans = [
-  {
-    name: "Free",
-    price: "$0",
-    period: "/ month",
-    description: "Perfect for trying out",
-    icon: Sparkles,
-    features: [
-      "10 designs per month",
-      "Standard quality",
-      "Watermarked images",
-      "8+ design styles",
-      "Community support",
-    ],
-    cta: "Start Free",
-    ctaVariant: "outline" as const,
-    popular: false,
-    href: "/auth",
-  },
-  {
-    name: "Pro",
-    price: "$19",
-    period: "/ month",
-    description: "For serious designers",
-    icon: Crown,
-    features: [
-      "100 designs per month",
-      "HD quality downloads",
-      "No watermarks",
-      "Commercial use rights",
-      "Priority processing",
-      "AI design assistant",
-      "Email support",
-    ],
-    cta: "Upgrade to Pro",
-    ctaVariant: "default" as const,
-    popular: true,
-    href: "/pricing",
-  },
-  {
-    name: "Enterprise",
-    price: "Custom",
-    period: "",
-    description: "For teams & agencies",
-    icon: Building2,
-    features: [
-      "Unlimited designs",
-      "API access",
-      "White-label option",
-      "Dedicated support",
-      "Custom integrations",
-    ],
-    cta: "Contact Sales",
-    ctaVariant: "outline" as const,
-    popular: false,
-    href: "/pricing",
-  },
-];
+// Map tier IDs to their icons
+const tierIcons: Record<string, typeof Sparkles> = {
+  free: Sparkles,
+  basic: Zap,
+  pro: Crown,
+  business: Building2,
+};
+
+// Build a consistent card structure from the centralized pricing config
+const pricingPlans = PRICING_TIERS.map((tier) => {
+  const isUnlimited = tier.credits === -1;
+  return {
+    name: tier.displayName,
+    price: isUnlimited
+      ? "Unlimited"
+      : formatCurrency(tier.price.usd, "USD"),
+    period: isUnlimited ? "" : "/ month",
+    description:
+      tier.id === "free"
+        ? "Perfect for trying out"
+        : tier.id === "basic"
+        ? "For serious designers"
+        : "For teams & agencies",
+    icon: tierIcons[tier.id],
+    features: tier.features,
+    popular: tier.popular || false,
+    href: tier.id === "free" ? "/auth" : "/pricing",
+    cta: tier.id === "free" ? "Start Free" : "Upgrade",
+  };
+});
 
 const PricingSection = () => {
   const { ref: sectionRef, isVisible } = useScrollAnimation();
@@ -87,8 +59,8 @@ const PricingSection = () => {
           </p>
         </div>
 
-        {/* Pricing Cards - Stack vertically on mobile, Popular badge visible */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 max-w-6xl mx-auto mb-10 sm:mb-12">
+        {/* Pricing Cards - now driven by PRICING_TIERS, 4 columns on desktop */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 max-w-6xl mx-auto mb-10 sm:mb-12">
           {pricingPlans.map((plan, index) => (
             <Card
               key={plan.name}
@@ -138,7 +110,7 @@ const PricingSection = () => {
 
                 <Link to={plan.href} className="block">
                   <Button
-                    variant={plan.ctaVariant}
+                    variant={plan.popular ? "default" : "outline"}
                     className={cn(
                       "w-full font-semibold min-h-[44px] sm:min-h-[40px]",
                       plan.popular && "bg-primary hover:bg-primary/90 text-primary-foreground"
